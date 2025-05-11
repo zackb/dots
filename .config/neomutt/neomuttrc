@@ -1,0 +1,83 @@
+set realname = "Zack Bartel"
+set from = "zack@bartel.com"
+set use_from = yes
+set envelope_from = yes
+
+# Editor
+set editor = "vim"
+
+# IMAP
+set folder = imaps://imap.gmail.com/
+set spoolfile = imaps://imap.gmail.com/INBOX
+set postponed = imaps://imap.gmail.com/[Gmail]/Drafts
+set imap_user = "zack@bartel.com"
+set imap_pass = `~/bin/get-net-creds.sh imap.gmail.com password`
+set imap_authenticators = "login"
+
+# Caching
+set header_cache = "~/.cache/neomutt/headers"
+set message_cachedir = "~/.cache/neomutt/bodies"
+set certificate_file = "~/.cache/neomutt/certificates"
+set imap_keepalive = 900
+
+# SMTP via netrc (no password in config)
+set smtp_url = "smtps://zack@bartel.com@smtp.gmail.com:465"
+set smtp_pass = `~/bin/get-net-creds.sh smtp.gmail.com password`
+set smtp_authenticators = "login"
+
+# Don't move read mail by default
+set move = no
+
+# Sidebar (NeoMutt-only)
+set sidebar_visible = yes
+set sidebar_width = 30
+set sidebar_short_path = yes
+bind index <Tab> sidebar-next
+bind index <Backspace> sidebar-prev
+
+# Threads
+set sort = threads
+set sort_aux = last-date-received
+
+# Vim-style keybindings
+bind index j next-entry
+bind index k previous-entry
+bind index J next-thread
+bind index K previous-thread
+bind index / search
+bind index ? search-reverse
+bind index n search-next
+bind index N search-opposite
+bind index g noop
+bind index gg first-entry
+bind index G last-entry
+bind index <Ctrl-f> half-down
+bind index <Ctrl-b> half-up
+bind index l collapse-thread
+bind index z collapse-all
+bind index r reply
+bind index a group-reply
+bind index L list-reply
+bind index h limit
+bind index <Ctrl-h> help
+
+bind pager j next-line
+bind pager k previous-line
+bind pager <down> next-line
+bind pager <up> previous-line
+bind pager / search
+bind pager ? search-reverse
+bind pager n search-next
+bind pager N search-opposite
+bind pager G bottom
+bind pager <Ctrl-f> half-down
+bind pager <Ctrl-b> half-up
+bind pager r reply
+bind pager a group-reply
+bind pager l list-reply
+bind pager L list-reply
+bind pager <Ctrl-h> help
+
+# Startup behavior
+push <collapse-all><last-entry>
+
