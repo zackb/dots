@@ -108,6 +108,14 @@ button:hover {
     color: @green;
     border-bottom: 2px solid @green;
 }
+#cpu {
+    color: @red;
+    border-bottom: 2px solid @red;
+}
+#memory {
+    color: @teal;
+    border-bottom: 2px solid @teal;
+}
 
 /* If workspaces is the leftmost module, omit left margin */
 .modules-left>widget:first-child>#workspaces {
