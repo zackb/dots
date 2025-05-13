@@ -1,4 +1,5 @@
 syntax on
+let mapleader=" "
 set tabstop=4
 set number
 set expandtab
@@ -10,8 +11,10 @@ set wildmenu
 set ruler
 highlight Normal guibg=white
 
+noremap <leader>fr :browse oldfiles<cr>
+
 "color icansee
-" color desert
+color desert
 
 "Reselect visual block after indent/outdent
 "vnoremap < <gv
@@ -19,3 +22,5 @@ highlight Normal guibg=white
 
 "Use jk as <Esc> alternative
 inoremap jk <Esc>
+
+set mmp=5000
