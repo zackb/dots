@@ -3,11 +3,11 @@
         "modules-left": ["hyprland/workspaces"],
         "modules-center": ["hyprland/window"],
         "modules-right": [
-            "network", 
             "pulseaudio", 
-            "battery", 
             "cpu", 
             "memory", 
+            "network", 
+            "battery", 
             "clock", 
             "custom/power"
         ],
