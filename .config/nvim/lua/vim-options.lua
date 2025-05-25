@@ -19,7 +19,7 @@ vim.schedule(function()
   vim.o.clipboard = 'unnamedplus'
 end)
 
-vim.o.undofile = true
+vim.o.undofile = false
 
 vim.o.inccommand = 'split'
 vim.o.cursorline = true
