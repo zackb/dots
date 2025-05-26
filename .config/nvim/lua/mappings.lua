@@ -5,3 +5,7 @@ end, { desc = "Build and run C++ app" })
 vim.keymap.set("n", "<leader>fr", function()
     vim.cmd ":browse oldfiles"
 end, { desc = "Browse old files" })
+
+vim.keymap.set("n", "<leader>e", function()
+    vim.cmd ":Neotree reveal"
+end, { desc = "Reveal current file" })
