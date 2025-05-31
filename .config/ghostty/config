@@ -1,5 +1,4 @@
 theme = catppuccin-mocha
-font-size = 18
 font-family = MesloLGSDZ Nerd Font Mono
 cursor-style = block
 cursor-style-blink = false
