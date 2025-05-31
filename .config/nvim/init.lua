@@ -14,4 +14,5 @@ vim.opt.rtp:prepend(lazypath)
 vim.keymap.set("n", "*", "*", { noremap = true })
 require "vim-options"
 require "mappings"
+require "comments"
 require("lazy").setup "plugins"
