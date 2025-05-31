@@ -33,9 +33,9 @@ return {
         },
     },
 
-    -- Full git support
     {
         "tpope/vim-fugitive",
+        lazy = false,
         cmd = { "Git", "Gstatus", "Gdiffsplit", "Gcommit", "Gpush", "Gpull", "Gblame" },
         config = function()
             local map = vim.api.nvim_set_keymap
