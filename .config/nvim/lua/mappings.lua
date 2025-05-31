@@ -3,7 +3,7 @@ vim.keymap.set("n", "<leader>r", function()
 end, { desc = "Build and run C++ app" })
 
 vim.keymap.set("n", "<leader>fr", function()
-    vim.cmd ":browse oldfiles"
+    vim.cmd ":Telescope oldfiles"
 end, { desc = "Browse old files" })
 
 vim.keymap.set("n", "<leader>e", function()
