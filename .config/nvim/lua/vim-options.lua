@@ -33,3 +33,25 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
+vim.o.showtabline = 1
+vim.o.tabline = "%!v:lua.TabLine()"
+
+function _G.TabLine()
+    local s = ""
+    for i = 1, vim.fn.tabpagenr("$") do
+        local winnr = vim.fn.tabpagewinnr(i)
+        local buflist = vim.fn.tabpagebuflist(i)
+        local bufnr = buflist[winnr]
+        local name = vim.fn.fnamemodify(vim.fn.bufname(bufnr), ":t")
+        local tab_label = name ~= "" and name or "[No Name]"
+        if i == vim.fn.tabpagenr() then
+            s = s .. "%#TabLineSel#"
+        else
+            s = s .. "%#TabLine#"
+        end
+        s = s .. " " .. i .. ": " .. tab_label .. " "
+    end
+    s = s .. "%#TabLineFill#"
+    return s
+end
+
