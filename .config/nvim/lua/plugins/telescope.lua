@@ -14,9 +14,9 @@ return {
             vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Help Tags" })
             vim.keymap.set("n", "<leader>fs", builtin.lsp_document_symbols, { desc = "Symbols" })
 
-            vim.keymap.set("n", "<leader>gc", builtin.git_commits, { desc = "Git Commits" })
-            vim.keymap.set("n", "<leader>gb", builtin.git_branches, { desc = "Git Branches" })
-            vim.keymap.set("n", "<leader>gs", builtin.git_status, { desc = "Git Status" })
+            -- vim.keymap.set("n", "<leader>gc", builtin.git_commits, { desc = "Git Commits" })
+            -- vim.keymap.set("n", "<leader>gb", builtin.git_branches, { desc = "Git Branches" })
+            -- vim.keymap.set("n", "<leader>gs", builtin.git_status, { desc = "Git Status" })
 
             require("telescope").setup {
                 extensions = {
