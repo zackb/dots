@@ -11,3 +11,7 @@ vim.keymap.set("n", "<leader>e", function()
 end, { desc = "Reveal current file" })
 
 vim.keymap.set("n", "<leader>q", "<cmd>Telescope diagnostics bufnr=0<cr>", { desc = "Show diagnostics for buffer" })
+
+-- yank to system clipboard
+vim.keymap.set('n', 'y', '"+y')
+vim.keymap.set('v', 'y', '"+y')
