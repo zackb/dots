@@ -17,8 +17,24 @@ return {
             window = {
                 mappings = {
                     ["\\"] = "close_window",
+                    ["<C-t>"] = function(state)
+                        local node = state.tree:get_node()
+                        if node and node.path then
+                            vim.cmd("tabnew " .. vim.fn.fnameescape(node.path))
+                        end
+                    end,
                 },
             },
         },
     },
+    config = function(_, opts)
+        require("neo-tree").setup(opts)
+
+        -- Auto-open Neo-tree on new tabs
+        vim.api.nvim_create_autocmd("TabNewEntered", {
+            callback = function()
+                require("neo-tree.command").execute { toggle = false, reveal = true, focus = false }
+            end,
+        })
+    end,
 }
