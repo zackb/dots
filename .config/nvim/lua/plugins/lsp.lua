@@ -146,6 +146,7 @@ return {
             local servers = {
                 -- TODO: clangd = {},
                 gopls = {},
+                java_language_server = {},
             }
 
             local ensure_installed = vim.tbl_keys(servers or {})
