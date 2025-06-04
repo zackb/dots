@@ -9,10 +9,17 @@ return {
                 c = { "clang_format" },
             },
 
-            format_on_save = {
-                timeout_ms = 500,
-                lsp_fallback = true,
-            },
-        }
+            format_on_save = function(bufnr)
+                local ignore_filetypes = { "scala" }
+                local ft = vim.bo[bufnr].filetype
+                if vim.tbl_contains(ignore_filetypes, ft) then
+                    return false
+                end
+                return {
+                    timeout_ms = 500,
+                    lsp_fallback = true,
+                }
+            end,
+        },
     },
 }
