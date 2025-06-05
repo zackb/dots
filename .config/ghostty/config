@@ -4,9 +4,9 @@ font-feature = -calt, -liga, -dlig
 cursor-style = block
 cursor-style-blink = false
 shell-integration-features = no-cursor
-background-opacity = 0.9
-background-blur = true
+background-opacity = 0.95
 
+background-blur = true
 keybind = super+shift+]=next_tab
 keybind = super+shift+[=previous_tab
 title = " "
