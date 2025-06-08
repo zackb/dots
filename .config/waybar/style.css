@@ -133,3 +133,13 @@ button:hover {
     padding-left: 6px;
     padding-right: 6px;
 }
+
+menu {
+	border-radius: 15px;
+	background: #161320;
+	color: #B5E8E0;
+}
+
+menuitem {
+	border-radius: 15px;
+}
