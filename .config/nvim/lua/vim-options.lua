@@ -51,3 +51,6 @@ function _G.TabLine()
     s = s .. "%#TabLineFill#"
     return s
 end
+
+vim.o.updatetime = 250
+vim.cmd [[autocmd CursorHold * lua vim.diagnostic.open_float(nil, {focus=false})]]
