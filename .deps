@@ -5,6 +5,7 @@ hyprpaper
 hyprshot
 waybar
 rofi
+fuzzel
 nvim
 kitty
 ranger
@@ -14,3 +15,4 @@ qt6-qtwayland
 xdg-desktop-portal-hyprland
 xdg-desktop-portal-gtk
 sddm-catppuccin-mocha
+hyprpanel # optional
