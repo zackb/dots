@@ -10,7 +10,7 @@ return {
             },
 
             format_on_save = function(bufnr)
-                local ignore_filetypes = { "scala" }
+                local ignore_filetypes = { "scala", "sbt" }
                 local ft = vim.bo[bufnr].filetype
                 if vim.tbl_contains(ignore_filetypes, ft) then
                     return false
