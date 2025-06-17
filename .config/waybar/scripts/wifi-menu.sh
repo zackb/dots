@@ -8,6 +8,7 @@ NETWORKS=$(nmcli -t -f active,ssid,signal dev wifi | awk -F: '!seen[$2]++ { prin
 
 # let user select network
 CHOSEN=$(echo "$NETWORKS" | wofi --dmenu --prompt="Wi-Fi Networks" | sed -E 's/^✅ +|^ +//; s/ +\([0-9]+%\)//')
+# CHOSEN=$(echo "$NETWORKS" | hyprwat | sed -E 's/^✅ +|^ +//; s/ +\([0-9]+%\)//')
 [ -z "$CHOSEN" ] && exit 1
 
 # try to connect without password
