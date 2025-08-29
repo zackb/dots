@@ -44,10 +44,10 @@ return {
         require("neo-tree").setup(opts)
 
         -- Auto-open Neo-tree on new tabs
-        vim.api.nvim_create_autocmd("TabNewEntered", {
-            callback = function()
-                require("neo-tree.command").execute { toggle = false, reveal = true, focus = false }
-            end,
-        })
+        -- vim.api.nvim_create_autocmd("TabNewEntered", {
+        --     callback = function()
+        --         require("neo-tree.command").execute { toggle = false, reveal = true, focus = false }
+        --     end,
+        -- })
     end,
 }
