@@ -4,6 +4,7 @@
         "modules-center": ["hyprland/window"],
         "modules-right": [
             "pulseaudio", 
+            "custom/bluetooth",
             "cpu", 
             "memory", 
             "network", 
@@ -58,6 +59,13 @@
                 "default": ["", "", ""]
             },
             "on-click": "pavucontrol"
+        },
+        "custom/bluetooth": {
+            "format": " {}",
+            "exec": "sh -c 'if bluetoothctl devices Connected | grep -q \"^Device\"; then bluetoothctl devices Connected | sed -n \"s/^Device [^ ]\\+ //p\" | head -n1; else echo Off; fi'",
+
+            "on-click": "~/bin/bluetooth-audio.sh",
+            "interval": 5
         },
         "custom/power": {
             "format" : "⏻ ",

@@ -66,7 +66,8 @@ button:hover {
 #tray,
 #network,
 #mode,
-#scratchpad {
+#scratchpad,
+#custom-bluetooth {
   margin-top: 2px;
   margin-bottom: 2px;
   margin-left: 4px;
@@ -116,6 +117,14 @@ button:hover {
     color: @teal;
     border-bottom: 2px solid @teal;
 }
+
+#custom-bluetooth {
+    color: @green;
+    border-bottom: 2px solid @sky;
+    margin: 2px 4px;
+    padding: 0 4px;
+}
+
 
 /* If workspaces is the leftmost module, omit left margin */
 .modules-left>widget:first-child>#workspaces {
