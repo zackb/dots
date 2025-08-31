@@ -1,0 +1,25 @@
+stopwatch ()
+{
+    start=$(date +%s);
+    while true; do
+        time="$(( $(date +%s) - $start))";
+        printf '%s\r' "$(date -u -d "@$time" +%H:%M:%S)";
+        sleep 0.1;
+    done
+}
+
+timer() {
+    duration=$1
+    [ -z "$duration" ] && { echo "Usage: timer <seconds>"; return 1; }
+
+    end=$(( $(date +%s) + duration ))
+
+    while [ $(date +%s) -lt $end ]; do
+        remaining=$(( end - $(date +%s) ))
+        printf '%s\r' "$(date -u -d "@$remaining" +%H:%M:%S)"
+        sleep 0.1
+    done
+
+    echo -e "\nTime's up! \a"
+}
+
