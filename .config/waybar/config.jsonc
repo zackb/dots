@@ -10,6 +10,7 @@
             "network", 
             "battery", 
             "clock", 
+            "idle_inhibitor",
             "custom/power"
         ],
         "clock": {
@@ -66,6 +67,14 @@
 
             "on-click": "~/bin/bluetooth-audio.sh",
             "interval": 5
+        },
+        "idle_inhibitor": {
+            "format": "{icon}",
+            "format-icons": {
+                "activated": "",
+                "deactivated": ""
+            },
+            "timeout": 30.5
         },
         "custom/power": {
             "format" : "⏻ ",
