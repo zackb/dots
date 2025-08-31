@@ -11,7 +11,7 @@
             "battery", 
             "clock", 
             "idle_inhibitor",
-            "custom/power"
+            "custom/exit"
         ],
         "clock": {
             "format": "<span foreground='#f5c2e7'> </span>{:%a %d %H:%M}",
@@ -87,5 +87,11 @@
                 "suspend": "systemctl suspend",
                 "hibernate": "systemctl hibernate"
             }
+        },
+        "custom/exit": {
+            "format" : "⏻ ",
+            "on-click": "wlogout",
+            "on-click-right": "hyprlock",
+            "tooltip-format": "Left: Power menu\nRight: Lock screen"
         }
 }
