@@ -1,63 +1,51 @@
+* {
+	background-image: none;
+	box-shadow: none;
+}
+
 window {
-    font-size: 24pt;
-    color: @foreground; /* text */
-    background-color: rgba(30, 30, 46, 0.8);
+	background-color: rgba(30, 30, 46, 0.90);
 }
 
 button {
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 20%;
-    background-color: rgba(200, 220, 255, 0);
-    animation: gradient_f 10s ease-in infinite;
-    transition: all 0.3s cubic-bezier(.55, 0.0, .28, 1.682), box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
-    border-radius: 80px;
-	border:0px;
+	border-radius: 0;
+	border-color: #f5e0dc;
+	text-decoration-color: #cdd6f4;
+	color: #cdd6f4;
+	background-color: #181825;
+	border-style: solid;
+	border-width: 1px;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 25%;
+}
+
+button:focus, button:active, button:hover {
+	/* 20% Overlay 2, 80% mantle */
+	background-color: rgb(48, 50, 66);
 	outline-style: none;
 }
-
-button:focus {
-    background-size: 50%;
-	border: 0px;
-	outline-style: none;
-
-}
-
-button:hover {
-    background-color: transparent; 
-    color: @color13;
-    background-size: 50%;
-    margin: 30px;
-    border-radius: 80px;
-    outline-style: none;
-	
-}
-
-button span {
-    font-size: 1.2em;
-}
-
 
 #lock {
-    background-image: image(url("./icons/lock.png"));
+    background-image: url("/home/zackb/.config/wlogout/icons/lock.svg");
 }
 
 #logout {
-    background-image: image(url("./icons/logout.png"));
+    background-image: url("/home/zackb/.config/wlogout/icons/logout.svg");
 }
 
 #suspend {
-    background-image: image(url("./icons/suspend.png"));
-}
-
-#shutdown {
-    background-image: image(url("./icons/shutdown.png"));
-}
-
-#reboot {
-    background-image: image(url("./icons/reboot.png"));
+    background-image: url("/home/zackb/.config/wlogout/icons/suspend.svg");
 }
 
 #hibernate {
-    background-image: image(url("./icons/hibernate.png"));
+    background-image: url("/home/zackb/.config/wlogout/icons/hibernate.svg");
+}
+
+#shutdown {
+    background-image: url("/home/zackb/.config/wlogout/icons/shutdown.svg");
+}
+
+#reboot {
+    background-image: url("/home/zackb/.config/wlogout/icons/reboot.svg");
 }
