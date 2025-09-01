@@ -3,6 +3,7 @@
         "modules-left": ["hyprland/workspaces"],
         "modules-center": ["hyprland/window"],
         "modules-right": [
+            "custom/updates",
             "pulseaudio", 
             "custom/bluetooth",
             "cpu", 
@@ -93,5 +94,13 @@
             "on-click": "wlogout",
             "on-click-right": "hyprlock",
             "tooltip-format": "Left: Power menu\nRight: Lock screen"
+        },
+        "custom/updates": {
+            "format": " {}",
+            "interval": 600,
+            "exec": "~/bin/pkg_updates.sh",
+            "on-click": "ghostty -e paru -Syu"
         }
+
+
 }

@@ -67,6 +67,7 @@ button:hover {
 #network,
 #mode,
 #scratchpad,
+#custom-updates,
 #custom-bluetooth {
   margin-top: 2px;
   margin-bottom: 2px;
@@ -123,6 +124,11 @@ button:hover {
     border-bottom: 2px solid @sky;
     margin: 2px 4px;
     padding: 0 4px;
+}
+
+#custom-updates {
+    color: @lavender;
+    border-bottom: 2px solid @lavender;
 }
 
 
