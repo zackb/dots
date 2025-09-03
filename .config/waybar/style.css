@@ -131,6 +131,10 @@ button:hover {
     border-bottom: 2px solid @lavender;
 }
 
+#custom-weather {
+    color: @flamingo;
+}
+
 
 /* If workspaces is the leftmost module, omit left margin */
 .modules-left>widget:first-child>#workspaces {
