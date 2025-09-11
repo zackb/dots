@@ -142,6 +142,7 @@ return {
             local servers = {
                 -- TODO: clangd = {},
                 gopls = {},
+                terraformls = {},
                 -- java_language_server = {},
             }
 
