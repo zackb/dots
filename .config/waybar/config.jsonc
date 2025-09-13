@@ -22,7 +22,7 @@
         "backlight",
         "network",
         "battery",
-        "custom/sysinfo",
+        "group/sysinfo",
         "custom/notifications",
         "custom/power"
     ],
