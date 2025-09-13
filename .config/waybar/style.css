@@ -76,6 +76,8 @@ label {
 #tray,
 #custom-power,
 #custom-mediaplayer,
+#bluetooth,
+#custom-bluetooth,
 #custom-notifications {
     background: alpha(@background, 0.5);
     border-radius: 12px;
@@ -173,6 +175,14 @@ tooltip label {
 #pulseaudio:hover,
 #backlight:hover,
 #battery:hover,
+#network:hover,
+#window:hover,
+#clock:hover,
+#custom-weather:hover,
+#custom-sysinfo:hover,
+#custom-power:hover,
+#bluetooth:hover,
+#custom-bluetooth:hover,
 #custom-notifications:hover {
     color: @hover;
 }

@@ -19,6 +19,7 @@
     "modules-right": [
         "custom/updates",
         "pulseaudio",
+        "custom/bluetooth",
         "backlight",
         "network",
         "battery",
@@ -179,6 +180,13 @@
         "on-click-right": "sleep 0.1 && kill -9 $pgrep blueman-applet",
         "format-no-controller": ""
     },
+    "custom/bluetooth": {
+        "format": " {}",
+        "exec": "sh -c 'if bluetoothctl devices Connected | grep -q \"^Device\"; then bluetoothctl devices Connected | sed -n \"s/^Device [^ ]\\+ //p\" | head -n1; else echo No; fi'",
+        // "on-click": "~/bin/bluetooth-audio.sh",
+        "on-click": "blueman-manager",
+        "interval": 5
+    },
     // Audio
     "pulseaudio": {
         "scroll-step": 5,
@@ -268,6 +276,7 @@
     // Power-menu
     "custom/power": {
         "format": "",
+        // "format": "⏻",
         "on-click": "wlogout",
         "tooltip-format": "Power Menu"
     },
