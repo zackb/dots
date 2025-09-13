@@ -10,11 +10,11 @@
     "reload_style_on_change": true,
     "modules-left": [
         "hyprland/workspaces",
-        "hyprland/window",
-        "custom/weather"
+        "hyprland/window"
     ],
     "modules-center": [
-        "clock"
+        "clock",
+        "custom/weather"
     ],
     "modules-right": [
         "custom/updates",
