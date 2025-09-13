@@ -74,16 +74,23 @@ label {
 #network,
 #custom-sysinfo,
 #tray,
-#custom-power,
 #custom-mediaplayer,
 #bluetooth,
-#custom-bluetooth,
-#custom-notifications {
+#custom-bluetooth {
     background: alpha(@background, 0.5);
     border-radius: 12px;
     margin: 4px;
     padding: 4px 8px;
     color: @text;
+}
+
+#custom-power,
+#custom-notifications,
+#custom-exit {
+    /* background: alpha(@SILVER_700, 0.8);
+    border-radius: 12px; */
+    margin: 4px;
+    padding: 4px 4px;
 }
 
 
@@ -182,6 +189,7 @@ tooltip label {
 #custom-sysinfo:hover,
 #custom-power:hover,
 #bluetooth:hover,
+#custom-exit:hover,
 #custom-bluetooth:hover,
 #custom-notifications:hover {
     color: @hover;
@@ -201,7 +209,6 @@ tooltip label {
 }
 
 
-/* Optional hover effect */
 #custom-sysinfo:hover,
 #cpu:hover,
 #memory:hover,
