@@ -143,6 +143,16 @@ return {
                 -- TODO: clangd = {},
                 gopls = {},
                 terraformls = {},
+                ts_ls = {},
+                lua_ls = {},
+                pyright = {},
+                html = {},
+                cssls = {},
+                bashls = {},
+                jsonls = {},
+                yamlls = {},
+                vimls = {},
+                marksman = {},
                 -- java_language_server = {},
             }
 
@@ -153,7 +163,7 @@ return {
 
             require("mason-tool-installer").setup { ensure_installed = ensure_installed }
             require("mason-lspconfig").setup {
-                ensure_installed = {},
+                ensure_installed = vim.tbl_keys(servers),
                 automatic_installation = false,
                 handlers = {
                     function(server_name)
