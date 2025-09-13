@@ -187,6 +187,29 @@ tooltip label {
     color: @hover;
 }
 
+/* Modules inside the sysinfo drawer */
+#custom-sysinfo,
+#cpu,
+#memory,
+#disk,
+#temperature {
+    margin: 4px;
+    padding: 2px 6px;
+    min-width: 30px;
+    background: alpha(@background, 0.5);
+    border-radius: 12px;
+}
+
+
+/* Optional hover effect */
+#custom-sysinfo:hover,
+#cpu:hover,
+#memory:hover,
+#disk:hover,
+#temperature:hover {
+    color: @hover;
+}
+
 
 /* =======================
    Hide Empty Modules
