@@ -1,0 +1,112 @@
+{
+    "position": "top",
+    "modules-left": ["hyprland/workspaces"],
+    "modules-center": ["hyprland/window"],
+    "modules-right": [
+        "custom/updates",
+        "custom/weather", 
+        "pulseaudio", 
+        "custom/bluetooth",
+        "cpu", 
+        "memory", 
+        "network", 
+        "battery", 
+        "clock", 
+        "idle_inhibitor",
+        "custom/exit"
+    ],
+    "clock": {
+        "format": "<span foreground='#f5c2e7'> </span>{:%a %d %H:%M}",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
+    },
+    "battery": {
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "<span size='13000' foreground='#a6e3a1'>{icon}</span> {capacity}%",
+        "format-warning": "<span size='13000' foreground='#B1E3AD'>{icon}</span> {capacity}%",
+        "format-critical": "<span size='13000' foreground='#E38C8F'>{icon}</span> {capacity}%",
+        "format-charging": "<span size='13000' foreground='#B1E3AD'></span>{capacity}%",
+        "format-plugged": "<span size='13000' foreground='#B1E3AD'></span>{capacity}%",
+        "format-alt": "<span size='13000' foreground='#B1E3AD'>{icon}</span> {time}",
+        "format-full": "<span size='13000' foreground='#B1E3AD'> </span>{capacity}%",
+        "format-icons": ["", "", "", "", ""],
+        "tooltip-format": "{time}",
+        "menu": "on-click",
+        "menu-file": "$HOME/.config/waybar/power_profile.xml",
+        "menu-actions": {
+            "balanced": "powerprofilesctl set balanced",
+            "power-saver": "powerprofilesctl set power-saver"
+        }
+    },
+    "memory": {
+        "format": "<span size='13000' foreground='#94e2d5'></span> {}%"
+    },
+    "cpu": {
+        "format": "<span size='13000' foreground='#f38ba8'></span> {usage}%",
+        "tooltip": false
+    },
+    "network": {
+        "format-wifi": "<span size='13000' foreground='#f5e0dc'>  </span>{essid}",
+        "format-ethernet": "<span size='13000' foreground='#f5e0dc'>󰤭  </span>Disconnected",
+        "format-linked": "{ifname} (No IP) ",
+        "format-disconnected": "<span size='13000' foreground='#f5e0dc'>  </span>Disconnected",
+        "tooltip-format-wifi": "Signal Strenght: {signalStrength}%",
+        "on-click": "$HOME/.config/waybar/scripts/wifi-menu.sh"
+    },
+    "pulseaudio": {
+        "format": "{icon}  {volume}%",
+        "format-muted": "",
+        "format-icons": {
+            "default": ["", "", ""]
+        },
+        "on-click": "pavucontrol"
+    },
+    "custom/bluetooth": {
+        "format": " {}",
+        "exec": "sh -c 'if bluetoothctl devices Connected | grep -q \"^Device\"; then bluetoothctl devices Connected | sed -n \"s/^Device [^ ]\\+ //p\" | head -n1; else echo No; fi'",
+
+        "on-click": "~/bin/bluetooth-audio.sh",
+        "interval": 5
+    },
+    "idle_inhibitor": {
+        "format": "{icon}",
+        "format-icons": {
+            "activated": "",
+            "deactivated": ""
+        },
+        "timeout": 30.5
+    },
+    "custom/power": {
+        "format" : "⏻ ",
+        "tooltip": false,
+        "menu": "on-click",
+        "menu-file": "$HOME/.config/waybar/power_menu.xml",
+        "menu-actions": {
+            "shutdown": "shutdown",
+            "reboot": "reboot",
+            "suspend": "systemctl suspend",
+            "hibernate": "systemctl hibernate"
+        }
+    },
+    "custom/exit": {
+        "format" : "⏻ ",
+        "on-click": "wlogout",
+        "on-click-right": "hyprlock",
+        "tooltip-format": "Left: Power menu\nRight: Lock screen"
+    },
+    "custom/updates": {
+        "format": " {}",
+        "interval": 600,
+        "exec": "~/bin/pkg_updates.sh",
+        "on-click": "ghostty -e paru -Syu"
+    },
+    "custom/weather": {
+        "format": "{}",
+        "tooltip": true,
+        "interval": 3600,
+        "exec": "$HOME/.config/waybar/scripts/wttr.sh",
+        "return-type": "json"
+    }
+}
