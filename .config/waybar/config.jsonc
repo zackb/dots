@@ -24,6 +24,7 @@
         "network",
         "battery",
         "group/sysinfo",
+        "idle_inhibitor",
         "custom/notifications",
         "custom/power"
     ],
@@ -272,6 +273,15 @@
         "exec": "swaync-client -swb",
         "on-click": "swaync-client -t -sw",
         "escape": true
+    },
+    // Idle inhibitor
+    "idle_inhibitor": {
+        "format": "{icon} ",
+        "format-icons": {
+            "activated": "",
+            "deactivated": ""
+        },
+        "timeout": 30.5
     },
     // Power-menu
     "custom/power": {
