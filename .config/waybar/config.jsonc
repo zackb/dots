@@ -285,7 +285,7 @@
     },
     // Power-menu
     "custom/power": {
-        "format": "",
+        "format": " ",
         // "format": "⏻",
         "on-click": "wlogout",
         "tooltip-format": "Power Menu"

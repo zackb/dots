@@ -86,6 +86,7 @@ label {
 
 #custom-power,
 #custom-notifications,
+#idle-inhibitor,
 #custom-exit {
     /* background: alpha(@SILVER_700, 0.8);
     border-radius: 12px; */
@@ -188,6 +189,7 @@ tooltip label {
 #custom-weather:hover,
 #custom-sysinfo:hover,
 #custom-power:hover,
+#idle-inhibitor:hover,
 #bluetooth:hover,
 #custom-exit:hover,
 #custom-bluetooth:hover,
