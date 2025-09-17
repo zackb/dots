@@ -19,6 +19,9 @@ vim.g.have_nerd_font = false
 vim.opt.termguicolors = true
 vim.opt.swapfile = false
 
+vim.opt.title = true
+vim.opt.titlestring = "vim %t"
+
 -- vim.schedule(function()
 --   vim.o.clipboard = 'unnamedplus'
 -- end)
