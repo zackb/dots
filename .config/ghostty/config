@@ -9,5 +9,4 @@ background-opacity = 0.95
 background-blur = true
 keybind = super+shift+]=next_tab
 keybind = super+shift+[=previous_tab
-title = " "
 macos-titlebar-style=transparent
