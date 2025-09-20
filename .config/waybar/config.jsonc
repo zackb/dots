@@ -13,6 +13,7 @@
         "hyprland/window"
     ],
     "modules-center": [
+        "mpris",
         "clock",
         "custom/weather"
     ],
@@ -300,6 +301,10 @@
     "custom/dot": {
         "format": "",
         "tooltip": false
+    },
+    "mpris": {
+        "player": "cider",
+        "format": "{artist} - {title}"
     },
     "custom/separator-left": {
         "format": "/",
