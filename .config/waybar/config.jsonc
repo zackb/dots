@@ -128,8 +128,8 @@
     },
     // Brightness
     "backlight": {
-        "format": "{icon} {percent}%",
-        "format-alt": "{icon}",
+        "format": "{icon}",
+        "format-alt": "{icon} {percent}%",
         "format-icons": [
             "󰃞",
             "󰃞",
