@@ -184,7 +184,8 @@
     },
     "custom/bluetooth": {
         "format": " {}",
-        "exec": "sh -c 'if bluetoothctl devices Connected | grep -q \"^Device\"; then bluetoothctl devices Connected | sed -n \"s/^Device [^ ]\\+ //p\" | head -n1; else echo No; fi'",
+        "exec": "sh -c \"device=$(bluetoothctl devices Connected | awk '/^Device/ {print \\$3; exit}'); [ -n \\\"$device\\\" ] && echo \\\"$device\\\" || echo \\\"\u200B\\\"\"",
+        // "exec": "sh -c 'if bluetoothctl devices Connected | grep -q \"^Device\"; then bluetoothctl devices Connected | sed -n \"s/^Device [^ ]\\+ //p\" | head -n1; else echo No; fi'",
         // "on-click": "~/bin/bluetooth-audio.sh",
         "on-click": "blueman-manager",
         "interval": 5
@@ -192,8 +193,8 @@
     // Audio
     "pulseaudio": {
         "scroll-step": 5,
-        "format": "{icon} {volume}%  {format_source}",
-        "format-alt": "{icon}",
+        "format": "{icon}",
+        "format-alt": "{icon} {volume}%  {format_source}",
         "format-bluetooth": "{volume}% {icon} {format_source}",
         "format-bluetooth-muted": " {icon} {format_source}",
         "format-muted": "  {format_source}",
@@ -219,8 +220,8 @@
     "network": {
         "format": "{ifname}",
         //"format-wifi": "󱤚 {essid}",
-        "format-wifi": "  {essid}",
-        "format-alt": " ",
+        "format-wifi": " ",
+        "format-alt": "  {essid}",
         "format-ethernet": "  {ifname}",
         "format-disconnected": "Disconnected",
         "tooltip-format": " {ifname} via {gwaddri}",
