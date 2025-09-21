@@ -69,14 +69,14 @@ label {
 #battery,
 #pulseaudio,
 #backlight,
-#custom-weather,
-#custom-updates,
 #network,
+#custom-updates,
 #custom-sysinfo,
-#tray,
-#custom-mediaplayer,
 #bluetooth,
 #mpris,
+#tray,
+/* #custom-weather, */
+#custom-mediaplayer,
 #custom-bluetooth {
     background: alpha(@background, 0.5);
     border-radius: 12px;

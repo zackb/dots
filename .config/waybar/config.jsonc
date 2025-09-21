@@ -78,7 +78,7 @@
     },
     // Weather
     "custom/weather": {
-        "format": "{}",
+        "format": " | {}",
         "tooltip": true,
         "interval": 3600,
         "exec": "$HOME/.config/waybar/scripts/wttr.sh",
