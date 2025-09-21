@@ -1,0 +1,35 @@
+[Default Applications]
+x-scheme-handler/http=userapp-Zen-QMQL92.desktop
+x-scheme-handler/https=userapp-Zen-QMQL92.desktop
+x-scheme-handler/chrome=userapp-Zen-QMQL92.desktop
+text/html=userapp-Zen-QMQL92.desktop
+application/x-extension-htm=userapp-Zen-QMQL92.desktop
+application/x-extension-html=userapp-Zen-QMQL92.desktop
+application/x-extension-shtml=userapp-Zen-QMQL92.desktop
+application/xhtml+xml=userapp-Zen-QMQL92.desktop
+application/x-extension-xhtml=userapp-Zen-QMQL92.desktop
+application/x-extension-xht=userapp-Zen-QMQL92.desktop
+image/png=org.gnome.eog.desktop
+image/jpeg=org.gnome.eog.desktop
+text/plain=nvim.desktop
+text/x-csrc=nvim.desktop
+text/x-c++src=nvim.desktop
+text/x-go=nvim.desktop
+text/x-markdown=nvim.desktop
+application/x-shellscript=nvim.desktop
+
+
+[Added Associations]
+x-scheme-handler/http=userapp-Zen-QMQL92.desktop;userapp-Zen-CMJR92.desktop;
+x-scheme-handler/https=userapp-Zen-QMQL92.desktop;userapp-Zen-CMJR92.desktop;
+x-scheme-handler/chrome=userapp-Zen-QMQL92.desktop;userapp-Zen-CMJR92.desktop;
+text/html=userapp-Zen-CMJR92.desktop;userapp-Zen-QMQL92.desktop;
+application/x-extension-htm=userapp-Zen-CMJR92.desktop;userapp-Zen-QMQL92.desktop;
+application/x-extension-html=userapp-Zen-CMJR92.desktop;userapp-Zen-QMQL92.desktop;
+application/x-extension-shtml=userapp-Zen-CMJR92.desktop;userapp-Zen-QMQL92.desktop;
+application/xhtml+xml=userapp-Zen-CMJR92.desktop;userapp-Zen-QMQL92.desktop;
+application/x-extension-xhtml=userapp-Zen-CMJR92.desktop;userapp-Zen-QMQL92.desktop;
+application/x-extension-xht=userapp-Zen-CMJR92.desktop;userapp-Zen-QMQL92.desktop;
+image/png=org.gnome.eog.desktop;
+image/jpeg=org.gnome.eog.desktop;
+
