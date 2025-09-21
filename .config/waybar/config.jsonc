@@ -128,7 +128,7 @@
     },
     // Brightness
     "backlight": {
-        "format": "{icon}",
+        "format": "{icon} ",
         "format-alt": "{icon} {percent}%",
         "format-icons": [
             "󰃞",
@@ -193,7 +193,7 @@
     // Audio
     "pulseaudio": {
         "scroll-step": 5,
-        "format": "{icon}",
+        "format": "{icon} ",
         "format-alt": "{icon} {volume}%  {format_source}",
         "format-bluetooth": "{volume}% {icon} {format_source}",
         "format-bluetooth-muted": " {icon} {format_source}",
