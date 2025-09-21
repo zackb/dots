@@ -184,8 +184,7 @@
     },
     "custom/bluetooth": {
         "format": " {}",
-        "exec": "sh -c \"device=$(bluetoothctl devices Connected | awk '/^Device/ {print \\$3; exit}'); [ -n \\\"$device\\\" ] && echo \\\"$device\\\" || echo \\\"\u200B\\\"\"",
-        // "exec": "sh -c 'if bluetoothctl devices Connected | grep -q \"^Device\"; then bluetoothctl devices Connected | sed -n \"s/^Device [^ ]\\+ //p\" | head -n1; else echo No; fi'",
+        "exec": "sh -c 'if bluetoothctl devices Connected | grep -q \"^Device\"; then bluetoothctl devices Connected | sed -n \"s/^Device [^ ]\\+ //p\" | head -n1; else echo \u200B; fi'",
         // "on-click": "~/bin/bluetooth-audio.sh",
         "on-click": "blueman-manager",
         "interval": 5
