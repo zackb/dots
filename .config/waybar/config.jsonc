@@ -14,8 +14,8 @@
     ],
     "modules-center": [
         "mpris",
-        "clock",
-        "custom/weather"
+        "clock"
+        // "custom/weather"
     ],
     "modules-right": [
         "custom/updates",
