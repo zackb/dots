@@ -153,7 +153,7 @@ return {
                 yamlls = {},
                 vimls = {},
                 marksman = {},
-                java_language_server = {},
+                -- java_language_server = {},
             }
 
             local ensure_installed = vim.tbl_keys(servers or {})
