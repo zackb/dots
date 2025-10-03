@@ -36,6 +36,15 @@ vim.opt.colorcolumn = "80"
 vim.o.showtabline = 1
 vim.o.tabline = "%!v:lua.TabLine()"
 
+-- Use 2 spaces for JavaScript and Python
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = { "javascript", "javascriptreact", "typescript", "typescriptreact", "python" },
+    callback = function()
+        vim.opt_local.shiftwidth = 2
+        vim.opt_local.tabstop = 2
+    end,
+})
+
 function _G.TabLine()
     local s = ""
     for i = 1, vim.fn.tabpagenr "$" do
