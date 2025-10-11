@@ -170,7 +170,7 @@
             "󰂂",
             "󰁹"
         ],
-        "on-click-right": "~/.config/rofi/applets/battery.sh"
+        "on-click-right": "$HOME/.config/waybar/scripts/battery.sh"
     },
     // Bluetooth
     "bluetooth": {
@@ -212,7 +212,8 @@
                 ""
             ]
         },
-        "on-click-right": "sleep 0.1 && pavucontrol",
+        "on-click-right": "sleep 0.1 && hyprwat --audio",
+        // "on-click-right": "sleep 0.1 && pavucontrol",
         "tooltip-format": "{volume}% {format_source}"
     },
     // Network settings
@@ -229,7 +230,8 @@
         "tooltip-format-disconnected": "Disconnected",
         "max-length": 20,
         "on-scroll-down": "sleep 0.1 && kill -9 $pgrep nm-applet",
-        "on-click-right": "$HOME/.config/waybar/scripts/wifi-menu.sh"
+        "on-click-right": "hyprwat --wifi"
+        // "on-click-right": "$HOME/.config/waybar/scripts/wifi-menu.sh"
         // "on-click-right": "~/.config/waybar/scripts/nmtui.sh",
     },
     // System Tray
