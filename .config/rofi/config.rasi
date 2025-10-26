@@ -1,14 +1,19 @@
 /* ---- Configuration ---- */
 configuration {
-    modi:                    "drun";
+    modi:                    "drun,run,window,ssh";
     show-icons:              true;
-    display-drun:            "";
+    display-drun:            "Apps";
+    display-run:             "Run";
+    display-window:          "Windows";
+    display-ssh:             "SSH";
     drun-display-format:     "{name}";
     hover-select:            true;
     me-select-entry:         "MouseSecondary";
     me-accept-entry:         "MousePrimary";
     window-format:           "{w} · {c} · {t}";
     font:                    "MesloLGSDZ Nerd Font 10";
+    terminal:                "ghostty";
+    ssh-command:             "{terminal} -e {ssh-client} {host} [-p {port}]";
 }
 
 @theme "~/.config/rofi/theme/colors-rofi.rasi"
@@ -17,7 +22,7 @@ configuration {
 * {
     bg0:                     @background;
     bg1:                     @color8;
-    bg2:                     @color0;
+    bg2:                     #161b22;  /* Slightly lighter than bg1 for hover */
 
     fg0:                     @foreground;
     fg1:                     @color7;
@@ -31,7 +36,7 @@ configuration {
     text-color:              @fg0;
 
     border-color:            @accent;
-    separatorcolor:          rgba(255, 255, 255, 0.1);
+    separatorcolor:          rgba(88, 166, 255, 0.15);
 }
 
 /* ---- Window ---- */
@@ -41,10 +46,10 @@ window {
     anchor:                  center;
     fullscreen:              false;
     width:                   750px;
-    border-radius:           20px;
+    border-radius:           16px;
     cursor:                  "default";
-    background-color:        rgba(0, 0, 0, 0.85);
-    border:                  3px;
+    background-color:        rgba(13, 17, 23, 0.95);
+    border:                  2px;
     border-color:            @accent;
 }
 
@@ -64,11 +69,11 @@ inputbar {
     spacing:                 12px;
     margin:                  0px 0px 16px 0px;
     padding:                 16px 20px;
-    border-radius:           14px;
+    border-radius:           12px;
     background-color:        @bg1;
     text-color:              @fg0;
-    border:                  2px;
-    border-color:            rgba(255, 255, 255, 0.05);
+    border:                  1px;
+    border-color:            rgba(88, 166, 255, 0.2);
     children:                [ "prompt", "entry" ];
 }
 
@@ -82,7 +87,7 @@ prompt {
 textbox-prompt-colon {
     enabled:                 true;
     expand:                  false;
-    str:                     "";
+    str:                     "";
     background-color:        transparent;
     text-color:              @accent;
 }
@@ -92,8 +97,8 @@ entry {
     background-color:        transparent;
     text-color:              @fg0;
     cursor:                  text;
-    placeholder:             "Type to search...";
-    placeholder-color:       rgba(255, 255, 255, 0.3);
+    placeholder:             "Search...";
+    placeholder-color:       rgba(125, 133, 144, 0.6);
 }
 
 /* ---- Mode Switcher ---- */
@@ -107,23 +112,25 @@ mode-switcher{
 
 button {
     padding:                 12px 18px;
-    border-radius:           10px;
+    border-radius:           8px;
     background-color:        @bg1;
     text-color:              @fg1;
     cursor:                  pointer;
-    border:                  2px;
+    border:                  1px;
+    border-color:            transparent;
     font:                    "MesloLGSDZ Nerd Font Bold 12";
 }
 
 button selected {
     background-color:        @accent;
     text-color:              @bg0;
+    border-color:            @accent;
 }
 
 button hover {
     background-color:        @bg2;
     text-color:              @accent;
-    border:                  2px;
+    border-color:            rgba(88, 166, 255, 0.3);
 }
 
 /* ---- Listview ---- */
@@ -147,10 +154,10 @@ listview {
 
 /* ---- Scrollbar ---- */
 scrollbar {
-    handle-width:            6px;
+    handle-width:            5px;
     handle-color:            @accent;
-    border-radius:           6px;
-    background-color:        rgba(255, 255, 255, 0.05);
+    border-radius:           4px;
+    background-color:        rgba(88, 166, 255, 0.1);
     margin:                  0px 0px 0px 8px;
 }
 
@@ -160,11 +167,12 @@ element {
     spacing:                 10px;
     margin:                  0px;
     padding:                 14px;
-    border-radius:           12px;
+    border-radius:           10px;
     background-color:        @bg1;
     text-color:              @fg0;
     cursor:                  pointer;
-    border:                  2px;
+    border:                  1px;
+    border-color:            transparent;
 }
 
 element normal.normal {
@@ -173,31 +181,33 @@ element normal.normal {
 }
 
 element selected.normal {
-    background-color:        @accent;
-    text-color:              @bg0;
-    border:                  2px;
+    background-color:        rgba(88, 166, 255, 0.2);
+    text-color:              @accent-alt;
+    border-color:            @accent;
 }
 
 element normal.urgent {
-    background-color:        rgba(255, 100, 100, 0.15);
+    background-color:        rgba(255, 123, 114, 0.12);
     text-color:              @urgent;
-    border:                  2px;
+    border-color:            rgba(255, 123, 114, 0.3);
 }
 
 element selected.urgent {
-    background-color:        @urgent;
-    text-color:              @bg0;
+    background-color:        rgba(255, 123, 114, 0.25);
+    text-color:              @urgent;
+    border-color:            @urgent;
 }
 
 element normal.active {
-    background-color:        rgba(150, 255, 150, 0.1);
+    background-color:        rgba(126, 231, 135, 0.12);
     text-color:              @active;
+    border-color:            rgba(126, 231, 135, 0.3);
 }
 
 element selected.active {
-    background-color:        @active;
-    text-color:              @bg0;
-    border:                  2px;
+    background-color:        rgba(126, 231, 135, 0.25);
+    text-color:              @active;
+    border-color:            @active;
 }
 
 element-icon {
@@ -215,8 +225,8 @@ element-text {
 }
 
 element-text selected.normal {
-    text-color:              @bg0;
-    font:                    "MesloLGSDZ Nerd Font Bold 10";
+    text-color:              @accent-alt;
+    font:                    "MesloLGSDZ Nerd Font SemiBold 10";
 }
 
 /* ---- Message ---- */
@@ -224,13 +234,13 @@ message {
     enabled:                 true;
     margin:                  0px 0px 12px 0px;
     padding:                 0px;
-    border-radius:           12px;
+    border-radius:           10px;
     background-color:        transparent;
 }
 
 textbox {
     padding:                 14px;
-    border-radius:           12px;
+    border-radius:           10px;
     background-color:        @bg1;
     text-color:              @accent;
     horizontal-align:        0.0;
@@ -238,8 +248,8 @@ textbox {
 
 error-message {
     padding:                 14px;
-    border-radius:           12px;
-    background-color:        rgba(255, 100, 100, 0.15);
+    border-radius:           10px;
+    background-color:        rgba(255, 123, 114, 0.15);
     text-color:              @urgent;
 }
 
@@ -256,7 +266,7 @@ num-filtered-rows,
 num-rows {
     expand:                  false;
     background-color:        transparent;
-    text-color:              rgba(255, 255, 255, 0.4);
+    text-color:              rgba(125, 133, 144, 0.6);
     font:                    "MesloLGSDZ Nerd Font 9";
 }
 
@@ -264,5 +274,5 @@ textbox-num-sep {
     expand:                  false;
     str:                     "/";
     background-color:        transparent;
-    text-color:              rgba(255, 255, 255, 0.4);
+    text-color:              rgba(125, 133, 144, 0.6);
 }
