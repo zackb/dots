@@ -1,0 +1,52 @@
+/* Rofi Dark Theme - Custom */
+
+/* Special colors */
+* {
+    background:     #121212;  /* Deep dark gray */
+    foreground:     #E0E0E0;  /* Soft light gray */
+    cursor:         #FFCC00;  /* Bright gold for visibility */
+    
+    /* Base16-inspired color palette */
+    color0:         #121212;  /* Background */
+    color1:         #F07178;  /* Red */
+    color2:         #C3E88D;  /* Green */
+    color3:         #FFCB6B;  /* Yellow/Orange */
+    color4:         #82AAFF;  /* Blue */
+    color5:         #C792EA;  /* Magenta */
+    color6:         #89DDFF;  /* Cyan */
+    color7:         #E0E0E0;  /* Light gray */
+    color8:         #3C3C3C;  /* Dark gray */
+    color9:         #F07178;  /* Red bright */
+    color10:        #C3E88D;  /* Green bright */
+    color11:        #FFCB6B;  /* Yellow bright */
+    color12:        #82AAFF;  /* Blue bright */
+    color13:        #C792EA;  /* Magenta bright */
+    color14:        #89DDFF;  /* Cyan bright */
+    color15:        #FFFFFF;  /* Pure white */
+    
+    /* Semantic color aliases */
+    bg:             @background;
+    fg:             @foreground;
+    bg-alt:         @color8;  /* Slightly lighter for selected items */
+    bg-dim:         @color0;
+    fg-dim:         #A0A0A0;  /* Dim text */
+    fg-bright:      @color15;
+    
+    accent:         @color4;  /* Blue accent */
+    accent-alt:     @color12;
+    
+    red:            @color1;
+    green:          @color2;
+    yellow:         @color3;
+    blue:           @color4;
+    magenta:        @color5;
+    cyan:           @color6;
+    
+    red-bright:     @color9;
+    green-bright:   @color10;
+    yellow-bright:  @color11;
+    blue-bright:    @color12;
+    magenta-bright: @color13;
+    cyan-bright:    @color14;
+}
+
