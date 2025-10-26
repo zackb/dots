@@ -2,7 +2,7 @@
 configuration {
     modi:                    "drun,run,window,ssh";
     show-icons:              true;
-    display-drun:            "Apps";
+    display-drun:            "⌕";
     display-run:             "Run";
     display-window:          "Windows";
     display-ssh:             "SSH";
