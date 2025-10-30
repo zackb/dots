@@ -1,0 +1,77 @@
+;; Variables
+(defpoll weather :interval "30m"
+  "scripts/weather.sh")
+
+(defpoll sports :interval "5m"
+  "scripts/sports.sh")
+
+(defpoll calendar :interval "15m"
+  "scripts/calendar.sh")
+
+(defpoll time :interval "1s"
+  "date '+%H:%M'")
+
+(defpoll date :interval "1m"
+  "date '+%a, %b %d'")
+
+;; Main widget window
+(defwindow info-widget
+  :monitor 0
+  :geometry (geometry :x "20px"
+                      :y "20px"
+                      :width "320px"
+                      :height "400px"
+                      :anchor "top right")
+  :stacking "bg"
+  :exclusive false
+  :focusable false
+  (info-panel))
+
+;; Widget layout
+(defwidget info-panel []
+  (box :class "info-panel"
+       :orientation "v"
+       :space-evenly false
+       :spacing 12
+    (datetime-widget)
+    (weather-widget)
+    (sports-widget)
+    (calendar-widget)))
+
+;; Date/Time widget
+(defwidget datetime-widget []
+  (box :class "datetime"
+       :orientation "v"
+       :space-evenly false
+    (label :class "time" :text time)
+    (label :class "date" :text date)))
+
+;; Weather widget
+(defwidget weather-widget []
+  (box :class "weather"
+       :orientation "v"
+       :space-evenly false
+    (label :class "weather-title" :text "Weather")
+    (label :class "weather-content" 
+           :wrap true
+           :text weather)))
+
+;; Sports widget
+(defwidget sports-widget []
+  (box :class "sports"
+       :orientation "v"
+       :space-evenly false
+    (label :class "sports-title" :text "Scores")
+    (label :class "sports-content"
+           :wrap true
+           :text sports)))
+
+;; Calendar widget
+(defwidget calendar-widget []
+  (box :class "calendar"
+       :orientation "v"
+       :space-evenly false
+    (label :class "calendar-title" :text "Upcoming")
+    (label :class "calendar-content"
+           :wrap true
+           :text calendar)))
