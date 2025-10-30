@@ -7,6 +7,7 @@
 TEAMS=(
     "nfl:SEA"      # Seattle Seahawks
     "nba:POR"      # Portland Trail Blazers
+    "mlb:LAD"      # Los Angeles Dodgers
 )
 
 output=""
