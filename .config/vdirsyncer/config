@@ -1,0 +1,41 @@
+[general]
+status_path = "~/.local/share/vdirsyncer/status/"
+
+[pair icloud_calendars]
+a = "icloud_local_cal"
+b = "icloud_remote_cal"
+collections = ["from b"]
+metadata = ["displayname", "color"]
+conflict_resolution = "b wins"
+
+[storage icloud_local_cal]
+type = "filesystem"
+path = "~/.local/share/calendars/icloud/"
+fileext = ".ics"
+
+[storage icloud_remote_cal]
+type = "caldav"
+url = "https://caldav.icloud.com/"
+username.fetch = ["command", "/home/zackb/bin/get-net-creds.sh", "caldav.icloud.com", "username"]
+password.fetch = ["command", "/home/zackb/bin/get-net-creds.sh", "caldav.icloud.com", "password"]
+
+# iCloud Contacts
+
+[pair icloud_contacts]
+a = "icloud_local_card"
+b = "icloud_remote_card"
+collections = ["from b"]
+metadata = ["displayname"]
+conflict_resolution = "b wins"
+
+[storage icloud_local_card]
+type = "filesystem"
+path = "~/.local/share/contacts/icloud/"
+fileext = ".vcf"
+
+[storage icloud_remote_card]
+type = "carddav"
+url = "https://contacts.icloud.com/"
+username.fetch = ["command", "/home/zackb/bin/get-net-creds.sh", "contacts.icloud.com", "username"]
+password.fetch = ["command", "/home/zackb/bin/get-net-creds.sh", "contacts.icloud.com", "password"]
+
