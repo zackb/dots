@@ -13,4 +13,4 @@ awk -v host="$host" -v field="$field" '
     }
     exit;
   }
-' ~/.netrc
+' /home/zackb/.netrc
