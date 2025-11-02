@@ -8,6 +8,5 @@ rclone mount b2:virusport ~/Sync/virusport \
     --dir-cache-time 72h \
     --umask 002 \
     --log-level INFO \
-    --log-file ~/rclone-b2-mount.log \
     --daemon
 
