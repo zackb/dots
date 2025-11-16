@@ -21,3 +21,4 @@ wlogout
 vdirsyncer
 # Graphite Dark
 # Papirus Dark
+# gsettings set org.gnome.desktop.wm.preferences button-layout : 
