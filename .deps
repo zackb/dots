@@ -15,6 +15,7 @@ qt6-qtwayland
 xdg-desktop-portal-hyprland
 xdg-desktop-portal-gtk
 sddm-catppuccin-mocha
+sddm-silent-theme
 hyprpanel # optional
 rofi-bluetooth-git
 wlogout
