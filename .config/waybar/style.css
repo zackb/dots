@@ -71,6 +71,7 @@ label {
 #backlight,
 #network,
 #custom-updates,
+#custom-number,
 #custom-sysinfo,
 #bluetooth,
 #mpris,
@@ -181,6 +182,7 @@ tooltip label {
    ======================= */
 #custom-mediaplayer:hover,
 #custom-updates:hover,
+#custom-number:hover,
 #pulseaudio:hover,
 #backlight:hover,
 #battery:hover,
@@ -226,6 +228,7 @@ tooltip label {
    Hide Empty Modules
    ======================= */
 #custom-updates.none,
+#custom-number.none,
 #tray.empty,
 #custom-mediaplayer.empty {
     border: 0px;

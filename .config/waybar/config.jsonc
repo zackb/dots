@@ -18,6 +18,7 @@
         // "custom/weather"
     ],
     "modules-right": [
+        "custom/number",
         "custom/updates",
         "pulseaudio",
         "custom/bluetooth",
@@ -116,6 +117,13 @@
         "interval": 1,
         "exec": "bash ~/.config/hypr/services/hypridle.sh status",
         "on-click": "bash ~/.config/hypr/services/hypridle.sh toggle"
+    },
+    "custom/number": {
+        "format": "{}",
+        "escape": true,
+        "exec": "~/bin/check_downloads.sh --quiet",
+        "interval": 360,
+        "on-click": "kitty --class floating -e ~/bin/check_downloads.sh"
     },
     // Updates
     "custom/updates": {
