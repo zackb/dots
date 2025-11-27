@@ -18,7 +18,7 @@
         // "custom/weather"
     ],
     "modules-right": [
-        "custom/number",
+        // "custom/number",
         "custom/updates",
         "pulseaudio",
         "custom/bluetooth",
