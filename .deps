@@ -14,6 +14,8 @@ dolphin
 thunar
 swaync
 gdu
+thunderbird
+# Theme: https://github.com/catppuccin/thunderbird.git
 qt6-qtwayland
 xdg-desktop-portal-hyprland
 xdg-desktop-portal-gtk
