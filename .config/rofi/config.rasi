@@ -11,7 +11,7 @@ configuration {
     me-select-entry:         "MouseSecondary";
     me-accept-entry:         "MousePrimary";
     window-format:           "{w} · {c} · {t}";
-    font:                    "MesloLGSDZ Nerd Font 10";
+    font:                    "Cantarell 12";
     terminal:                "ghostty";
     ssh-command:             "{terminal} -e {ssh-client} {host} [-p {port}]";
 }
@@ -81,7 +81,7 @@ prompt {
     enabled:                 true;
     background-color:        transparent;
     text-color:              @accent;
-    font:                    "MesloLGSDZ Nerd Font Bold 13";
+    font:                    "Cantarell Bold 12";
 }
 
 textbox-prompt-colon {
@@ -118,7 +118,7 @@ button {
     cursor:                  pointer;
     border:                  1px;
     border-color:            transparent;
-    font:                    "MesloLGSDZ Nerd Font Bold 12";
+    font:                    "Cantarell Bold 12";
 }
 
 button selected {
@@ -226,7 +226,7 @@ element-text {
 
 element-text selected.normal {
     text-color:              @accent-alt;
-    font:                    "MesloLGSDZ Nerd Font SemiBold 10";
+    font:                    "Cantarell SemiBold 10";
 }
 
 /* ---- Message ---- */
