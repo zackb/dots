@@ -9,8 +9,11 @@ fuzzel
 nvim
 kitty
 ranger
+yazi
 dolphin
+thunar
 swaync
+gdu
 qt6-qtwayland
 xdg-desktop-portal-hyprland
 xdg-desktop-portal-gtk
