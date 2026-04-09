@@ -58,7 +58,7 @@ fi
 if gum confirm "DO YOU WANT TO CLEAN UP UNUSED PACKAGES?"; then
     sudo pacman -Rns $(pacman -Qdtq) --noconfirm
     echo " Orphaned packages removed."
-    paru -Sccd --noconfirm   # Clean paru cache
+    $aur_helper -Sccd --noconfirm
     sudo paccache -r  # Clean old package versions
 fi
 
