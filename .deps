@@ -23,6 +23,7 @@ vdirsyncer
 # Graphite Dark
 # Papirus Dark
 # gsettings set org.gnome.desktop.wm.preferences button-layout : 
+# gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 tela-circle-icon-theme-dracula
 catppuccin-gtk-theme-mocha
 cantarell-fonts
