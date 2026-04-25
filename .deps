@@ -21,7 +21,10 @@ pacman-contrib
 figlet
 gum
 inetutils
-# Theme: https://github.com/catppuccin/thunderbird.git
+eog
+imv
+zathura
+vlc
 qt6-qtwayland
 xdg-desktop-portal-hyprland
 xdg-desktop-portal-gtk
@@ -31,11 +34,11 @@ hyprpanel # optional
 rofi-bluetooth-git
 wlogout
 vdirsyncer
-# Graphite Dark
-# Papirus Dark
-# gsettings set org.gnome.desktop.wm.preferences button-layout : 
-# gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 tela-circle-icon-theme-dracula
 catppuccin-gtk-theme-mocha
 cantarell-fonts
 brightnessctl
+# Thunderbird Theme: https://github.com/catppuccin/thunderbird.git
+# Font: Cantarell
+# gsettings set org.gnome.desktop.wm.preferences button-layout : 
+# gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'

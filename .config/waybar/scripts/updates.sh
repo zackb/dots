@@ -37,7 +37,7 @@ tooltip="Repo: $repo_updates | AUR: $aur_updates | Flatpak: $flatpak_updates"
 if [[ "$updates" -le "$threshold_none" ]]; then
     printf '{"text": "", "class": "none"}\n'
 else
-    printf '{"text": " %s", "alt": "%s", "tooltip": "%s", "class": "%s"}\n' \
+    printf '{"text": "%s", "alt": "%s", "tooltip": "%s", "class": "%s"}\n' \
         "$updates" "$updates" "$tooltip" "$css_class"
 fi
 
