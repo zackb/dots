@@ -73,6 +73,7 @@ label {
 #custom-updates,
 #custom-number,
 #custom-sysinfo,
+#custom-mlb,
 #bluetooth,
 #mpris,
 #tray,
@@ -197,6 +198,7 @@ tooltip label {
 #mpris:hover,
 #custom-exit:hover,
 #custom-bluetooth:hover,
+#custom-mlb:hover,
 #custom-notifications:hover {
     color: @hover;
 }
@@ -235,4 +237,26 @@ tooltip label {
     background-color: transparent;
     padding: 0px;
     margin: 0px;
+}
+
+#custom-mlb.mlb-pre {
+    color: alpha(@text, 0.6);
+}
+
+#custom-mlb.mlb-final {
+    color: alpha(@text, 0.4);
+}
+
+#custom-mlb.mlb-live {
+    color: @text;
+    animation: mlb-pulse 2s ease-in-out infinite;
+}
+
+#custom-mlb.mlb-error {
+    color: @red;
+}
+
+/* Off day */
+#custom-mlb.mlb-idle {
+    color: alpha(@text, 0.3);
 }

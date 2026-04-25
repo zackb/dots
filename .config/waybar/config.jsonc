@@ -19,6 +19,7 @@
     ],
     "modules-right": [
         // "custom/number",
+        "custom/mlb",
         "custom/updates",
         "pulseaudio",
         "custom/bluetooth",
@@ -358,5 +359,13 @@
             "disk",
             "temperature"
         ]
+    },
+    "custom/mlb": {
+        "exec": "~/.config/waybar/scripts/mlb.sh",
+        "interval": 30,
+        "return-type": "json",
+        "format": "{}",
+        "tooltip": true,
+        "on-click": "xdg-open https://www.mlb.com/scores"
     }
 }
