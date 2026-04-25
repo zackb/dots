@@ -16,6 +16,10 @@ swaync
 gdu
 wlogout
 thunderbird
+gdu
+pacman-contrib
+figlet
+gum
 # Theme: https://github.com/catppuccin/thunderbird.git
 qt6-qtwayland
 xdg-desktop-portal-hyprland
