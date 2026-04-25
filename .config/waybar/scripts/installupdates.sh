@@ -1,73 +1,87 @@
 #!/bin/bash
+# Dependencies: figlet, gum, libnotify, yay, pacman-contrib (for paccache)
 
-# Dependencies check
-dependencies=("figlet" "gum" "notify-send")
+dependencies=("figlet" "gum" "notify-send" "yay")
+missing=()
 for dep in "${dependencies[@]}"; do
     if ! command -v "$dep" &>/dev/null; then
-        echo " ERROR - Missing dependency: $dep"
-        echo "Please install $dep to continue."
-        exit 1
+        missing+=("$dep")
     fi
 done
-
-# AUR helper detection
-aur_helper=$(command -v yay || command -v paru || echo "")
-if [[ -z "$aur_helper" ]]; then
-    echo " ERROR - No AUR helper found (yay or paru)."
+if [[ ${#missing[@]} -gt 0 ]]; then
+    echo " ERROR - Missing dependencies: ${missing[*]}"
     exit 1
 fi
 
-# Title
 sleep 0.2
 clear
 figlet -f smslant "Updates"
 echo
 
-# Confirm update start
-if gum confirm "DO YOU WANT TO START THE UPDATE NOW?"; then
-    echo
-    echo " Update started."
-else
-    echo
-    echo " Update canceled."
-    exit
+echo " Checking for updates..."
+repo_updates=$(checkupdates 2>/dev/null)
+aur_updates=$(yay -Qua 2>/dev/null)
+repo_count=$(echo "$repo_updates" | grep -c . || true)
+aur_count=$(echo "$aur_updates" | grep -c . || true)
+total=$((repo_count + aur_count))
+
+if [[ $total -eq 0 ]]; then
+    echo " System is up to date. Nothing to do."
+    notify-send "Updates" "System is already up to date."
+    exit 0
 fi
 
-# Check if package is installed
-_isInstalled() {
-    package="$1"
-    if $aur_helper -Qs --color always "$package" | grep -q "local.*$package"; then
-        echo 0
+echo " $repo_count repo update(s), $aur_count AUR update(s) available."
+echo
+
+if ! gum confirm "START UPDATE NOW? ($total packages)"; then
+    echo
+    echo " Update canceled."
+    exit 0
+fi
+
+echo
+echo " Starting update..."
+echo
+
+yay -Syu --noconfirm
+echo
+
+if command -v flatpak &>/dev/null; then
+    echo " Updating Flatpak packages..."
+    flatpak update --noninteractive
+    echo
+fi
+
+orphans=$(pacman -Qdtq 2>/dev/null)
+if [[ -n "$orphans" ]]; then
+    echo " Found orphaned packages:"
+    echo "$orphans"
+    echo
+    if gum confirm "REMOVE ORPHANED PACKAGES?"; then
+        sudo pacman -Rns $orphans --noconfirm
+        echo " Orphaned packages removed."
     else
-        echo 1
+        echo " Skipping orphan removal."
     fi
-}
+else
+    echo " No orphaned packages found."
+fi
+echo
 
-# System updates
-sudo pacman -Syu --noconfirm
-
-# AUR updates
-$aur_helper
-
-# Flatpak updates
-if [[ $(_isInstalled "flatpak") == "0" ]]; then
-    flatpak update
+if gum confirm "CLEAN PACKAGE CACHE?"; then
+    yay -Sccd --noconfirm
+    if command -v paccache &>/dev/null; then
+        sudo paccache -r
+        echo " Package cache cleaned."
+    else
+        echo " paccache not found, skipping (install pacman-contrib)."
+    fi
 fi
 
-# Cleanup orphaned packages
-if gum confirm "DO YOU WANT TO CLEAN UP UNUSED PACKAGES?"; then
-    sudo pacman -Rns $(pacman -Qdtq) --noconfirm
-    echo " Orphaned packages removed."
-    $aur_helper -Sccd --noconfirm
-    sudo paccache -r  # Clean old package versions
-fi
-
-# Notify user
-notify-send "Update complete"
+notify-send "Updates" "System update complete."
 echo
-echo " Update complete"
+echo " Update complete."
 echo
-echo
-
 echo "Press [ENTER] to close."
 read
