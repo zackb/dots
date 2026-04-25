@@ -45,9 +45,9 @@
 * {
     margin: 0px;
     padding: 0px;
-    font-family: "MesloLGSDZ Nerd Font Mono", "JetBrainsMono Nerd Font", "JetBrainsMono";
-    font-weight: bold;
-    font-size: 12px;
+    font-family: "Cantarell", "MesloLGSDZ Nerd Font Mono", "JetBrainsMono Nerd Font", "JetBrainsMono";
+    /* font-weight: bold; */
+    font-size: 16px;
     min-height: 20px;
     background: transparent;
     /* important: remove bar-wide rectangle */

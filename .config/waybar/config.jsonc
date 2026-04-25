@@ -136,7 +136,7 @@
     },
     // Brightness
     "backlight": {
-        "format": "{icon} ",
+        "format": "{icon}",
         "format-alt": "{icon} {percent}%",
         "format-icons": [
             "󰃞",
@@ -190,17 +190,24 @@
         "on-click-right": "sleep 0.1 && kill -9 $pgrep blueman-applet",
         "format-no-controller": ""
     },
-    "custom/bluetooth": {
+    "custom/bluetooth2": {
         "format": " {}",
         "exec": "sh -c 'if bluetoothctl devices Connected | grep -q \"^Device\"; then bluetoothctl devices Connected | sed -n \"s/^Device [^ ]\\+ //p\" | head -n1; else echo \u200B; fi'",
         // "on-click": "~/bin/bluetooth-audio.sh",
         "on-click": "blueman-manager",
         "interval": 5
     },
+    "custom/bluetooth": {
+        "format": "{}",
+        "return-type": "json",
+        "exec": "~/.config/waybar/scripts/bluetooth.sh",
+        "on-click": "blueman-manager",
+        "interval": 5
+    },
     // Audio
     "pulseaudio": {
         "scroll-step": 5,
-        "format": "{icon} ",
+        "format": "{icon}",
         "format-alt": "{icon} {volume}%  {format_source}",
         "format-bluetooth": "{volume}% {icon} {format_source}",
         "format-bluetooth-muted": " {icon} {format_source}",
@@ -228,7 +235,7 @@
     "network": {
         "format": "{ifname}",
         //"format-wifi": "󱤚 {essid}",
-        "format-wifi": " ",
+        "format-wifi": "",
         "format-alt": "  {essid}",
         "format-ethernet": "  {ifname}",
         "format-disconnected": "Disconnected",
