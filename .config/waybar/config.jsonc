@@ -362,7 +362,7 @@
     },
     "custom/mlb": {
         "exec": "~/.config/waybar/scripts/mlb.sh",
-        "interval": 30,
+        "interval": 120,
         "return-type": "json",
         "format": "{}",
         "tooltip": true,

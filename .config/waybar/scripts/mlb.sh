@@ -69,7 +69,7 @@ def format_game(game):
             state_str = ""
         css_class = "mlb-pre"
 
-    text    = f"{GLYPH} {h_abbr} {h_score}  {GLYPH} {a_abbr} {a_score}{state_str}"
+    text    = f"{GLYPH} {h_abbr} {h_score}  {GLYPH} {a_abbr} {a_score}{state_str} "
     tooltip = (
         f"{home['team']['teamName']} vs {away['team']['teamName']}\n"
         f"Score: {h_score} – {a_score}\n"
@@ -86,10 +86,10 @@ def main():
         dates = data.get("dates", [])
         games = dates[0]["games"] if dates else []
     except urllib.error.URLError as e:
-        print(json.dumps({"text": f"{GLYPH} offline", "tooltip": str(e), "class": "mlb-error"}))
+        print(json.dumps({"text": f"", "tooltip": str(e), "class": "mlb-error"}))
         sys.exit(0)
     except Exception as e:
-        print(json.dumps({"text": f"{GLYPH} –", "tooltip": str(e), "class": "mlb-error"}))
+        print(json.dumps({"text": f"", "tooltip": str(e), "class": "mlb-error"}))
         sys.exit(0)
 
     my_games = [
@@ -100,7 +100,8 @@ def main():
 
     if not my_games:
         print(json.dumps({
-            "text":    f"{GLYPH} {MY_TEAM} off",
+            # "text":    f"{GLYPH} {MY_TEAM} off",
+            "text":    f"",
             "tooltip": f"No {MY_TEAM_NAME} game today",
             "class":   "mlb-idle"
         }))
