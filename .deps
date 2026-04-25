@@ -20,6 +20,7 @@ gdu
 pacman-contrib
 figlet
 gum
+inetutils
 # Theme: https://github.com/catppuccin/thunderbird.git
 qt6-qtwayland
 xdg-desktop-portal-hyprland
