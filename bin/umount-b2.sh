@@ -1,3 +1,3 @@
 #!/bin/bash
 
-umount ~/Sync/virusport
+umount ~/mnt/virusport

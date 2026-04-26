@@ -17,15 +17,18 @@ swaync
 gdu
 wlogout
 thunderbird
+gimp
 gdu
 pacman-contrib
 figlet
 gum
 inetutils
+fuse3
 eog
 imv
 zathura
 vlc
+rclone
 qt6-qtwayland
 xdg-desktop-portal-hyprland
 xdg-desktop-portal-gtk
@@ -43,3 +46,4 @@ brightnessctl
 # Font: Cantarell
 # gsettings set org.gnome.desktop.wm.preferences button-layout : 
 # gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+# fuse user allow: sudo sed -i 's/#user_allow_other/user_allow_other/' /etc/fuse.conf

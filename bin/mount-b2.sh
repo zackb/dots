@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rclone mount b2:virusport ~/Sync/virusport \
+rclone mount b2:virusport ~/mnt/virusport \
     --vfs-cache-mode writes \
     --vfs-cache-max-size 1G \
     --vfs-cache-max-age 1h \
