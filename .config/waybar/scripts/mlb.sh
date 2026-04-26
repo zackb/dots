@@ -78,7 +78,8 @@ def format_game(game):
     return text, tooltip, css_class
 
 def main():
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today = datetime.now().strftime("%Y-%m-%d")
+    # today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     url   = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={today}&hydrate=linescore,team"
 
     try:
