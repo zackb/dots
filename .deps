@@ -29,6 +29,10 @@ imv
 zathura
 vlc
 rclone
+docker
+docker-buildx
+kubectl
+helm
 qt6-qtwayland
 xdg-desktop-portal-hyprland
 xdg-desktop-portal-gtk
