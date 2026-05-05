@@ -46,6 +46,9 @@ tela-circle-icon-theme-dracula
 catppuccin-gtk-theme-mocha
 cantarell-fonts
 brightnessctl
+terminus-font
+greetd
+greetd-tuigreet
 # Thunderbird Theme: https://github.com/catppuccin/thunderbird.git
 # Font: Cantarell
 # gsettings set org.gnome.desktop.wm.preferences button-layout : 
