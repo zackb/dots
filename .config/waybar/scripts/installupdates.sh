@@ -27,7 +27,7 @@ total=$((repo_count + aur_count))
 
 if [[ $total -eq 0 ]]; then
     echo " System is up to date. Nothing to do."
-    notify-send "Updates" "System is already up to date."
+    notify-send --hint int:transient:1 "Updates" "System is already up to date."
     exit 0
 fi
 
@@ -79,7 +79,7 @@ if gum confirm "CLEAN PACKAGE CACHE?"; then
     fi
 fi
 
-notify-send "Updates" "System update complete."
+notify-send --hint int:transient:1 "Updates" "System update complete."
 echo
 echo " Update complete."
 echo
