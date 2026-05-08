@@ -9,6 +9,7 @@ import Quickshell.Bluetooth
 import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls
 
 PanelWindow {
     id: root
@@ -277,10 +278,17 @@ PanelWindow {
             }
 
             // ── Device list ────────────────────────────────────────
-            ColumnLayout {
+            ScrollView {
+                id: deviceScroll
                 visible:    root.adapter && root.adapter.enabled
                 Layout.fillWidth: true
-                spacing: 4
+                Layout.maximumHeight: 350
+                clip: true
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+
+                ColumnLayout {
+                    width: deviceScroll.availableWidth
+                    spacing: 4
 
 // Section: Connected
                 Repeater {
@@ -354,6 +362,7 @@ PanelWindow {
                     Layout.alignment: Qt.AlignHCenter
                     Layout.topMargin: 8
                 }
+            }
             }
 
             // ── Scan button ────────────────────────────────────────
