@@ -18,11 +18,9 @@ PanelWindow {
         target: "bluetooth"
 
         function toggle() {
-            root.visible = !root.visible
-            // When opening, kick off a fresh device scan
-            if (root.visible && adapter) {
-                adapter.discovering = true
-                scanTimer.restart()
+            if (root.visible) {
+                root.visible = false
+            } else {
                 cursorPosProcess.running = true
             }
         }
@@ -42,6 +40,8 @@ PanelWindow {
                     root.margins.left = newLeft > 0 ? newLeft : 0
                     root.margins.top = cy + 10
                 }
+
+                root.visible = true
             }
         }
     }
