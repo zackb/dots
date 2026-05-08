@@ -14,7 +14,6 @@ import QtQuick.Controls
 PanelWindow {
     id: root
 
-    // ── IPC: quickshell ipc call bluetooth toggle ──────────────────
     IpcHandler {
         target: "bluetooth"
 
@@ -24,6 +23,25 @@ PanelWindow {
             if (root.visible && adapter) {
                 adapter.discovering = true
                 scanTimer.restart()
+                cursorPosProcess.running = true
+            }
+        }
+    }
+
+    Process {
+        id: cursorPosProcess
+        command: ["hyprctl", "cursorpos"]
+        running: false
+        stdout: SplitParser {
+            onRead: data => {
+                var parts = data.split(", ")
+                if (parts.length === 2) {
+                    var cx = parseInt(parts[0])
+                    var cy = parseInt(parts[1])
+                    var newLeft = cx - (root.implicitWidth / 2)
+                    root.margins.left = newLeft > 0 ? newLeft : 0
+                    root.margins.top = cy + 10
+                }
             }
         }
     }
@@ -33,14 +51,13 @@ PanelWindow {
     implicitWidth:  340
     implicitHeight: contentCol.implicitHeight + 24
 
-    // Anchor to top-right (tweak to match your Waybar bluetooth position)
     anchors {
         top:   true
-        right: true
+        left:  true
     }
     margins {
         top:   8
-        right: 8
+        left:  8
     }
 
     // Layer shell settings — float above everything, no keyboard grab
