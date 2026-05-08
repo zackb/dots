@@ -146,22 +146,22 @@ PanelWindow {
     // ── Theme ──────────────────────────────────────────────────────
     QtObject {
         id: theme
-        property color bg:           "#1a1b26"
-        property color bgElevated:   "#24253a"
-        property color bgHover:      "#2d2e4a"
-        property color border:       "#414868"
-        property color text:         "#c0caf5"
-        property color textDim:      "#565f89"
-        property color textBright:   "#e0e5ff"
-        property color accent:       "#7aa2f7"
-        property color accentDim:    "#3b4261"
-        property color connected:    "#9ece6a"
-        property color disconnected: "#565f89"
-        property color scanning:     "#e0af68"
-        property color batteryHigh:  "#9ece6a"
-        property color batteryMid:   "#e0af68"
-        property color batteryLow:   "#f7768e"
-        property color danger:       "#f7768e"
+        property color bg:           "#1e1e2e"
+        property color bgElevated:   "#313244"
+        property color bgHover:      "#45475a"
+        property color border:       "#45475a"
+        property color text:         "#cdd6f4"
+        property color textDim:      "#6c7086"
+        property color textBright:   "#cdd6f4"
+        property color accent:       "#cba6f7"
+        property color accentDim:    "#45475a"
+        property color connected:    "#a6e3a1"
+        property color disconnected: "#6c7086"
+        property color scanning:     "#f9e2af"
+        property color batteryHigh:  "#a6e3a1"
+        property color batteryMid:   "#f9e2af"
+        property color batteryLow:   "#f38ba8"
+        property color danger:       "#f38ba8"
         property int   radius:       12
         property int   radiusSm:     8
         property int   fontSz:       13

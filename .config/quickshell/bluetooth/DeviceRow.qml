@@ -15,14 +15,14 @@ Rectangle {
     Layout.fillWidth: true
     height: 52
     radius: theme ? theme.radiusSm : 8
-    color: mouseArea.containsMouse ? (theme ? theme.bgHover : "#2d2e4a") : (theme ? theme.bgElevated : "#24253a")
+    color: mouseArea.containsMouse ? (theme ? theme.bgHover : "#45475a") : (theme ? theme.bgElevated : "#313244")
     border.width: 1
-    border.color: theme ? theme.border : "#414868"
+    border.color: theme ? theme.border : "#45475a"
 
     Text {
         anchors.centerIn: parent
         text: device ? (device.name || device.deviceName || device.address || "?") : "?"
-        color: theme ? theme.text : "#c0caf5"
+        color: theme ? theme.text : "#cdd6f4"
         font.pixelSize: theme ? theme.fontSz : 13
     }
 
