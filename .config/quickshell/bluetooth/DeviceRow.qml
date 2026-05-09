@@ -19,11 +19,63 @@ Rectangle {
     border.width: 1
     border.color: theme ? theme.border : "#45475a"
 
-    Text {
-        anchors.centerIn: parent
-        text: device ? (device.name || device.deviceName || device.address || "?") : "?"
-        color: theme ? theme.text : "#cdd6f4"
-        font.pixelSize: theme ? theme.fontSz : 13
+    RowLayout {
+        anchors.fill: parent
+        anchors.leftMargin: 16
+        anchors.rightMargin: 16
+        spacing: 12
+
+        // Pulsing indicator for connected devices
+        Item {
+            width: 12
+            height: 12
+            visible: device && device.connected
+
+            Rectangle {
+                anchors.centerIn: parent
+                width: 8
+                height: 8
+                radius: 4
+                color: theme ? theme.connected : "#a6e3a1"
+
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: 8
+                    height: 8
+                    radius: 4
+                    color: parent.color
+                    opacity: 0.6
+
+                    SequentialAnimation on scale {
+                        running: device && device.connected
+                        loops: Animation.Infinite
+                        NumberAnimation { from: 1.0; to: 2.5; duration: 1200; easing.type: Easing.OutQuad }
+                    }
+                    SequentialAnimation on opacity {
+                        running: device && device.connected
+                        loops: Animation.Infinite
+                        NumberAnimation { from: 0.6; to: 0.0; duration: 1200; easing.type: Easing.OutQuad }
+                    }
+                }
+            }
+        }
+
+        Text {
+            Layout.fillWidth: true
+            text: device ? (device.name || device.deviceName || device.address || "?") : "?"
+            color: device && device.connected ? (theme ? theme.textBright : "#cdd6f4") : (theme ? theme.text : "#cdd6f4")
+            font.pixelSize: theme ? theme.fontSz : 13
+            font.bold: device && device.connected
+            elide: Text.ElideRight
+            horizontalAlignment: Text.AlignLeft
+        }
+
+        Text {
+            visible: device && device.connected
+            text: "Connected"
+            color: theme ? theme.connected : "#a6e3a1"
+            font.pixelSize: theme ? theme.fontSzSm : 11
+        }
     }
 
     MouseArea {
