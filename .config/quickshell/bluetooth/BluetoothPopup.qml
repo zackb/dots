@@ -36,9 +36,9 @@ PanelWindow {
                 if (parts.length === 2) {
                     var cx = parseInt(parts[0])
                     var cy = parseInt(parts[1])
-                    var newLeft = cx - (root.implicitWidth / 2)
-                    root.margins.left = newLeft > 0 ? newLeft : 0
-                    root.margins.top = cy + 10
+                    var newLeft = cx - (panel.width / 2)
+                    panel.x = newLeft > 0 ? newLeft : 0
+                    panel.y = cy + 10
                 }
 
                 root.visible = true
@@ -48,16 +48,12 @@ PanelWindow {
 
     // ── Window geometry ────────────────────────────────────────────
     visible:   false
-    implicitWidth:  340
-    implicitHeight: contentCol.implicitHeight + 24
 
     anchors {
         top:   true
+        bottom: true
         left:  true
-    }
-    margins {
-        top:   8
-        left:  8
+        right: true
     }
 
     // Layer shell settings — float above everything, no keyboard grab
@@ -180,10 +176,8 @@ PanelWindow {
 
     Rectangle {
         id: panel
-        anchors {
-            top:    parent.top
-            right:  parent.right
-        }
+        x: 0
+        y: 0
         width:  340
         height: contentCol.implicitHeight + 24
         color:  theme.bg
@@ -200,6 +194,11 @@ PanelWindow {
             border.width:    1
             radius:          theme.radius + 1
             z:               -1
+        }
+
+        // Catch clicks inside the panel so they don't fall through to the root MouseArea
+        MouseArea {
+            anchors.fill: parent
         }
 
         // ── Content ────────────────────────────────────────────────
