@@ -133,7 +133,7 @@
         "return-type": "json",
         "exec": "~/.config/waybar/scripts/updates.sh",
         "interval": 360,
-        "on-click": "kitty --class floating -e ~/.config/waybar/scripts/installupdates.sh"
+        "on-click": "kitty --class floating -e ~/bin/installupdates.sh"
     },
     // Brightness
     "backlight": {
