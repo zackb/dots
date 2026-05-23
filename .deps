@@ -8,8 +8,10 @@ waybar
 rofi
 fuzzel
 fzf
+fd
 nvim
 kitty
+ghostty
 ranger
 yazi
 dolphin
@@ -17,7 +19,7 @@ thunar
 swaync
 gdu
 wlogout
-thunderbird
+betterbird
 gimp
 gdu
 pacman-contrib
