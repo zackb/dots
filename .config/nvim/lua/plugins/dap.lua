@@ -4,7 +4,7 @@ return {
         dependencies = {
             "rcarriga/nvim-dap-ui",
             "nvim-neotest/nvim-nio",
-            "williamboman/mason.nvim",
+            -- "williamboman/mason.nvim", loaded by lsp.lua
             "jay-babu/mason-nvim-dap.nvim",
             "leoluz/nvim-dap-go",
         },
@@ -65,11 +65,8 @@ return {
 
             require("mason-nvim-dap").setup {
                 automatic_installation = true,
-
-                handlers = {},
-
                 ensure_installed = {
-                    "clangd",
+                    "codelldb",
                     "delve",
                 },
             }
