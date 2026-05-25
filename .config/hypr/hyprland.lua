@@ -36,8 +36,9 @@ end)
 ---- ENVIRONMENT VARIABLES ----
 -------------------------------
 
-hl.env("XCURSOR_SIZE", "18")
-hl.env("HYPRCURSOR_SIZE", "18")
+hl.env("HYPRCURSOR_THEME", "rose-pine-hyprcursor")
+hl.env("HYPRCURSOR_SIZE", "24")
+hl.env("XCURSOR_SIZE", "24")
 hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")
 -- hl.env("QT_STYLE_OVERRIDE", "kvantum")
 hl.env("QT_QPA_PLATFORM", "wayland")
