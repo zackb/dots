@@ -22,6 +22,7 @@
         "custom/mlb",
         "custom/updates",
         "pulseaudio",
+        // "pulseaudio/slider",
         "custom/bluetooth",
         "backlight",
         "network",
@@ -232,6 +233,11 @@
         "on-click-right": "sleep 0.1 && hyprwat --audio",
         // "on-click-right": "sleep 0.1 && pavucontrol",
         "tooltip-format": "{volume}% {format_source}"
+    },
+    "pulseaudio/slider": {
+        "min": 0,
+        "max": 100,
+        "orientation": "horizontal"
     },
     // Network settings
     "network": {

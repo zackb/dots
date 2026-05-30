@@ -16,6 +16,7 @@
 @define-color red #f38ba8;
 @define-color yellow #f9e2af;
 @define-color green #a6e3a1;
+@define-color white #cdd6f4;
 
 @define-color STRAWBERRY_700 #e53935;
 @define-color GRAPE_700 #8e24aa;
@@ -259,4 +260,30 @@ tooltip label {
 /* Off day */
 #custom-mlb.mlb-idle {
     color: alpha(@text, 0.3);
+}
+
+#pulseaudio-slider slider {
+    all: unset;
+    min-height: 0;
+    min-width: 0;
+    opacity: 0;
+    background-image: none;
+    border: none;
+    box-shadow: none;
+
+}
+
+#pulseaudio-slider trough {
+    min-height: 4px;
+    min-width: 75px;
+    border-radius: 5px;
+    background: @COCOA_700;
+
+}
+
+#pulseaudio-slider highlight {
+    min-width: 10px;
+    border-radius: 5px;
+    background: @white;
+
 }
