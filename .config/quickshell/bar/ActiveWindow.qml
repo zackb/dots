@@ -8,6 +8,16 @@ Rectangle {
     width:  windowTitle.implicitWidth + 24
     height: 24
 
+    // TODO
+    Image {
+        property string appClass: Hyprland.activeToplevel?.appId ?? ""
+        property DesktopEntry entry: DesktopEntries.byId(appClass)
+
+        source: entry?.icon ?? ""
+        width:  16
+        height: 16
+    }
+
     Text {
         id: windowTitle
         property string title: Hyprland.activeToplevel?.title ?? ""

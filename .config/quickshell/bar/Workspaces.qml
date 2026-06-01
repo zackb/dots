@@ -3,9 +3,8 @@ import Quickshell.Hyprland
 import QtQuick
 
 Row {
-    property color activeColor: Qt.rgba(0.9, 0.9, 0.9, 0.9)
-    property color occupiedColor: Qt.rgba(0.5, 0.5, 0.6, 0.6)
-    property color emptyColor: Qt.rgba(0.3, 0.3, 0.3, 0.3)
+    property color backgroundColor: Qt.alpha("#1e1e2e", 0.5)
+    property color urgentColor: Qt.alpha("#f38ba8", 0.8)
 
     spacing: 4
 
@@ -16,16 +15,13 @@ Row {
             required property HyprlandWorkspace modelData
 
             property bool isActive: modelData.id === Hyprland.focusedMonitor?.activeWorkspace?.id
+            property bool isUrgent: modelData.toplevels.values.filter(c => c.urgent && c.workspace?.id === modelData.id).length > 0
 
             width:  32
             height: 24
             radius: height / 2
 
-            // Active = bright, occupied = dim, empty = faint
-            color: isActive ? activeColor
-                   : modelData.toplevels.values.filter(c => c.workspace?.id === modelData.id).length > 0
-                     ? occupiedColor
-                     : emptyColor
+            color: isUrgent ? urgentColor : backgroundColor
 
             Behavior on color {
                 ColorAnimation { duration: 120 }
@@ -37,8 +33,9 @@ Row {
                 font.pixelSize:   16
                 font.family:      "Cantarell"
                 color: isActive
-                       ? "#111"
-                       : "#aaa"
+                       // ? "#111"
+                       ? "#cdd6f4"
+                       : Qt.alpha("#cdd6f4", 0.3)
             }
 
             TapHandler {
