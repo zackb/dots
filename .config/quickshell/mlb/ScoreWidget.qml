@@ -5,7 +5,12 @@ import QtQuick.Controls
 import Quickshell.Wayland
 
 PanelWindow {
+
     id: root
+
+    property bool active: true
+
+    visible: active
 
     // pin to bottom-right corner
     anchors {
@@ -33,7 +38,7 @@ PanelWindow {
     // re-fetch every 2 minutes
     Timer {
         interval: 120000
-        running: true
+        running: active
         repeat: true
         triggeredOnStart: true
         onTriggered: mlbProcess.running = true
@@ -41,6 +46,7 @@ PanelWindow {
 
     Process {
         id: mlbProcess
+        running: active
         command: ["python3", Qt.resolvedUrl("mlb.py").toString().replace("file://", "")]
         stderr: SplitParser {
             onRead: data => console.log("mlb stderr:", data)

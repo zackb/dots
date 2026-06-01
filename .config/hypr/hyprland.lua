@@ -164,7 +164,7 @@ hl.bind(mainMod .. " + SHIFT + Q", hl.dsp.exit())
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd(menu))
-hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd("vicinae toggle"))
+-- hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd("vicinae toggle"))
 hl.bind(mainMod .. " + T", hl.dsp.layout("togglesplit"))
 hl.bind(mainMod .. " + SHIFT + J", hl.dsp.layout("togglesplit"))
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ action = "toggle" }))
@@ -222,6 +222,9 @@ hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("~/bin/wallpaper.sh"))
 
 -- workspace overview
 hl.bind(mainMod .. " + TAB", hl.dsp.exec_cmd("hyprwat --overview"))
+
+-- quickhell toggle
+hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd("qs ipc call shell toggle"))
 
 -- Move/resize windows with mainMod + LMB/RMB and dragging
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
