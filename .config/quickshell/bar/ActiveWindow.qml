@@ -4,6 +4,11 @@ import QtQuick
 import "../"
 
 Rectangle {
+    property var toplevel: Hyprland.activeToplevel
+    property var workspace: Hyprland.focusedWorkspace
+
+    visible: toplevel != null && toplevel.workspace == workspace
+
     color:  Qt.alpha("#1e1e2e", 0.5)
     radius: height / 2
     height: 24
@@ -11,9 +16,13 @@ Rectangle {
 
     Connections {
         target: Hyprland
-        onActiveToplevelChanged: {
+        function onActiveToplevelChanged() {
             // HACK: activeTopelevel IPC event is not there for new apps
             Hyprland.refreshToplevels()
+            toplevel = Hyprland.activeToplevel
+        }
+        function onFocusedWorkspaceChanged() {
+            workspace = Hyprland.focusedWorkspace
         }
     }
 
