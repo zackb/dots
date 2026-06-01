@@ -3,28 +3,33 @@ import Quickshell.Hyprland
 import QtQuick
 
 Rectangle {
-    color:  Qt.rgba(0.5, 0.5, 0.6, 0.6)
+    color:  Qt.alpha("#1e1e2e", 0.5)
     radius: height / 2
-    width:  windowTitle.implicitWidth + 24
     height: 24
+    width:  row.implicitWidth + 24
 
-    // TODO
-    Image {
-        property string appClass: Hyprland.activeToplevel?.appId ?? ""
-        property DesktopEntry entry: DesktopEntries.byId(appClass)
-
-        source: entry?.icon ?? ""
-        width:  16
-        height: 16
-    }
-
-    Text {
-        id: windowTitle
-        property string title: Hyprland.activeToplevel?.title ?? ""
+    Row {
+        id:              row
         anchors.centerIn: parent
-        text:             title.length > 40 ? title.slice(0, 40) + "…" : title
-        color:            "#ddd"
-        font.pixelSize:   16
-        font.family:      "Cantarell"
+        spacing:         6
+
+        Image {
+            property string appClass: Hyprland.activeToplevel?.lastIpcObject?.class ?? ""
+            property DesktopEntry entry: DesktopEntries.byId(appClass)
+            anchors.verticalCenter: parent.verticalCenter
+            source: entry ? "image://icon/" + entry.icon : ""
+            width:  16
+            height: 16
+        }
+
+        Text {
+            id: windowTitle
+            property string title: Hyprland.activeToplevel?.title ?? ""
+            anchors.verticalCenter: parent.verticalCenter
+            text:           title.length > 40 ? title.slice(0, 40) + "…" : title
+            color:          "#cdd6f4"
+            font.pixelSize: 16
+            font.family:    "Cantarell"
+        }
     }
 }
