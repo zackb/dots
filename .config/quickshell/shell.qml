@@ -1,5 +1,6 @@
 import Quickshell
 import Quickshell.Io
+import "./bar"
 import "./bluetooth"
 import "./mlb"
 
@@ -14,6 +15,7 @@ ShellRoot {
         }
     }
 
+    // Bar{}
     BluetoothPopup {}
 
     ScoreWidget {
