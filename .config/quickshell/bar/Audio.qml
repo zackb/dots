@@ -19,10 +19,10 @@ Rectangle {
     property bool  muted:   sink?.audio?.muted  ?? false
 
     function volumeIcon() {
-        if (muted || volume === 0) return "󰝟"
-        if (volume < 0.33)        return ""
-        if (volume < 0.66)        return ""
-        return ""
+        if (muted || volume === 0) return "󰝟"  // muted
+        if (volume < 0.33)        return "󰕿"  // low
+        if (volume < 0.66)        return "󰖀"  // medium
+        return                           "󰕾"  // high
     }
 
     Row {
@@ -57,4 +57,5 @@ Rectangle {
             }
         }
     }
+
 }
