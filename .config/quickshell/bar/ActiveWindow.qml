@@ -28,7 +28,7 @@ Rectangle {
             property string title: Hyprland.activeToplevel?.title ?? ""
             anchors.verticalCenter: parent.verticalCenter
             text:           title.length > 40 ? title.slice(0, 40) + "…" : title
-            color:          Theme.fontColor
+            color:          Theme.textColor
             font.pixelSize: Theme.fontSize
             font.family:    Theme.font
         }

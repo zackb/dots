@@ -34,8 +34,8 @@ Row {
                 font.pixelSize:   Theme.fontSize
                 font.family:      Theme.font
                 color: isActive
-                       ? Theme.fontColor
-                       : Qt.alpha(Theme.fontColor, 0.3)
+                       ? Theme.textColor
+                       : Qt.alpha(Theme.textColor, 0.3)
             }
 
             TapHandler {

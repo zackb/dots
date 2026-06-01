@@ -58,9 +58,8 @@ PanelWindow {
             }
             spacing: 4
 
-            // Slot in your other modules here as you build them
+            Audio {}
             // Updates {}
-            // Audio {}
             // Battery {}
         }
     }

@@ -15,7 +15,7 @@ ShellRoot {
         }
     }
 
-    // Bar{}
+    Bar{}
     BluetoothPopup {}
 
     ScoreWidget {
