@@ -38,8 +38,11 @@ Row {
                        : Qt.alpha(Theme.textColor, 0.3)
             }
 
+            HoverHandler {
+                cursorShape: Qt.PointingHandCursor
+            }
+
             TapHandler {
-                            
                 onTapped: Hyprland.dispatch("hl.dsp.focus({ workspace = \"" + modelData.id + "\" })")
             }
         }
