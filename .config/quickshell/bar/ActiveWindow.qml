@@ -9,6 +9,14 @@ Rectangle {
     height: 24
     width:  row.implicitWidth + 24
 
+    Connections {
+        target: Hyprland
+        onActiveToplevelChanged: {
+            // HACK: activeTopelevel IPC event is not there for new apps
+            Hyprland.refreshToplevels()
+        }
+    }
+
     Row {
         id:              row
         anchors.centerIn: parent
@@ -16,7 +24,7 @@ Rectangle {
 
         Image {
             property string appClass: Hyprland.activeToplevel?.lastIpcObject?.class ?? ""
-            property DesktopEntry entry: DesktopEntries.byId(appClass)
+            property DesktopEntry entry: DesktopEntries.heuristicLookup(appClass)
             anchors.verticalCenter: parent.verticalCenter
             source: entry ? "image://icon/" + entry.icon : ""
             width:  16
