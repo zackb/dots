@@ -9,9 +9,12 @@ PanelWindow {
 
     // pin to bottom-right corner
     anchors {
-        bottom: true
+        top: true
         right: true
     }
+
+    WlrLayershell.margins.top: 12
+    WlrLayershell.margins.right: 12
 
     // reserve no exclusive zone
     exclusionMode: ExclusionMode.Normal
@@ -60,7 +63,8 @@ PanelWindow {
     Rectangle {
         anchors.fill: parent
         radius: 8
-        color: root.gameClass === "mlb-live" ? "#1a2e1a" : root.gameClass === "mlb-final" ? "#1a1a2e" : "#1a1a1a"
+        color: Qt.rgba(0, 0, 0, 0.4)
+        // color: root.gameClass === "mlb-live" ? "#1a2e1a" : root.gameClass === "mlb-final" ? "#1a1a2e" : "#1a1a1a"
         border.color: root.gameClass === "mlb-live" ? "#4caf50" : root.gameClass === "mlb-final" ? "#5c6bc0" : "#444"
         border.width: 1
 

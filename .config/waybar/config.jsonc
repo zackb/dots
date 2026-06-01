@@ -19,7 +19,7 @@
     ],
     "modules-right": [
         // "custom/number",
-        "custom/mlb",
+        // "custom/mlb",
         "custom/updates",
         "pulseaudio",
         // "pulseaudio/slider",
