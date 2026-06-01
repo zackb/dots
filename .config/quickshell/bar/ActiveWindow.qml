@@ -1,6 +1,7 @@
 import Quickshell
 import Quickshell.Hyprland
 import QtQuick
+import "../"
 
 Rectangle {
     color:  Qt.alpha("#1e1e2e", 0.5)
@@ -27,9 +28,9 @@ Rectangle {
             property string title: Hyprland.activeToplevel?.title ?? ""
             anchors.verticalCenter: parent.verticalCenter
             text:           title.length > 40 ? title.slice(0, 40) + "…" : title
-            color:          "#cdd6f4"
-            font.pixelSize: 16
-            font.family:    "Cantarell"
+            color:          Theme.fontColor
+            font.pixelSize: Theme.fontSize
+            font.family:    Theme.font
         }
     }
 }

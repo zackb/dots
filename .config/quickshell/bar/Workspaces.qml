@@ -1,6 +1,7 @@
 import Quickshell
 import Quickshell.Hyprland
 import QtQuick
+import "../"
 
 Row {
     property color backgroundColor: Qt.alpha("#1e1e2e", 0.5)
@@ -30,12 +31,11 @@ Row {
             Text {
                 anchors.centerIn: parent
                 text:             modelData.id
-                font.pixelSize:   16
-                font.family:      "Cantarell"
+                font.pixelSize:   Theme.fontSize
+                font.family:      Theme.font
                 color: isActive
-                       // ? "#111"
-                       ? "#cdd6f4"
-                       : Qt.alpha("#cdd6f4", 0.3)
+                       ? Theme.fontColor
+                       : Qt.alpha(Theme.fontColor, 0.3)
             }
 
             TapHandler {
