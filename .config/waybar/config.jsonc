@@ -204,7 +204,7 @@
         "return-type": "json",
         "exec": "~/.config/waybar/scripts/bluetooth.sh",
         // "on-click": "blueman-manager",
-        "on-click": "qs -c bluetooth ipc call bluetooth toggle",
+        "on-click": "qs ipc call bluetooth toggle",
         "interval": 5
     },
     // Audio
