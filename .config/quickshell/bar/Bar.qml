@@ -11,6 +11,10 @@ PanelWindow {
         left:  true
         right: true
     }
+    margins {
+        top: 4
+        right: 4
+    }
 
     WlrLayershell.layer:     WlrLayer.Top
     WlrLayershell.namespace: "quickshell-bar"

@@ -20,6 +20,7 @@ Rectangle {
         triggeredOnStart: true
         onTriggered: updatesProcess.running = true
     }
+
     Process {
         id: updatesProcess
         running: false
