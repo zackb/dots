@@ -59,6 +59,7 @@ PanelWindow {
             spacing: 4
 
             Audio {}
+            Bluetooth {}
             Power {}
             // Updates {}
             // Battery {}
