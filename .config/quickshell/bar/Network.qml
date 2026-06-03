@@ -47,7 +47,6 @@ Rectangle {
         }
         stdout: SplitParser {
             onRead: data => {
-                // console.log("Network status:", data)
                 const j = JSON.parse(data)
                 root.connected = j.type !== "none"
                 root.ethernet  = j.type === "ethernet"

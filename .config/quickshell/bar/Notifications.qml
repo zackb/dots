@@ -23,7 +23,6 @@ Text {
         stdout: SplitParser {
             onRead: data => {
                 try {
-                    console.log("swaync output:", data)
                     const j = JSON.parse(data)
                     root.hasNotifications = j.class?.includes("notification") ?? false
                     root.dnd              = j.class?.includes("dnd") ?? false

@@ -67,6 +67,7 @@ PanelWindow {
 
             Updates {}
             Audio {}
+            Backlight {}
             Bluetooth {}
             Network {}
             Battery {}
