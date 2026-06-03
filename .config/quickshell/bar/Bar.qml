@@ -13,11 +13,13 @@ PanelWindow {
     }
     margins {
         top: 4
-        right: 4
+        bottom: 2
+        left: 8
+        right: 8
     }
 
-    WlrLayershell.layer:     WlrLayer.Top
-    WlrLayershell.namespace: "quickshell-bar"
+    WlrLayershell.layer:     WlrLayer.Bottom
+    WlrLayershell.namespace: "zbar"
     WlrLayershell.exclusionMode: ExclusionMode.Exclusive  // pushes windows down
 
     implicitHeight: 24
@@ -26,7 +28,6 @@ PanelWindow {
 
     Rectangle {
         anchors.fill: parent
-        // color:        Qt.rgba(0.05, 0.05, 0.08, 0.75)
         color:        Qt.rgba(0.0, 0.0, 0.0, 0.0)
 
         // ── Left ──────────────────────────────────────────────────────
@@ -35,7 +36,6 @@ PanelWindow {
             anchors {
                 left:           parent.left
                 verticalCenter: parent.verticalCenter
-                leftMargin:     8
             }
             spacing: 4
 
@@ -62,7 +62,6 @@ PanelWindow {
             anchors {
                 right:          parent.right
                 verticalCenter: parent.verticalCenter
-                rightMargin:    8
             }
             spacing: 6
 
