@@ -60,14 +60,19 @@ PanelWindow {
                 verticalCenter: parent.verticalCenter
                 rightMargin:    8
             }
-            spacing: 4
+            spacing: 6
 
             Updates {}
             Audio {}
             Bluetooth {}
             Network {}
             Battery {}
-            Power {}
+            Row {
+                spacing: 12
+                Idle {}
+                Notifications {}
+                Power {}
+            }
         }
     }
 }

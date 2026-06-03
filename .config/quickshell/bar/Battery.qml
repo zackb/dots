@@ -34,7 +34,6 @@ Rectangle {
         stdout: SplitParser {
             onRead: data => {
                 const parts = data.trim().split(" ")
-                console.log("Battery data:", parts)
                 root.percentage = parseInt(parts[0]) || 0
                 root.charging   = parts[1] === "1"
             }
