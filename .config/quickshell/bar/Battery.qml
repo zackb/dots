@@ -55,7 +55,14 @@ Rectangle {
         cursorShape: Qt.PointingHandCursor 
     }
     TapHandler {
-        onTapped: root.clicked = !root.clicked
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
+        onTapped: (eventPoint, button) => {
+            if (button === Qt.RightButton) {
+                Quickshell.execDetached(["bash", Qt.resolvedUrl("scripts/battery.sh").toString().replace("file://", "")])
+            } else {
+                root.clicked = !root.clicked
+            }
+        }
     }
 
     Row {
