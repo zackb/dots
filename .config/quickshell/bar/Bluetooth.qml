@@ -21,13 +21,14 @@ Rectangle {
 
         }
 
-        HoverHandler {
-            cursorShape: Qt.PointingHandCursor
-        }
+    }
 
-        TapHandler {
-            onTapped: Quickshell.execDetached(["qs", "ipc", "call", "bluetooth", "toggle"])
-        }
+    HoverHandler {
+        cursorShape: Qt.PointingHandCursor
+    }
+
+    TapHandler {
+        onTapped: Quickshell.execDetached(["qs", "ipc", "call", "bluetooth", "toggle"])
     }
 
 }

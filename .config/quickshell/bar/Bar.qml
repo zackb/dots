@@ -14,8 +14,6 @@ PanelWindow {
     margins {
         top: 4
         bottom: 2
-        left: 8
-        right: 8
     }
 
     WlrLayershell.layer:     WlrLayer.Bottom
@@ -36,6 +34,7 @@ PanelWindow {
             anchors {
                 left:           parent.left
                 verticalCenter: parent.verticalCenter
+                leftMargin:     8
             }
             spacing: 4
 
@@ -62,6 +61,7 @@ PanelWindow {
             anchors {
                 right:          parent.right
                 verticalCenter: parent.verticalCenter
+                rightMargin:    18
             }
             spacing: 6
 
