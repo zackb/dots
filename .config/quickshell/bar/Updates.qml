@@ -24,7 +24,7 @@ Rectangle {
     Process {
         id: updatesProcess
         running: false
-        command: ["bash", Qt.resolvedUrl("updates.sh").toString().replace("file://", "")]
+        command: ["bash", Qt.resolvedUrl("scripts/updates.sh").toString().replace("file://", "")]
         stderr: SplitParser {
             onRead: data => console.log("updates stderr:", data)
         }

@@ -65,6 +65,7 @@ PanelWindow {
             Updates {}
             Audio {}
             Bluetooth {}
+            Network {}
             Power {}
             // Updates {}
             // Battery {}
