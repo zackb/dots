@@ -40,8 +40,12 @@ PanelWindow {
             spacing: 4
 
             Workspaces {}
-            BarSeparator {}
-            ActiveWindow {}
+            BarSeparator {
+                visible: activeWindow.visible
+            }
+            ActiveWindow {
+                id: activeWindow
+            }
         }
 
         // ── Center ────────────────────────────────────────────────────
