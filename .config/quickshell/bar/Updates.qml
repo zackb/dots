@@ -42,6 +42,19 @@ Rectangle {
         }
     }
 
+    Process {
+        id: installProcess
+        running: false
+        command: ["kitty", "/home/zackb/bin/installupdates.sh"]
+        onRunningChanged: {
+            if (!running) {
+                root.updateText = ""
+                updatesProcess.running = false
+                updatesProcess.running = true
+            }
+        }
+    }
+
     Row {
         id:              row
         anchors.centerIn: parent
@@ -61,7 +74,7 @@ Rectangle {
         }
 
         TapHandler {
-            onTapped: Quickshell.execDetached(["kitty", "/home/zackb/bin/installupdates.sh"])
+            onTapped: installProcess.running = true
         }
     }
 
