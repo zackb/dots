@@ -67,10 +67,11 @@ PanelWindow {
 
             Updates {}
             Audio {}
-            Backlight {}
             Bluetooth {}
+            Backlight {}
             Network {}
             Battery {}
+            SysInfo {}
             Row {
                 spacing: 12
                 Idle {}
