@@ -8,6 +8,7 @@ Rectangle {
     radius: height / 2
     height: 24
     width:  row.implicitWidth + 24
+    property bool hovered: false
 
     // track the default audio sink
     PwObjectTracker {
@@ -25,6 +26,25 @@ Rectangle {
         return                           "󰕾"  // high
     }
 
+    TapHandler {
+        onTapped:       sink.audio.muted = !sink.audio.muted
+    }
+
+    HoverHandler {
+        cursorShape: Qt.PointingHandCursor
+        onHoveredChanged: parent.hovered = hovered
+    }
+
+    WheelHandler {
+        acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+        onWheel: event => {
+            const delta = -event.angleDelta.y / 120
+            if (delta < 0 && volume <= 0) return
+            if (delta > 0 && volume >= 1) return
+            sink.audio.volume = Math.max(0, Math.min(1.5, volume + delta * 0.05))
+        }
+    }
+
     Row {
         id:              row
         anchors.centerIn: parent
@@ -39,22 +59,12 @@ Rectangle {
         }
 
         Text {
+            visible:       hovered
             anchors.verticalCenter: parent.verticalCenter
             text:           Math.round(volume * 100) + "%"
             color:          Qt.alpha(Theme.textColor, muted ? 0.4 : 0.8)
             font.pixelSize: Theme.fontSize
             font.family:    Theme.font
-        }
-
-        TapHandler {
-            onTapped:       sink.audio.muted = !sink.audio.muted
-        }
-
-        WheelHandler {
-            onWheel: event => {
-                const delta = event.angleDelta.y / 120
-                sink.audio.volume = Math.max(0, Math.min(1.5, volume + delta * 0.05))
-            }
         }
     }
 
