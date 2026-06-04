@@ -12,6 +12,14 @@ Rectangle {
     property string updateText: ""
     visible: updateText !== ""
 
+    HoverHandler {
+        cursorShape: Qt.PointingHandCursor
+    }
+
+    TapHandler {
+        onTapped: installProcess.running = true
+    }
+
     // re-fetch every 5 minutes
     Timer {
         interval: 300000
@@ -68,14 +76,5 @@ Rectangle {
             font.family:    Theme.nerdFont
 
         }
-
-        HoverHandler {
-            cursorShape: Qt.PointingHandCursor
-        }
-
-        TapHandler {
-            onTapped: installProcess.running = true
-        }
     }
-
 }
