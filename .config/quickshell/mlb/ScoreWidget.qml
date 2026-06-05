@@ -9,8 +9,9 @@ PanelWindow {
     id: root
 
     property bool active: true
+    property bool hasData: false
 
-    visible: active
+    visible: active && hasData
 
     // pin to bottom-right corner
     anchors {
@@ -56,9 +57,10 @@ PanelWindow {
             onRead: data => {
                 try {
                     const j = JSON.parse(data);
-                    root.scoreText = j.text ?? "";
-                    root.tooltipText = j.tooltip ?? "";
-                    root.gameClass = j.class ?? "mlb-idle";
+                    root.scoreText = j.text || j.tooltip || "";
+                    root.tooltipText = j.tooltip || "";
+                    root.gameClass = j.class || "mlb-idle";
+                    hasData = root.scoreText !== "";
                 } catch (e) {
                     console.log("mlb parse error:", e, data);
                 }
