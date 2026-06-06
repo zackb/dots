@@ -4,6 +4,9 @@ import "../"
 import "../bluetooth"
 
 Rectangle {
+    id: bluetoothButton
+    property var barWindow
+
     color:  Qt.alpha("#1e1e2e", 0.5)
     radius: height / 2
     height: Theme.barHeight
@@ -28,7 +31,12 @@ Rectangle {
     }
 
     TapHandler {
-        onTapped: Quickshell.execDetached(["qs", "ipc", "call", "bluetooth", "toggle"])
+        onTapped: bluetoothMenu.toggleMenu(bluetoothButton)
+    }
+
+    BluetoothMenu {
+        id: bluetoothMenu
+        barWindow: bluetoothButton.barWindow
     }
 
 }

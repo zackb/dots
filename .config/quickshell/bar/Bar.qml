@@ -72,7 +72,9 @@ PanelWindow {
 
             Updates {}
             Audio {}
-            Bluetooth {}
+            Bluetooth {
+                barWindow: root
+            }
             Backlight {}
             Network {}
             Battery {}
