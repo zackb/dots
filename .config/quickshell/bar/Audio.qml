@@ -3,12 +3,8 @@ import Quickshell.Services.Pipewire
 import QtQuick
 import "../"
 
-Rectangle {
-    color:  Qt.alpha("#1e1e2e", 0.5)
-    radius: height / 2
-    height: 24
-    width:  row.implicitWidth + 24
-    property bool hovered: false
+Capsule {
+    id: root
 
     // track the default audio sink
     PwObjectTracker {
@@ -30,11 +26,6 @@ Rectangle {
         onTapped:       sink.audio.muted = !sink.audio.muted
     }
 
-    HoverHandler {
-        cursorShape: Qt.PointingHandCursor
-        onHoveredChanged: parent.hovered = hovered
-    }
-
     WheelHandler {
         acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
         onWheel: event => {
@@ -45,9 +36,8 @@ Rectangle {
         }
     }
 
-    Row {
+    contentItem: Row {
         id:              row
-        anchors.centerIn: parent
         spacing:         4
 
         Text {
@@ -59,7 +49,7 @@ Rectangle {
         }
 
         Text {
-            visible:       hovered
+            visible:       root.hovered
             anchors.verticalCenter: parent.verticalCenter
             text:           Math.round(volume * 100) + "%"
             color:          Qt.alpha(Theme.textColor, muted ? 0.4 : 0.8)
@@ -67,5 +57,4 @@ Rectangle {
             font.family:    Theme.font
         }
     }
-
 }

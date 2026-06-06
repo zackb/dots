@@ -3,17 +3,12 @@ import QtQuick
 import "../"
 import "../bluetooth"
 
-Rectangle {
+Capsule {
     id: bluetoothButton
     property var barWindow
 
-    color:  Qt.alpha("#1e1e2e", 0.5)
-    radius: height / 2
-    height: Theme.barHeight
-    width:  row.implicitWidth + Theme.barHeight
-    Row {
+    contentItem: Row {
         id:              row
-        anchors.centerIn: parent
 
         Text {
             anchors.verticalCenter: parent.verticalCenter
@@ -21,13 +16,7 @@ Rectangle {
             color:          Theme.textColor
             font.pixelSize: Theme.fontSize
             font.family:    Theme.nerdFont
-
         }
-
-    }
-
-    HoverHandler {
-        cursorShape: Qt.PointingHandCursor
     }
 
     TapHandler {
@@ -38,5 +27,4 @@ Rectangle {
         id: bluetoothMenu
         barWindow: bluetoothButton.barWindow
     }
-
 }

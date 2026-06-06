@@ -3,12 +3,8 @@ import Quickshell.Io
 import QtQuick
 import "../"
 
-Rectangle {
+Capsule {
     id: root
-    color:  Qt.alpha("#1e1e2e", 0.5)
-    radius: height / 2
-    height: Theme.barHeight
-    width:  row.implicitWidth + Theme.barHeight
 
     property int brightness:    0
     property int maxBrightness: 255
@@ -49,9 +45,8 @@ Rectangle {
 
     Component.onCompleted: brightnessProcess.running = true
 
-    Row {
+    contentItem: Row {
         id:               row
-        anchors.centerIn: parent
         spacing:          4
 
         Text {
@@ -82,9 +77,5 @@ Rectangle {
 
     TapHandler {
         onTapped: root.clicked = !root.clicked
-    }
-
-    HoverHandler { 
-        cursorShape: Qt.PointingHandCursor 
     }
 }

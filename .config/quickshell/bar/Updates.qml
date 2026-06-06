@@ -3,18 +3,10 @@ import QtQuick
 import Quickshell.Io
 import "../"
 
-Rectangle {
+Capsule {
     id: root
-    color:  Qt.alpha("#1e1e2e", 0.5)
-    radius: height / 2
-    height: Theme.barHeight
-    width:  row.implicitWidth + Theme.barHeight
     property string updateText: ""
     visible: updateText !== ""
-
-    HoverHandler {
-        cursorShape: Qt.PointingHandCursor
-    }
 
     TapHandler {
         onTapped: installProcess.running = true
@@ -42,7 +34,6 @@ Rectangle {
                 try {
                     const j = JSON.parse(data);
                     root.updateText = j.text ?? "";
-                    // root.tooltipText = j.tooltip ?? "";
                 } catch (e) {
                     console.log("updates parse error:", e, data);
                 }
@@ -63,9 +54,8 @@ Rectangle {
         }
     }
 
-    Row {
+    contentItem: Row {
         id:              row
-        anchors.centerIn: parent
 
         Text {
             id: updateLabel
@@ -74,7 +64,6 @@ Rectangle {
             color:          Theme.textColor
             font.pixelSize: Theme.fontSize
             font.family:    Theme.nerdFont
-
         }
     }
 }

@@ -3,12 +3,8 @@ import Quickshell.Io
 import QtQuick
 import "../"
 
-Rectangle {
+Capsule {
     id: root
-    color:  Qt.alpha("#1e1e2e", 0.5)
-    radius: height / 2
-    height: Theme.barHeight
-    width:  row.implicitWidth + Theme.barHeight
 
     property string iface:    ""
     property string ssid:     ""
@@ -16,7 +12,6 @@ Rectangle {
     property bool   connected: false
     property bool   ethernet: false
 
-    property bool hovered: false
     property bool clicked: false
 
     function wifiIcon() {
@@ -54,16 +49,10 @@ Rectangle {
                 root.strength  = j.signal
             }
         }
-        onRunningChanged: {
-            if (!running) {
-                // process done — if nothing set connected, we're disconnected
-            }
-        }
     }
 
-    Row {
+    contentItem: Row {
         id:               row
-        anchors.centerIn: parent
         spacing:          4
 
         Text {
@@ -82,11 +71,6 @@ Rectangle {
             font.pixelSize: Theme.fontSize
             font.family:    Theme.font
         }
-    }
-
-    HoverHandler { 
-        onHoveredChanged: parent.hovered = hovered
-        cursorShape: Qt.PointingHandCursor 
     }
 
     TapHandler {

@@ -3,16 +3,14 @@ import Quickshell.Hyprland
 import QtQuick
 import "../"
 
-Rectangle {
+Capsule {
+    id: root
+    interactive: false
+
     property var toplevel: Hyprland.activeToplevel
     property var workspace: Hyprland.focusedWorkspace
 
     visible: toplevel != null && toplevel.workspace == workspace
-
-    color:  Qt.alpha("#1e1e2e", 0.5)
-    radius: height / 2
-    height: 24
-    width:  row.implicitWidth + 24
 
     Connections {
         target: Hyprland
@@ -26,9 +24,8 @@ Rectangle {
         }
     }
 
-    Row {
+    contentItem: Row {
         id:              row
-        anchors.centerIn: parent
         spacing:         6
 
         Image {

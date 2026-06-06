@@ -3,12 +3,8 @@ import Quickshell.Io
 import QtQuick
 import "../"
 
-Rectangle {
+Capsule {
     id: root
-    color:  Qt.alpha("#1e1e2e", 0.5)
-    radius: height / 2
-    height: Theme.barHeight
-    width:  row.implicitWidth + Theme.barHeight
 
     property bool expanded: false
 
@@ -41,18 +37,15 @@ Rectangle {
             }
         }
     }
+
     TapHandler {
         onTapped: root.expanded = !root.expanded
-    }
-    HoverHandler { 
-        cursorShape: Qt.PointingHandCursor 
     }
 
     Component.onCompleted: sysProcess.running = true
 
-    Row {
+    contentItem: Row {
         id:               row
-        anchors.centerIn: parent
         spacing:          8
 
         // toggle icon
@@ -62,7 +55,6 @@ Rectangle {
             color:          Theme.textColor
             font.pixelSize: Theme.fontSize
             font.family:    Theme.nerdFont
-
         }
 
         // expandable section

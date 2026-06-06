@@ -14,4 +14,7 @@ Singleton {
     readonly property string font:          "Cantarell"
     readonly property string nerdFont:      "MesloLGSDZ Nerd Font Mono"
     readonly property string textColor:     "#cdd6f4"
+
+    // styling
+    readonly property color capsuleBg:     Qt.alpha("#1e1e2e", 0.5)
 }
