@@ -81,6 +81,7 @@ PanelWindow {
     // that writes to /tmp/airstatus.out
     property var airpodsBattery: null
 
+    /*
     FileView {
         id: airstatusFile
         path: "/tmp/airstatus.out"
@@ -98,10 +99,11 @@ PanelWindow {
             }
         }
     }
+    */
 
     Timer {
         interval: 30000
-        running: root.visible
+        running: false// root.visible
         repeat: true
         onTriggered: airstatusFile.reload()
     }

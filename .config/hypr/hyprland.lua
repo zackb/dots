@@ -11,6 +11,8 @@ hl.monitor({
 	scale = "auto",
 })
 
+require("clamshell")
+
 ---------------------
 ---- PROGRAMS ----
 ---------------------

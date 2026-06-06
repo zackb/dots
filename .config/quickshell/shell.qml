@@ -15,7 +15,13 @@ ShellRoot {
         }
     }
 
-    Bar{}
+    Variants {
+        model: Quickshell.screens
+        delegate: Bar {
+            required property var modelData
+            screen: modelData
+        }
+    }
     BluetoothPopup {}
 
     ScoreWidget {

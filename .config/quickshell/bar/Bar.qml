@@ -5,6 +5,7 @@ import QtQuick
 
 PanelWindow {
     id: root
+    required property var screen
 
     anchors {
         top:   true
@@ -23,6 +24,10 @@ PanelWindow {
     implicitHeight: 24
 
     color:  "transparent"
+    onScreenChanged: {
+        color = "transparent"
+        WlrLayershell.exclusionMode = ExclusionMode.Exclusive
+    }
 
     Rectangle {
         anchors.fill: parent

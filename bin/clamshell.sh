@@ -28,7 +28,7 @@ while true; do
         # check if it is missing from active monitors
         # if it is in the list, we don't need to do anything.
         if ! hyprctl monitors | grep -q "$INTERNAL_MONITOR"; then
-            hyprctl keyword monitor "$INTERNAL_MONITOR,preferred,auto,1.5"
+            hyprctl keyword monitor "$INTERNAL_MONITOR,preferred,auto,2.0"
         fi
     fi
 
