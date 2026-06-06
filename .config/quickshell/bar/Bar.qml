@@ -78,7 +78,9 @@ PanelWindow {
             Backlight {}
             Network {}
             Battery {}
-            SysInfo {}
+            SysInfo {
+                barWindow: root
+            }
             Row {
                 spacing: 12
                 Idle {}

@@ -6,6 +6,7 @@ import "../"
 Capsule {
     id: root
 
+    property var barWindow
     property bool expanded: false
 
     // ── Data ─────────────────────────────────────────────────────────
@@ -13,27 +14,33 @@ Capsule {
     property string mem:  "0%"
     property string disk: "0%"
     property string temp: "0°"
+    property string cpuModel: ""
+    property var cpuCores: []
 
     Process {
         id: sysProcess
-        command: ["bash", "-c", `
-            while true; do
-                cpu=$(top -bn1 | grep "Cpu(s)" | awk '{print int($2)}')
-                mem=$(free | awk '/Mem:/ {printf "%d", $3/$2*100}')
-                disk=$(df / | awk 'NR==2 {print int($5)}')
-                temp=$(cat /sys/class/thermal/thermal_zone0/temp 2>/dev/null | awk '{printf "%d", $1/1000}')
-                echo "$cpu $mem $disk $temp"
-                sleep 3
-            done
-        `]
+        command: [Qt.resolvedUrl("scripts/sys_info.sh").toString().replace("file://", "")]
         stdout: SplitParser {
             onRead: data => {
-                const parts = data.trim().split(" ")
-                if (parts.length < 4) return
-                root.cpu  = parts[0] + "%"
-                root.mem  = parts[1] + "%"
-                root.disk = parts[2] + "%"
-                root.temp = parts[3] + "°"
+                const parts = data.trim().split(";")
+                if (parts.length < 6) return
+                root.cpuModel = parts[0]
+                root.cpu      = parts[1] + "%"
+                root.mem      = parts[2] + "%"
+                root.disk     = parts[3] + "%"
+                root.temp     = parts[4] + "°"
+
+                const coresStr = parts[5].trim().split(" ")
+                const coresList = []
+                for (let i = 0; i < coresStr.length; i++) {
+                    const cParts = coresStr[i].split(":")
+                    coresList.push({
+                        index: i,
+                        pct: parseInt(cParts[0]) || 0,
+                        freq: parseInt(cParts[1]) || 0
+                    })
+                }
+                root.cpuCores = coresList
             }
         }
     }
@@ -76,11 +83,29 @@ Capsule {
                 height:  parent.height
                 spacing: 8
 
-                SysInfoChip { label: ""; value: root.cpu  }
+                SysInfoChip {
+                    id: cpuChip
+                    label: ""
+                    value: root.cpu
+
+                    HoverHandler {
+                        id: cpuHover
+                    }
+                }
                 SysInfoChip { label: ""; value: root.mem  }
                 SysInfoChip { label: "󰋊 "; value: root.disk }
                 SysInfoChip { label: ""; value: root.temp }
             }
         }
+    }
+
+    CpuPopup {
+        id: cpuPopup
+        barWindow: root.barWindow
+        isOpen: cpuHover.hovered
+        targetItem: cpuChip
+        cpuModel: root.cpuModel
+        overallCpu: root.cpu
+        cpuCores: root.cpuCores
     }
 }
