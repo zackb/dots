@@ -9,7 +9,6 @@ Capsule {
     property var barWindow
     property bool expanded: false
 
-    // ── Data ─────────────────────────────────────────────────────────
     property string cpu:  "0%"
     property string mem:  "0%"
     property string disk: "0%"
@@ -20,8 +19,10 @@ Capsule {
     Process {
         id: sysProcess
         command: [Qt.resolvedUrl("scripts/sys_info.sh").toString().replace("file://", "")]
+        running: expanded
         stdout: SplitParser {
             onRead: data => {
+                console.log("SysInfo output:", data)
                 const parts = data.trim().split(";")
                 if (parts.length < 6) return
                 root.cpuModel = parts[0]
@@ -48,8 +49,6 @@ Capsule {
     TapHandler {
         onTapped: root.expanded = !root.expanded
     }
-
-    Component.onCompleted: sysProcess.running = true
 
     contentItem: Row {
         id:               row
