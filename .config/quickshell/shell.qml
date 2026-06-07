@@ -12,9 +12,11 @@ ShellRoot {
 
     IpcHandler {
         target: "shell"
+
         function toggle() {
             shellVisible = !shellVisible
         }
+
         function reload() {
             Quickshell.reload(false)
         }
