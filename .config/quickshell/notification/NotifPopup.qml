@@ -326,8 +326,9 @@ Variants {
                             if (cardDelegate.expireCalled)
                                 return;
                             cardDelegate.expireCalled = true;
-                            if (typeof notificationEntry.expire === "function")
+                            if (typeof notificationEntry.expire === "function") {
                                 notificationEntry.expire();
+                            }
                         }
                     }
 
@@ -412,6 +413,7 @@ Variants {
                                     for (let i = 0; i < notificationEntry.actions.length; i++) {
                                         if (notificationEntry.actions[i].identifier === "default") {
                                             if (typeof notificationEntry.actions[i].invoke === "function") {
+                                                NotifServer.removeFromHistory(notificationEntry.id)
                                                 notificationEntry.actions[i].invoke();
                                             }
                                             invoked = true;
@@ -421,6 +423,7 @@ Variants {
                                 }
 
                                 if (!invoked && notificationEntry && typeof notificationEntry.dismiss === "function") {
+                                    NotifServer.removeFromHistory(notificationEntry.id)
                                     notificationEntry.dismiss();
                                 }
                             }
@@ -604,6 +607,7 @@ Variants {
                                                 return;
 
                                             if (notificationEntry && typeof notificationEntry.dismiss === "function") {
+                                                NotifServer.removeFromHistory(notificationEntry.id)
                                                 notificationEntry.dismiss();
                                             }
                                         }
@@ -667,6 +671,7 @@ Variants {
                                             TapHandler {
                                                 onTapped: {
                                                     modelData.invoke();
+                                                    NotifServer.removeFromHistory(notificationEntry.id)
                                                     if (notificationEntry.tracked) {
                                                         notificationEntry.expire()
                                                     }

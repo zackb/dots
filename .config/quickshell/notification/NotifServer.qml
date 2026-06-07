@@ -15,10 +15,19 @@ NotificationServer {
     imageSupported: true
     persistenceSupported: true
 
+    property bool trayOpen: false
+
     // notification history
     property ListModel history: ListModel {}
 
-    property bool trayOpen: false
+    function removeFromHistory(notifId) {
+        for (var i = 0; i < history.count; i++) {
+            if (history.get(i).notifId === notifId) {
+                history.remove(i)
+                return
+            }
+        }
+    }
 
     /**
      * Primary handler for incoming notification requests.
@@ -28,6 +37,7 @@ NotificationServer {
         // Enables automatic management within the trackedNotifications ObjectModel
         notification.tracked = true;
            history.insert(0, {
+            notifId: notification.id,
             appName: notification.appName,
             summary: notification.summary,
             body: notification.body,
