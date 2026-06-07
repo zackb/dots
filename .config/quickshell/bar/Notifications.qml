@@ -15,7 +15,7 @@ Text {
         : (hasNotifications ? "" : "")
 
     color: Theme.textColor
-    font.pixelSize: Theme.fontSize
+    font.pixelSize: Theme.fontSize + 2
     font.family: Theme.nerdFont
 
     HoverHandler { cursorShape: Qt.PointingHandCursor }

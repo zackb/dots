@@ -6,7 +6,10 @@ Text {
     property var ccRef: null
 
     text:  "󰒓"
-    font { family: Theme.nerdFont; pixelSize: Theme.fontSize }
+    font { 
+        family: Theme.nerdFont
+        pixelSize: Theme.fontSize + 2
+    }
     color: Theme.textColor
 
     HoverHandler { cursorShape: Qt.PointingHandCursor }
