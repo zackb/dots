@@ -1,6 +1,7 @@
 import Quickshell
 import Quickshell.Io
 import "./bar"
+import "./launcher"
 import "./bluetooth"
 import "./mlb"
 
@@ -24,6 +25,7 @@ ShellRoot {
     }
     BluetoothPopup {}
 
+    Launcher {}
     ScoreWidget {
         active: shellVisible
     }
