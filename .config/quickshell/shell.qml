@@ -51,7 +51,7 @@ ShellRoot {
         }
 
         function onReloadFailed() {
-            Quickshell.inhibitReloadPopup()
+            // Quickshell.inhibitReloadPopup()
         }
     }
 }
