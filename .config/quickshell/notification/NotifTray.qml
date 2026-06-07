@@ -35,6 +35,8 @@ PanelWindow {
         anchors.fill: parent
         color: Theme.surface_container
         radius: 16
+        border.color: Theme.outline // "#45475a"
+        border.width: 1
 
         Keys.onPressed: event => {
             if (event.key === Qt.Key_Escape) {
@@ -79,6 +81,9 @@ PanelWindow {
                     TapHandler {
                         onTapped: NotifServer.history.clear()
                     }
+                    HoverHandler {
+                        cursorShape: Qt.PointingHandCursor
+                    }
                 }
             }
 
@@ -122,7 +127,10 @@ PanelWindow {
                             NumberAnimation { duration: 150 }
                         }
 
-                        HoverHandler { id: dismissHover }
+                        HoverHandler {
+                            id: dismissHover
+                            cursorShape: Qt.PointingHandCursor
+                        }
 
                         TapHandler {
                             onTapped: NotifServer.history.remove(index)

@@ -341,7 +341,8 @@ Variants {
                         radius: 28
                         color: Theme.surface_container
 
-                        border.color: Theme.outline_variant !== undefined ? Theme.outline_variant : Qt.rgba(Theme.on_surface.r, Theme.on_surface.g, Theme.on_surface.b, 0.15)
+                        // border.color: Theme.outline_variant !== undefined ? Theme.outline_variant : Qt.rgba(Theme.on_surface.r, Theme.on_surface.g, Theme.on_surface.b, 0.15)
+                        border.color: Theme.outline
                         border.width: 1
 
                         scale: interactionArea.pressed ? 0.975 : 1.0
