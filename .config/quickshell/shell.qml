@@ -20,11 +20,14 @@ ShellRoot {
         }
     }
 
+    ControlCenter { id: controlCenter }
+
     Variants {
         model: Quickshell.screens
         delegate: Bar {
             required property var modelData
             screen: modelData
+            controlCenterRef: controlCenter
         }
     }
 

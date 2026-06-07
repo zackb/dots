@@ -6,6 +6,7 @@ import QtQuick
 PanelWindow {
     id: root
     required property var screen
+    property var controlCenterRef: null
 
     anchors {
         top:   true
@@ -85,7 +86,7 @@ PanelWindow {
                 spacing: 12
                 Idle {}
                 Notifications {}
-                Power {}
+                Power { ccRef: root.controlCenterRef }
             }
         }
     }
