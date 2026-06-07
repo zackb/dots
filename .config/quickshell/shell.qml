@@ -1,5 +1,6 @@
 import Quickshell
 import Quickshell.Io
+import QtQuick
 import qs.bar
 import qs.launcher
 import qs.notification
@@ -40,5 +41,17 @@ ShellRoot {
     Launcher {}
     ScoreWidget {
         active: shellVisible
+    }
+
+    Connections {
+        target: Quickshell
+
+        function onReloadCompleted() {
+            Quickshell.inhibitReloadPopup()
+        }
+
+        function onReloadFailed() {
+            Quickshell.inhibitReloadPopup()
+        }
     }
 }
