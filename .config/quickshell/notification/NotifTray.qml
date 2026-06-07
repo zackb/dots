@@ -79,7 +79,10 @@ PanelWindow {
                     font.family: Theme.font
                     font.pixelSize: 13
                     TapHandler {
-                        onTapped: NotifServer.history.clear()
+                        onTapped: {
+                            NotifServer.history.clear()
+                            NotifServer.trayOpen = false
+                        }
                     }
                     HoverHandler {
                         cursorShape: Qt.PointingHandCursor
