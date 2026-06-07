@@ -33,8 +33,8 @@ PanelWindow {
 
     Rectangle {
         anchors.fill: parent
-        color: Theme.popupBg
-        radius: 16
+        color: Theme.surface
+        radius: Theme.radius
         border.color: Theme.popupBorder
         border.width: 1
 
@@ -106,16 +106,65 @@ PanelWindow {
 
                 delegate: Rectangle {
                     width: contentCol.width
-                    height: itemCol.implicitHeight + 24
-                    radius: 12
-                    color: Theme.surface_container_highest
+                    height: textCol.implicitHeight + 24
+                    radius: Theme.radius_sm
+                    color: itemHover.hovered ? Theme.surface_container_highest : Theme.surface_container_high
+                    border.color: Theme.popupBorder
+                    border.width: 1
 
-                    // Dismiss button
-                    Text {
+                    HoverHandler {
+                        id: itemHover
+                    }
+
+                    Column {
+                        id: textCol
                         anchors {
                             top: parent.top
+                            left: parent.left
+                            right: dismissBtn.left
+                            topMargin: 12
+                            leftMargin: 16
+                            rightMargin: 12
+                        }
+                        spacing: 2
+
+                        Text {
+                            text: model.summary
+                            color: Theme.on_surface
+                            font.family: Theme.font
+                            font.pixelSize: 13
+                            font.bold: true
+                            width: parent.width
+                            elide: Text.ElideRight
+                        }
+
+                        Text {
+                            text: model.body
+                            color: Theme.on_surface_variant
+                            font.family: Theme.font
+                            font.pixelSize: 13
+                            wrapMode: Text.WordWrap
+                            width: parent.width
+                            visible: model.body !== ""
+                            maximumLineCount: 2
+                            elide: Text.ElideRight
+                        }
+
+                        Text {
+                            text: model.appName + " · " + Qt.formatTime(model.time, "h:mm ap")
+                            color: Theme.on_surface_variant
+                            font.family: Theme.font
+                            font.pixelSize: Theme.font_size_sm
+                            opacity: 0.7
+                        }
+                    }
+
+                    Text {
+                        id: dismissBtn
+                        anchors {
                             right: parent.right
-                            margins: 10
+                            verticalCenter: parent.verticalCenter
+                            rightMargin: 16
                         }
                         text: "close"
                         font.family: "Material Symbols Rounded"
@@ -134,46 +183,6 @@ PanelWindow {
 
                         TapHandler {
                             onTapped: NotifServer.history.remove(index)
-                        }
-                    }
-
-                    Column {
-                        id: itemCol
-                        anchors {
-                            top: parent.top
-                            left: parent.left
-                            right: parent.right
-                            margins: 12
-                            topMargin: 12
-                        }
-                        spacing: 4
-
-                        Text {
-                            text: model.summary
-                            color: Theme.on_surface
-                            font.family: Theme.font
-                            font.pixelSize: 14
-                            font.weight: Font.Medium
-                            width: parent.width
-                            elide: Text.ElideRight
-                        }
-
-                        Text {
-                            text: model.body
-                            color: Theme.on_surface_variant
-                            font.family: Theme.font
-                            font.pixelSize: 13
-                            wrapMode: Text.WordWrap
-                            width: parent.width
-                            visible: model.body !== ""
-                        }
-
-                        Text {
-                            text: model.appName + " · " + Qt.formatTime(model.time, "h:mm ap")
-                            color: Theme.on_surface_variant
-                            font.family: Theme.font
-                            font.pixelSize: 11
-                            opacity: 0.7
                         }
                     }
                 }

@@ -175,7 +175,7 @@ Variants {
                     required property var notificationEntry
 
                     width: 350
-                    height: notificationCard.height + 20
+                    height: notificationCard.height
 
                     x: 0
                     y: notificationStack.yForIndex(index)
@@ -336,55 +336,16 @@ Variants {
                         id: notificationCard
 
                         width: parent.width
-                        height: layoutContent.implicitHeight + 36
-                        y: 4
+                        height: layoutContent.implicitHeight + 24
+                        y: 0
 
-                        radius: 28
-                        color: Theme.popupBg
-
-                        // border.color: Theme.outline_variant !== undefined ? Theme.outline_variant : Qt.rgba(Theme.on_surface.r, Theme.on_surface.g, Theme.on_surface.b, 0.15)
+                        radius: Theme.radius
+                        color: interactionArea.containsMouse ? Theme.surface_container_high : Theme.surface
                         border.color: Theme.popupBorder
                         border.width: 1
 
-                        scale: interactionArea.pressed ? 0.975 : 1.0
-                        layer.enabled: true
-
-                        layer.effect: MultiEffect {
-                            shadowEnabled: true
-                            shadowColor: "#40000000"
-                            blurMax: 32
-                            shadowBlur: interactionArea.containsMouse ? 1.0 : 0.85
-                            shadowVerticalOffset: interactionArea.containsMouse ? 6 : 4
-
-                            Behavior on shadowBlur {
-                                NumberAnimation {
-                                    duration: 250
-                                    easing.type: Easing.OutCubic
-                                }
-                            }
-                            Behavior on shadowVerticalOffset {
-                                NumberAnimation {
-                                    duration: 250
-                                    easing.type: Easing.OutCubic
-                                }
-                            }
-                        }
-
-                        Rectangle {
-                            anchors.fill: parent
-                            radius: parent.radius
-                            color: {
-                                if (interactionArea.pressed)
-                                    return Qt.rgba(Theme.on_surface.r, Theme.on_surface.g, Theme.on_surface.b, 0.10);
-                                if (interactionArea.containsMouse)
-                                    return Qt.rgba(Theme.on_surface.r, Theme.on_surface.g, Theme.on_surface.b, 0.08);
-                                return "transparent";
-                            }
-                            Behavior on color {
-                                ColorAnimation {
-                                    duration: 150
-                                }
-                            }
+                        Behavior on color {
+                            ColorAnimation { duration: 150 }
                         }
 
                         MouseArea {
@@ -431,7 +392,7 @@ Variants {
 
                         Column {
                             id: layoutContent
-                            width: parent.width - 40
+                            width: parent.width - 24
                             anchors.centerIn: parent
                             spacing: 4
 
@@ -450,15 +411,15 @@ Variants {
                                     Rectangle {
                                         anchors.fill: parent
                                         radius: width / 2
-                                        color: Theme.primary_container
+                                        color: Theme.surface_container_high
                                         visible: !cardDelegate.applicationIcon
 
                                         Text {
                                             anchors.centerIn: parent
                                             text: "!"
-                                            color: Theme.on_primary_container
+                                            color: Theme.on_surface
                                             font {
-                                                family: "Google Sans Medium"
+                                                family: Theme.font
                                                 pixelSize: 13
                                                 bold: true
                                             }
@@ -499,7 +460,7 @@ Variants {
                                     anchors.left: headerIconWrapper.right
                                     anchors.leftMargin: 12
                                     font {
-                                        family: "Google Sans Medium"
+                                        family: Theme.font
                                         pixelSize: 14
                                     }
                                 }
@@ -626,8 +587,8 @@ Variants {
                                     text: notificationEntry.summary
                                     color: Theme.on_surface
                                     font {
-                                        family: "Google Sans Medium"
-                                        pixelSize: 16
+                                        family: Theme.font
+                                        pixelSize: 15
                                         bold: true
                                     }
                                     width: parent.width
@@ -654,8 +615,8 @@ Variants {
                                         delegate: Rectangle {
                                             height: 32
                                             width: actionLabel.implicitWidth + 24
-                                            radius: height / 2
-                                            color: hoverHandler.hovered ? Theme.primary_container : Theme.surface_container_highest
+                                            radius: Theme.radius_sm
+                                            color: hoverHandler.hovered ? Theme.surface_container_highest : Theme.surface_container_high
 
                                             Text {
                                                 id: actionLabel
