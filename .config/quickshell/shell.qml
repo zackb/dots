@@ -1,9 +1,10 @@
 import Quickshell
 import Quickshell.Io
-import "./bar"
-import "./launcher"
-import "./bluetooth"
-import "./mlb"
+import qs.bar
+import qs.launcher
+import qs.notification
+import qs.bluetooth
+import qs.mlb
 
 ShellRoot {
 
@@ -23,7 +24,9 @@ ShellRoot {
             screen: modelData
         }
     }
+
     BluetoothPopup {}
+    NotifPopup {}
 
     Launcher {}
     ScoreWidget {

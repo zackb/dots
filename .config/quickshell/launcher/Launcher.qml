@@ -10,7 +10,7 @@ PanelWindow {
     id: launcherWindow
 
     // Add any apps you want to hide to this list
-    property var hiddenKeywords: ["avahi", "uuctl", "bssh", "bvnc"]
+    property var hiddenKeywords: ["avahi", "uuctl", "bssh", "bvnc", "xfce"]
 
     implicitWidth: 800
     implicitHeight: 739

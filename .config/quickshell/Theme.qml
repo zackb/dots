@@ -53,5 +53,5 @@ Singleton {
     readonly property string source_color: "#cba6f7"
     readonly property string shadow: "#000000"
     readonly property string scrim: "#000000"
-    readonly property string wallpaper: "/home/zackb/.local/share/wallpapers/2352300.jpg"
+    readonly property string wallpaper: "/home/zackb/.local/share/wallpapers/4199401.jpg"
 }
