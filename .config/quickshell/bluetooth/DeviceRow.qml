@@ -1,11 +1,11 @@
 // DeviceRow.qml
 import QtQuick
 import QtQuick.Layouts
+import "../"
 
 Rectangle {
     id: row
     property var device
-    property var theme
     property var airpodsBattery: null
     signal connect()
     signal disconnect()
@@ -14,10 +14,10 @@ Rectangle {
 
     Layout.fillWidth: true
     height: 52
-    radius: theme ? theme.radiusSm : 8
-    color: mouseArea.containsMouse ? (theme ? theme.bgHover : "#45475a") : (theme ? theme.bgElevated : "#313244")
+    radius: Theme.radius_sm
+    color: mouseArea.containsMouse ? Theme.surface_container_highest : Theme.surface_container_high
     border.width: 1
-    border.color: theme ? theme.border : "#45475a"
+    border.color: Theme.popupBorder
 
     RowLayout {
         anchors.fill: parent
@@ -36,7 +36,7 @@ Rectangle {
                 width: 8
                 height: 8
                 radius: 4
-                color: theme ? theme.connected : "#a6e3a1"
+                color: Theme.connected
 
                 Rectangle {
                     anchors.centerIn: parent
@@ -63,8 +63,8 @@ Rectangle {
         Text {
             Layout.fillWidth: true
             text: device ? (device.name || device.deviceName || device.address || "?") : "?"
-            color: device && device.connected ? (theme ? theme.textBright : "#cdd6f4") : (theme ? theme.text : "#cdd6f4")
-            font.pixelSize: theme ? theme.fontSz : 13
+            color: Theme.on_surface
+            font.pixelSize: 13
             font.bold: device && device.connected
             elide: Text.ElideRight
             horizontalAlignment: Text.AlignLeft
@@ -73,8 +73,8 @@ Rectangle {
         Text {
             visible: device && device.connected
             text: "Connected"
-            color: theme ? theme.connected : "#a6e3a1"
-            font.pixelSize: theme ? theme.fontSzSm : 11
+            color: Theme.connected
+            font.pixelSize: Theme.font_size_sm
         }
     }
 

@@ -9,5 +9,6 @@ if [ -n "$wall" ]; then
     sed -i "s|^wallpaper =.*,.*|wallpaper = , $wall|" ~/.config/hypr/hyprpaper.conf
     # hyprpaper >= 0.8.0
     sed -i "s|\(path[[:space:]]*=[[:space:]]*\).*|\1$wall|" ~/.config/hypr/hyprpaper.conf
+    matugen image --source-color-index 0 "$wall"
 fi
 

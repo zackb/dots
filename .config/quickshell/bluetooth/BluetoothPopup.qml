@@ -10,6 +10,7 @@ import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import "../"
 
 PanelWindow {
     id: root
@@ -128,9 +129,9 @@ PanelWindow {
     }
 
     function batteryColor(pct) {
-        if (pct > 50) return theme.batteryHigh
-        if (pct > 20) return theme.batteryMid
-        return theme.batteryLow
+        if (pct > 50) return Theme.battery_high
+        if (pct > 20) return Theme.battery_mid
+        return Theme.battery_low
     }
 
     function batteryBar(pct) {
@@ -139,31 +140,6 @@ PanelWindow {
         var bar = ""
         for (var i = 0; i < 10; i++) bar += (i < filled ? "█" : "░")
         return bar
-    }
-
-    // ── Theme ──────────────────────────────────────────────────────
-    QtObject {
-        id: theme
-        property color bg:           "#1e1e2e"
-        property color bgElevated:   "#313244"
-        property color bgHover:      "#45475a"
-        property color border:       "#45475a"
-        property color text:         "#cdd6f4"
-        property color textDim:      "#6c7086"
-        property color textBright:   "#cdd6f4"
-        property color accent:       "#cba6f7"
-        property color accentDim:    "#45475a"
-        property color connected:    "#a6e3a1"
-        property color disconnected: "#6c7086"
-        property color scanning:     "#f9e2af"
-        property color batteryHigh:  "#a6e3a1"
-        property color batteryMid:   "#f9e2af"
-        property color batteryLow:   "#f38ba8"
-        property color danger:       "#f38ba8"
-        property int   radius:       12
-        property int   radiusSm:     8
-        property int   fontSz:       13
-        property int   fontSzSm:     11
     }
 
     // ── Root visual ────────────────────────────────────────────────
@@ -182,9 +158,9 @@ PanelWindow {
         y: 0
         width:  340
         height: contentCol.implicitHeight + 24
-        color:  theme.bg
-        radius: theme.radius
-        border.color: theme.border
+        color:  Theme.surface
+        radius: Theme.radius
+        border.color: Theme.popupBorder
         border.width: 1
 
         // Drop shadow effect via layered rectangles
@@ -194,7 +170,7 @@ PanelWindow {
             color:           "transparent"
             border.color:    Qt.rgba(0, 0, 0, 0.4)
             border.width:    1
-            radius:          theme.radius + 1
+            radius:          Theme.radius + 1
             z:               -1
         }
 
@@ -224,7 +200,7 @@ PanelWindow {
 
                 Text {
                     text:  "Bluetooth"
-                    color: theme.textBright
+                    color: Theme.on_surface
                     font { pixelSize: 15; bold: true }
                 }
 
@@ -234,8 +210,8 @@ PanelWindow {
                 Text {
                     visible: root.adapter && root.adapter.discovering
                     text:    "scanning…"
-                    color:   theme.scanning
-                    font.pixelSize: theme.fontSzSm
+                    color:   Theme.warning
+                    font.pixelSize: Theme.font_size_sm
                 }
 
                 // Adapter power toggle
@@ -244,17 +220,17 @@ PanelWindow {
                     height: 24
                     radius: 12
                     color:  (root.adapter && root.adapter.enabled)
-                            ? theme.accent
-                            : theme.bgElevated
-                    border.color: theme.border
+                            ? Theme.primary
+                            : Theme.surface_container_high
+                    border.color: Theme.popupBorder
                     border.width: 1
 
                     Text {
                         anchors.centerIn: parent
                         text:  (root.adapter && root.adapter.enabled) ? "ON" : "OFF"
                         color: (root.adapter && root.adapter.enabled)
-                               ? theme.bg
-                               : theme.textDim
+                               ? Theme.surface
+                               : Theme.outline
                         font { pixelSize: 10; bold: true }
                     }
 
@@ -273,7 +249,7 @@ PanelWindow {
             Rectangle {
                 Layout.fillWidth: true
                 height: 1
-                color:  theme.border
+                color:  Theme.popupBorder
                 opacity: 0.5
             }
 
@@ -281,8 +257,8 @@ PanelWindow {
             Text {
                 visible:    !root.adapter
                 text:       "No Bluetooth adapter found"
-                color:      theme.textDim
-                font.pixelSize: theme.fontSz
+                color:      Theme.outline
+                font.pixelSize: 13
                 Layout.alignment: Qt.AlignHCenter
             }
 
@@ -290,8 +266,8 @@ PanelWindow {
             Text {
                 visible:    root.adapter && !root.adapter.enabled
                 text:       "Bluetooth is off"
-                color:      theme.textDim
-                font.pixelSize: theme.fontSz
+                color:      Theme.outline
+                font.pixelSize: 13
                 Layout.alignment: Qt.AlignHCenter
             }
 
@@ -316,7 +292,6 @@ PanelWindow {
                         visible: dev && dev.connected
                         device: dev
                         airpodsBattery: root.airpodsBattery
-                        theme: theme
                         onDisconnect: { if(dev) dev.connected = false }
                     }
                 }
@@ -328,7 +303,7 @@ PanelWindow {
                          : []
                     visible:        pairedOnly.length > 0
                     text:           "PAIRED"
-                    color:          theme.textDim
+                    color:          Theme.outline
                     font { pixelSize: 10; letterSpacing: 1.5; bold: true }
                     Layout.topMargin: 4
                 }
@@ -340,7 +315,6 @@ PanelWindow {
                         visible: dev && dev.paired && !dev.connected
                         device: dev
                         airpodsBattery: null
-                        theme: theme
                         onConnect: { if(dev) dev.connected = true }
                         onForget: { if(dev) dev.forget() }
                     }
@@ -353,7 +327,7 @@ PanelWindow {
                         : []
                     visible:        discovered.length > 0
                     text:           "NEARBY"
-                    color:          theme.textDim
+                    color:          Theme.outline
                     font { pixelSize: 10; letterSpacing: 1.5; bold: true }
                     Layout.topMargin: 4
                 }
@@ -365,7 +339,6 @@ PanelWindow {
                         visible: dev && !dev.paired
                         device: dev
                         airpodsBattery: null
-                        theme: theme
                         onPair: { if(dev) dev.pair() }
                     }
                 }
@@ -375,8 +348,8 @@ PanelWindow {
                     visible: root.adapter && root.adapter.enabled
                              && root.adapter.devices.values.length === 0
                     text:    "No devices found — scanning…"
-                    color:   theme.textDim
-                    font.pixelSize: theme.fontSz
+                    color:   Theme.outline
+                    font.pixelSize: 13
                     Layout.alignment: Qt.AlignHCenter
                     Layout.topMargin: 8
                 }
@@ -388,9 +361,9 @@ PanelWindow {
                 visible:  root.adapter && root.adapter.enabled
                 Layout.fillWidth:  true
                 height:   36
-                radius:   theme.radiusSm
-                color:    scanHover.containsMouse ? theme.bgHover : theme.bgElevated
-                border.color: theme.border
+                radius:   Theme.radius_sm
+                color:    scanHover.containsMouse ? Theme.surface_container_highest : Theme.surface_container_high
+                border.color: Theme.popupBorder
                 border.width: 1
                 Layout.topMargin: 4
 
@@ -402,7 +375,7 @@ PanelWindow {
                         text:  root.adapter && root.adapter.discovering
                                ? "⟳"
                                : "⊕"
-                        color: theme.accent
+                        color: Theme.primary
                         font.pixelSize: 16
 
                         RotationAnimation on rotation {
@@ -418,8 +391,8 @@ PanelWindow {
                         text:  root.adapter && root.adapter.discovering
                                ? "Stop scanning"
                                : "Scan for devices"
-                        color: theme.text
-                        font.pixelSize: theme.fontSz
+                        color: Theme.on_surface
+                        font.pixelSize: 13
                     }
                 }
 

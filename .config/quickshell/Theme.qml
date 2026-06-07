@@ -6,6 +6,7 @@ import QtQuick
 
 
 Singleton {
+    id: themeRoot
 
     // static
     readonly property int barHeight:       24
@@ -31,11 +32,17 @@ Singleton {
         id: colorFile
         path: "/home/zackb/.config/quickshell/colors.json"
         watchChanges: true
+        onTextChanged: themeRoot._loadColors()
     }
 
-    property var _c: {
-        try { return JSON.parse(colorFile.text) } catch(e) { return {} }
+    property var _c: ({})
+
+    function _loadColors() {
+        try { _c = JSON.parse(colorFile.text()) }
+        catch(e) { _c = {} }
     }
+
+    Component.onCompleted: _loadColors()
 
     // Palette: Catppuccin Mocha Mauve defaults
     readonly property string primary:                   _c.primary                   || "#cba6f7"

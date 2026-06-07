@@ -1,0 +1,7 @@
+[config]
+reload_apps = false
+set_wallpaper = false
+
+[templates.quickshell]
+input_path = "~/.config/matugen/templates/quickshell.json"
+output_path = "~/.config/quickshell/colors.json"
