@@ -240,19 +240,22 @@ hl.bind(mainMod .. " + SHIFT + mouse:272", hl.dsp.window.resize(), { mouse = tru
 hl.bind(
 	"XF86AudioRaiseVolume",
 	-- hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"),
-	hl.dsp.exec_cmd("hyprwat --volume-up"),
+	-- hl.dsp.exec_cmd("hyprwat --volume-up"),
+	hl.dsp.exec_cmd("qs ipc call osd volumeUp"),
 	{ locked = true, repeating = true }
 )
 hl.bind(
 	"XF86AudioLowerVolume",
 	-- hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),
-	hl.dsp.exec_cmd("hyprwat --volume-down"),
+	-- hl.dsp.exec_cmd("hyprwat --volume-down"),
+	hl.dsp.exec_cmd("qs ipc call osd volumeDown"),
 	{ locked = true, repeating = true }
 )
 hl.bind(
 	"XF86AudioMute",
-	hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),
+	-- hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),
 	-- hl.dsp.exec_cmd("hyprwat --volume-mute"),
+	hl.dsp.exec_cmd("qs ipc call osd mute"),
 	{ locked = true, repeating = true }
 )
 hl.bind(
@@ -260,8 +263,10 @@ hl.bind(
 	hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),
 	{ locked = true, repeating = true }
 )
-hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl s 10%+"), { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl s 10%-"), { locked = true, repeating = true })
+-- hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl s 10%+"), { locked = true, repeating = true })
+-- hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl s 10%-"), { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("qs ipc call osd brightnessUp"), { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("qs ipc call osd brightnessDown"), { locked = true, repeating = true })
 
 -- Requires playerctl
 hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true })

@@ -6,6 +6,7 @@ import qs.launcher
 import qs.notification
 import qs.bluetooth
 import qs.mlb
+import qs.osd
 
 ShellRoot {
 
@@ -37,6 +38,8 @@ ShellRoot {
     BluetoothPopup {}
     NotifPopup {}
     NotifTray {}
+
+    Osd {}
 
     Launcher {}
     ScoreWidget {
