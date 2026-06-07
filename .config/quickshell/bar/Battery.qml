@@ -65,7 +65,7 @@ Capsule {
         Text {
             anchors.verticalCenter: parent.verticalCenter
             text:           batteryIcon()
-            color:          root.percentage < 20 ? "#f38ba8" : Theme.textColor
+            color:          root.percentage < 20 ? Theme.battery_low : Theme.textColor
             font.pixelSize: Theme.fontSize
             font.family:    Theme.nerdFont
         }

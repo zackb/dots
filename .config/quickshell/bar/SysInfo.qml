@@ -22,7 +22,6 @@ Capsule {
         running: expanded
         stdout: SplitParser {
             onRead: data => {
-                console.log("SysInfo output:", data)
                 const parts = data.trim().split(";")
                 if (parts.length < 6) return
                 root.cpuModel = parts[0]

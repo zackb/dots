@@ -1,4 +1,5 @@
 import QtQuick
+import "../"
 
 Item {
     width:  timeText.width
@@ -16,10 +17,10 @@ Item {
     Text {
         id:             timeText
         text:           timeStr
-        color:          "#ddd"
-        font.pixelSize: 16
+        color:          Theme.textColor
+        font.pixelSize: Theme.fontSize
         font.bold:      true
-        font.family:      "Cantarell"
+        font.family:    Theme.font
     }
 
     function formatTime() {

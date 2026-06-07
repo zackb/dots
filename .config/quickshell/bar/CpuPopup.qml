@@ -71,9 +71,9 @@ PanelWindow {
         y: targetY
         width: contentCol.implicitWidth + 24
         height: contentCol.implicitHeight + 24
-        color: Qt.alpha("#1e1e2e", 0.95) // Dark Catppuccin Base with opacity
-        radius: 12
-        border.color: "#45475a" // Catppuccin Surface1
+        color: Theme.popupBg
+        radius: Theme.radius
+        border.color: Theme.popupBorder
         border.width: 1
 
         // Drop shadow effect
@@ -83,7 +83,7 @@ PanelWindow {
             color: "transparent"
             border.color: Qt.rgba(0, 0, 0, 0.4)
             border.width: 1
-            radius: 13
+            radius: Theme.radius + 1
             z: -1
         }
 
@@ -112,7 +112,7 @@ PanelWindow {
                 // CPU icon
                 Text {
                     text: ""
-                    color: "#cba6f7" // Mauve
+                    color: Theme.primary
                     font.pixelSize: 18
                     font.family: Theme.nerdFont
                 }
@@ -128,7 +128,7 @@ PanelWindow {
                     }
                     Text {
                         text: "Overall Usage: " + root.overallCpu
-                        color: "#a6adc8" // Subtext0
+                        color: Theme.on_surface_variant
                         font { pixelSize: 11; family: Theme.font }
                     }
                 }
@@ -140,7 +140,7 @@ PanelWindow {
             Rectangle {
                 Layout.fillWidth: true
                 height: 1
-                color: "#45475a"
+                color: Theme.popupBorder
                 opacity: 0.5
             }
 
@@ -162,16 +162,16 @@ PanelWindow {
                         property int freq: modelData.freq
 
                         readonly property color pctColor: {
-                            if (pct < 50) return "#a6e3a1"; // Catppuccin Green
-                            if (pct < 80) return "#f9e2af"; // Catppuccin Yellow
-                            return "#f38ba8";               // Catppuccin Red
+                            if (pct < 50) return Theme.battery_high
+                            if (pct < 80) return Theme.battery_mid
+                            return Theme.battery_low
                         }
 
                         // Core Number
                         Text {
                             text: "C" + (modelData.index < 10 ? "0" + modelData.index : modelData.index)
                             font { family: Theme.nerdFont; pixelSize: 11 }
-                            color: "#89b4fa" // Catppuccin Blue
+                            color: Theme.secondary
                             width: 24
                             anchors.verticalCenter: parent.verticalCenter
                         }
@@ -191,7 +191,7 @@ PanelWindow {
                             width: 50
                             height: 6
                             radius: 3
-                            color: "#313244"
+                            color: Theme.surface_container_high
                             anchors.verticalCenter: parent.verticalCenter
 
                             Rectangle {
@@ -206,7 +206,7 @@ PanelWindow {
                         Text {
                             text: freq < 1000 ? freq + "M" : (freq / 1000).toFixed(1) + "G"
                             font { family: Theme.nerdFont; pixelSize: 10 }
-                            color: "#6c7086"
+                            color: Theme.outline
                             width: 36
                             horizontalAlignment: Text.AlignRight
                             anchors.verticalCenter: parent.verticalCenter

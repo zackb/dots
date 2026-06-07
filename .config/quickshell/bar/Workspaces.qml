@@ -4,9 +4,6 @@ import QtQuick
 import "../"
 
 Row {
-    property color backgroundColor: Qt.alpha("#1e1e2e", 0.5)
-    property color urgentColor: Qt.alpha("#f38ba8", 0.8)
-
     spacing: 4
 
     Repeater {
@@ -22,7 +19,7 @@ Row {
             height: 24
             radius: height / 2
 
-            color: isUrgent ? urgentColor : backgroundColor
+            color: isUrgent ? Qt.alpha(Theme.critical, 0.8) : Theme.capsuleBg
 
             Behavior on color {
                 ColorAnimation { duration: 120 }
