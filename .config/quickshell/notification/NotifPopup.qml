@@ -253,7 +253,7 @@ Variants {
                         onFinished: notificationPopup.disposeNotification(notifId)
                     }
 
-                    readonly property string applicationName: notificationEntry.appName || "Notification"
+                    readonly property string applicationName: (notificationEntry.appName == "notify-send" ? "" : notificationEntry.appName || "Notification")
                     readonly property var applicationIcon: notificationEntry.image || notificationEntry.appIcon || ""
 
                     property real lifeSpanProgress: 1.0
@@ -443,6 +443,7 @@ Variants {
                                     id: headerIconWrapper
                                     width: 24
                                     height: 24
+                                    visible: !!cardDelegate.applicationName
                                     anchors.verticalCenter: parent.verticalCenter
                                     anchors.left: parent.left
 
@@ -491,6 +492,7 @@ Variants {
                                 }
 
                                 Text {
+                                    visible: !!cardDelegate.applicationName
                                     text: cardDelegate.applicationName
                                     color: Theme.primary
                                     anchors.verticalCenter: parent.verticalCenter

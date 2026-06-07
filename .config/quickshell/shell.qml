@@ -15,6 +15,9 @@ ShellRoot {
         function toggle() {
             shellVisible = !shellVisible
         }
+        function reload() {
+            Quickshell.reload(false)
+        }
     }
 
     Variants {

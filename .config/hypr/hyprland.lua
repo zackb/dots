@@ -218,7 +218,10 @@ hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
 hl.bind(mainMod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }))
 
 -- refresh waybar
-hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("pkill -SIGUSR2 waybar"))
+-- hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("pkill -SIGUSR2 waybar"))
+
+-- refresh quickshell
+hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("qs ipc call shell reload"))
 
 -- select wallpaper
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("~/bin/wallpaper.sh"))
