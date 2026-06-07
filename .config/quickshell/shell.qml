@@ -27,6 +27,7 @@ ShellRoot {
 
     BluetoothPopup {}
     NotifPopup {}
+    NotifTray {}
 
     Launcher {}
     ScoreWidget {
