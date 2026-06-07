@@ -33,9 +33,9 @@ PanelWindow {
 
     Rectangle {
         anchors.fill: parent
-        color: Theme.surface_container
+        color: Theme.popupBg
         radius: 16
-        border.color: Theme.outline // "#45475a"
+        border.color: Theme.popupBorder
         border.width: 1
 
         Keys.onPressed: event => {

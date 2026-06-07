@@ -26,27 +26,24 @@ PanelWindow {
             var pos = buttonItem.mapToItem(null, 0, 0)
             var marginTop = (barWindow && barWindow.margins) ? barWindow.margins.top : 0
             var screenWidth = barWindow ? barWindow.width : 1920
-            
+
             var globalX = pos.x
             var globalY = pos.y + marginTop
 
             var menuWidth = 340
             var xCoord = globalX + (buttonItem.width / 2) - (menuWidth / 2)
-            
-            // clamp to screen boundaries with padding
+
             if (xCoord < 10) xCoord = 10
             if (xCoord + menuWidth > screenWidth - 10) xCoord = screenWidth - menuWidth - 10
 
             targetX = xCoord
-            targetY = globalY + buttonItem.height + 6 // 6px gap below the button
+            targetY = globalY + buttonItem.height + 6
 
             isOpen = true
         }
     }
 
-    // associate window with the correct screen
     screen: barWindow ? barWindow.screen : null
-
     visible: false
 
     anchors {
@@ -72,30 +69,6 @@ PanelWindow {
 
     property var airpodsBattery: null
 
-    QtObject {
-        id: theme
-        property color bg:           Qt.alpha("#1e1e2e", 0.95)
-        property color bgElevated:   "#313244"
-        property color bgHover:      "#45475a"
-        property color border:       "#45475a"
-        property color text:         "#cdd6f4"
-        property color textDim:      "#6c7086"
-        property color textBright:   "#cdd6f4"
-        property color accent:       "#cba6f7"
-        property color accentDim:    "#45475a"
-        property color connected:    "#a6e3a1"
-        property color disconnected: "#6c7086"
-        property color scanning:     "#f9e2af"
-        property color batteryHigh:  "#a6e3a1"
-        property color batteryMid:   "#f9e2af"
-        property color batteryLow:   "#f38ba8"
-        property color danger:       "#f38ba8"
-        property int   radius:       12
-        property int   radiusSm:     8
-        property int   fontSz:       13
-        property int   fontSzSm:     11
-    }
-
     color: "transparent"
 
     MouseArea {
@@ -104,30 +77,27 @@ PanelWindow {
         z: -1
     }
 
-    // Dropdown Panel 
     Rectangle {
         id: panel
         x: targetX
         y: targetY
         width: 340
         height: contentCol.implicitHeight + 24
-        color: theme.bg
-        radius: theme.radius
-        border.color: theme.border
+        color: Theme.popupBg
+        radius: Theme.radius
+        border.color: Theme.popupBorder
         border.width: 1
 
-        // Drop shadow effect
         Rectangle {
             anchors.fill: parent
             anchors.margins: -1
             color: "transparent"
             border.color: Qt.rgba(0, 0, 0, 0.4)
             border.width: 1
-            radius: theme.radius + 1
+            radius: Theme.radius + 1
             z: -1
         }
 
-        // Catch clicks inside the panel so they don't fall through
         MouseArea {
             anchors.fill: parent
         }
@@ -151,37 +121,35 @@ PanelWindow {
 
                 Text {
                     text: "Bluetooth"
-                    color: theme.textBright
+                    color: Theme.on_surface
                     font { pixelSize: 15; bold: true }
                 }
 
                 Item { Layout.fillWidth: true }
 
-                // Scanning indicator
                 Text {
                     visible: root.adapter && root.adapter.discovering
                     text: "scanning…"
-                    color: theme.scanning
-                    font.pixelSize: theme.fontSzSm
+                    color: Theme.warning
+                    font.pixelSize: Theme.font_size_sm
                 }
 
-                // Adapter power toggle
                 Rectangle {
                     width: 44
                     height: 24
                     radius: 12
                     color: (root.adapter && root.adapter.enabled)
-                            ? theme.accent
-                            : theme.bgElevated
-                    border.color: theme.border
+                            ? Theme.primary
+                            : Theme.surface_container_high
+                    border.color: Theme.surface_container_highest
                     border.width: 1
 
                     Text {
                         anchors.centerIn: parent
                         text: (root.adapter && root.adapter.enabled) ? "ON" : "OFF"
                         color: (root.adapter && root.adapter.enabled)
-                               ? "#11111b"
-                               : theme.textDim
+                               ? Theme.on_primary
+                               : Theme.outline
                         font { pixelSize: 10; bold: true }
                     }
 
@@ -199,23 +167,23 @@ PanelWindow {
             Rectangle {
                 Layout.fillWidth: true
                 height: 1
-                color: theme.border
+                color: Theme.surface_container_highest
                 opacity: 0.5
             }
 
             Text {
                 visible: !root.adapter
                 text: "No Bluetooth adapter found"
-                color: theme.textDim
-                font.pixelSize: theme.fontSz
+                color: Theme.outline
+                font.pixelSize: Theme.fontSize
                 Layout.alignment: Qt.AlignHCenter
             }
 
             Text {
                 visible: root.adapter && !root.adapter.enabled
                 text: "Bluetooth is off"
-                color: theme.textDim
-                font.pixelSize: theme.fontSz
+                color: Theme.outline
+                font.pixelSize: Theme.fontSize
                 Layout.alignment: Qt.AlignHCenter
             }
 
@@ -231,7 +199,6 @@ PanelWindow {
                     width: deviceScroll.availableWidth
                     spacing: 4
 
-                    // Section: Connected
                     Repeater {
                         model: root.adapter ? root.adapter.devices.values : []
                         delegate: DeviceRow {
@@ -239,19 +206,17 @@ PanelWindow {
                             visible: dev && dev.connected
                             device: dev
                             airpodsBattery: root.airpodsBattery
-                            theme: theme
                             onDisconnect: { if(dev) dev.connected = false }
                         }
                     }
 
-                    // Section header: Paired (not connected)
                     Text {
                         property var pairedOnly: root.adapter
                              ? root.adapter.devices.values.filter(d => d.paired && !d.connected)
                              : []
                         visible: pairedOnly.length > 0
                         text: "PAIRED"
-                        color: theme.textDim
+                        color: Theme.outline
                         font { pixelSize: 10; letterSpacing: 1.5; bold: true }
                         Layout.topMargin: 4
                     }
@@ -263,20 +228,18 @@ PanelWindow {
                             visible: dev && dev.paired && !dev.connected
                             device: dev
                             airpodsBattery: null
-                            theme: theme
                             onConnect: { if(dev) dev.connected = true }
                             onForget: { if(dev) dev.forget() }
                         }
                     }
 
-                    // Section header: Discovered (not paired)
                     Text {
                         property var discovered: root.adapter
                             ? root.adapter.devices.values.filter(d => !d.paired)
                             : []
                         visible: discovered.length > 0
                         text: "NEARBY"
-                        color: theme.textDim
+                        color: Theme.outline
                         font { pixelSize: 10; letterSpacing: 1.5; bold: true }
                         Layout.topMargin: 4
                     }
@@ -288,18 +251,16 @@ PanelWindow {
                             visible: dev && !dev.paired
                             device: dev
                             airpodsBattery: null
-                            theme: theme
                             onPair: { if(dev) dev.pair() }
                         }
                     }
 
-                    // Empty state when enabled but nothing found yet
                     Text {
                         visible: root.adapter && root.adapter.enabled
                                  && root.adapter.devices.values.length === 0
                         text: "No devices found — scanning…"
-                        color: theme.textDim
-                        font.pixelSize: theme.fontSz
+                        color: Theme.outline
+                        font.pixelSize: Theme.fontSize
                         Layout.alignment: Qt.AlignHCenter
                         Layout.topMargin: 8
                     }
@@ -310,9 +271,11 @@ PanelWindow {
                 visible: root.adapter && root.adapter.enabled
                 Layout.fillWidth: true
                 height: 36
-                radius: theme.radiusSm
-                color: scanHover.containsMouse ? theme.bgHover : theme.bgElevated
-                border.color: theme.border
+                radius: Theme.radius_sm
+                color: scanHover.containsMouse
+                        ? Theme.surface_container_highest
+                        : Theme.surface_container_high
+                border.color: Theme.surface_container_highest
                 border.width: 1
                 Layout.topMargin: 4
 
@@ -322,7 +285,7 @@ PanelWindow {
 
                     Text {
                         text: root.adapter && root.adapter.discovering ? "⟳" : "⊕"
-                        color: theme.accent
+                        color: Theme.primary
                         font.pixelSize: 16
 
                         RotationAnimation on rotation {
@@ -335,9 +298,11 @@ PanelWindow {
                     }
 
                     Text {
-                        text: root.adapter && root.adapter.discovering ? "Stop scanning" : "Scan for devices"
-                        color: theme.text
-                        font.pixelSize: theme.fontSz
+                        text: root.adapter && root.adapter.discovering
+                                ? "Stop scanning"
+                                : "Scan for devices"
+                        color: Theme.on_surface
+                        font.pixelSize: Theme.fontSize
                     }
                 }
 

@@ -16,6 +16,8 @@ Singleton {
     readonly property string textColor:     "#cdd6f4"
 
     // styling
+    readonly property color popupBg:      Qt.alpha("#1e1e2e", 0.95)
+    readonly property color popupBorder:  "#45475a"
     readonly property color capsuleBg:     Qt.alpha("#1e1e2e", 0.5)
 
 
@@ -53,5 +55,13 @@ Singleton {
     readonly property string source_color: "#cba6f7"
     readonly property string shadow: "#000000"
     readonly property string scrim: "#000000"
+    readonly property color connected:    "#a6e3a1"  // catppuccin green
+    readonly property color warning:      "#f9e2af"  // catppuccin yellow
+    readonly property color battery_high: "#a6e3a1"
+    readonly property color battery_mid:  "#f9e2af"
+    readonly property color battery_low:  "#f38ba8"  // already critical
+    readonly property int radius:         12
+    readonly property int radius_sm:      8
+    readonly property int font_size_sm:   11
     readonly property string wallpaper: "/home/zackb/.local/share/wallpapers/4199401.jpg"
 }
