@@ -331,7 +331,7 @@ PanelWindow {
                                     anchors.verticalCenter: parent.verticalCenter
                                     text: "search"
                                     font {
-                                        family: "Material Symbols Rounded"
+                                        family: Theme.ligatureFont
                                         pixelSize: 28
                                     }
                                     color: searchField.activeFocus ? Theme.primary : Theme.on_surface_variant

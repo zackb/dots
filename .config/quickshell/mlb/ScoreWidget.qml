@@ -3,6 +3,7 @@ import Quickshell.Io
 import QtQuick
 import QtQuick.Controls
 import Quickshell.Wayland
+import "../"
 
 PanelWindow {
 
@@ -70,17 +71,16 @@ PanelWindow {
 
     Rectangle {
         anchors.fill: parent
-        radius: 8
+        radius: Theme.radius_sm
         color: Qt.rgba(0, 0, 0, 0.4)
-        // color: root.gameClass === "mlb-live" ? "#1a2e1a" : root.gameClass === "mlb-final" ? "#1a1a2e" : "#1a1a1a"
-        border.color: root.gameClass === "mlb-live" ? "#4caf50" : root.gameClass === "mlb-final" ? "#5c6bc0" : "#444"
+        border.color: root.gameClass === "mlb-live" ? Theme.connected : root.gameClass === "mlb-final" ? Theme.secondary : Theme.outline
         border.width: 1
 
         Text {
             id: scoreText
             anchors.centerIn: parent
             text: root.scoreText
-            color: "#e0e0e0"
+            color: Theme.textColor
             font.pixelSize: 14
             font.family: "monospace"
         }

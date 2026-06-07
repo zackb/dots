@@ -167,7 +167,7 @@ Item {
                     text: "keyboard_return"
                     color: Theme.on_primary
                     font {
-                        family: "Material Symbols Rounded"
+                        family: Theme.ligatureFont
                         pixelSize: 16
                     }
                 }

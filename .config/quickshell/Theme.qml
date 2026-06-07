@@ -13,6 +13,7 @@ Singleton {
     readonly property int fontSize:        16
     readonly property string font:         "Cantarell"
     readonly property string nerdFont:     "MesloLGSDZ Nerd Font Mono"
+    readonly property string ligatureFont: "Material Symbols Rounded"
     readonly property int radius:          12
     readonly property int radius_sm:       8
     readonly property int font_size_sm:    11

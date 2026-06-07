@@ -167,7 +167,7 @@ PanelWindow {
                             rightMargin: 16
                         }
                         text: "close"
-                        font.family: "Material Symbols Rounded"
+                        font.family: Theme.ligatureFont
                         font.pixelSize: 16
                         color: Theme.on_surface_variant
                         opacity: dismissHover.hovered ? 1.0 : 0.4
