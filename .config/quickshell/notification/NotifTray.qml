@@ -44,6 +44,10 @@ PanelWindow {
                 event.accepted = true
             }
         }
+        Shortcut {
+            sequence: "Escape"
+            onActivated: NotifServer.trayOpen = false
+        }
 
         Column {
             id: contentCol

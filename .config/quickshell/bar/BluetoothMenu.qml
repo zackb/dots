@@ -54,7 +54,7 @@ PanelWindow {
     }
 
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+    WlrLayershell.keyboardFocus: root.isOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
     exclusionMode: ExclusionMode.Ignore
 
     readonly property BluetoothAdapter adapter: Bluetooth.defaultAdapter
@@ -87,6 +87,19 @@ PanelWindow {
         radius: Theme.radius
         border.color: Theme.popupBorder
         border.width: 1
+
+        Keys.onPressed: event => {
+            if (event.key === Qt.Key_Escape) {
+                root.isOpen = false
+                event.accepted = true
+            }
+        }
+
+        Shortcut {
+            sequence: "Escape"
+            onActivated: root.isOpen = false
+        }
+
 
         Rectangle {
             anchors.fill: parent
