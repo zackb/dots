@@ -24,14 +24,12 @@ PanelWindow {
 
     WlrLayershell.layer:     WlrLayer.Bottom
     WlrLayershell.namespace: "zbar"
-    WlrLayershell.exclusionMode: ExclusionMode.Exclusive  // pushes windows down
 
     implicitHeight: 24
 
     color:  "transparent"
     onScreenChanged: {
         color = "transparent"
-        WlrLayershell.exclusionMode = ExclusionMode.Exclusive
     }
 
     Rectangle {
