@@ -89,6 +89,17 @@ Item {
             required property var modelData
             screen: modelData
 
+            // Keep the surface mapped through the 220ms fade-out, then unmap so it
+            // doesn't intercept pointer events
+            Timer {
+                id: hideDelay
+                interval: 300
+                running: !osdRoot.osdVisible
+            }
+            readonly property bool surfaceMapped: osdRoot.osdVisible || hideDelay.running
+
+            visible: surfaceMapped
+
             WlrLayershell.layer:         WlrLayer.Overlay
             WlrLayershell.exclusionMode: ExclusionMode.Ignore
             WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
