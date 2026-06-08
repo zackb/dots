@@ -7,11 +7,10 @@ import "../"
 
 PanelWindow {
     id: tray
-    visible: NotifServer.trayOpen
+    visible: false
     implicitWidth: 400
     implicitHeight: contentCol.implicitHeight + 32
     color: "transparent"
-
 
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
@@ -28,33 +27,41 @@ PanelWindow {
 
     IpcHandler {
         target: "notiftray"
-        function toggle() { tray.visible = !tray.visible }
+        function toggle() { NotifServer.trayOpen = !NotifServer.trayOpen }
+    }
+
+    Shortcut {
+        sequence: "Escape"
+        onActivated: NotifServer.trayOpen = false
     }
 
     Rectangle {
-        anchors.fill: parent
-        color: Theme.surface
+        id: panel
+        x: 0; y: 0
+        width:  parent.width
+        height: parent.height
+        color:  Theme.popupBg
         radius: Theme.radius
         border.color: Theme.popupBorder
         border.width: 1
 
-        Keys.onPressed: event => {
-            if (event.key === Qt.Key_Escape) {
-                tray.visible = false
-                event.accepted = true
-            }
-        }
-        Shortcut {
-            sequence: "Escape"
-            onActivated: NotifServer.trayOpen = false
+        // Drop shadow
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: -1
+            color: "transparent"
+            border.color: Qt.rgba(0, 0, 0, 0.4)
+            border.width: 1
+            radius: Theme.radius + 1
+            z: -1
         }
 
         Column {
             id: contentCol
             anchors {
-                top: parent.top
-                left: parent.left
-                right: parent.right
+                top:    parent.top
+                left:   parent.left
+                right:  parent.right
                 margins: 16
             }
             spacing: 8
@@ -65,10 +72,8 @@ PanelWindow {
 
                 Text {
                     text: "Notifications"
-                    color: Theme.on_surface
-                    font.family: Theme.font
-                    font.pixelSize: 16
-                    font.weight: Font.Medium
+                    color: Theme.textColor
+                    font { family: Theme.font; pixelSize: 15; bold: true }
                 }
 
                 Item {
@@ -80,17 +85,14 @@ PanelWindow {
                     id: clearBtn
                     text: "Clear all"
                     color: Theme.primary
-                    font.family: Theme.font
-                    font.pixelSize: 13
+                    font { family: Theme.font; pixelSize: 13 }
                     TapHandler {
                         onTapped: {
                             NotifServer.history.clear()
                             NotifServer.trayOpen = false
                         }
                     }
-                    HoverHandler {
-                        cursorShape: Qt.PointingHandCursor
-                    }
+                    HoverHandler { cursorShape: Qt.PointingHandCursor }
                 }
             }
 
@@ -101,8 +103,7 @@ PanelWindow {
                 visible: NotifServer.history.count === 0
                 text: "No notifications"
                 color: Theme.on_surface_variant
-                font.family: Theme.font
-                font.pixelSize: 14
+                font { family: Theme.font; pixelSize: 14 }
                 topPadding: 12
                 bottomPadding: 12
             }
@@ -119,18 +120,16 @@ PanelWindow {
                     border.color: Theme.popupBorder
                     border.width: 1
 
-                    HoverHandler {
-                        id: itemHover
-                    }
+                    HoverHandler { id: itemHover }
 
                     Column {
                         id: textCol
                         anchors {
-                            top: parent.top
-                            left: parent.left
-                            right: dismissBtn.left
-                            topMargin: 12
-                            leftMargin: 16
+                            top:         parent.top
+                            left:        parent.left
+                            right:       dismissBtn.left
+                            topMargin:   12
+                            leftMargin:  16
                             rightMargin: 12
                         }
                         spacing: 2
@@ -138,9 +137,7 @@ PanelWindow {
                         Text {
                             text: model.summary
                             color: Theme.on_surface
-                            font.family: Theme.font
-                            font.pixelSize: 13
-                            font.bold: true
+                            font { family: Theme.font; pixelSize: 13; bold: true }
                             width: parent.width
                             elide: Text.ElideRight
                         }
@@ -148,8 +145,7 @@ PanelWindow {
                         Text {
                             text: model.body
                             color: Theme.on_surface_variant
-                            font.family: Theme.font
-                            font.pixelSize: 13
+                            font { family: Theme.font; pixelSize: 13 }
                             wrapMode: Text.WordWrap
                             width: parent.width
                             visible: model.body !== ""
@@ -160,8 +156,7 @@ PanelWindow {
                         Text {
                             text: model.appName + " · " + Qt.formatTime(model.time, "h:mm ap")
                             color: Theme.on_surface_variant
-                            font.family: Theme.font
-                            font.pixelSize: Theme.font_size_sm
+                            font { family: Theme.font; pixelSize: Theme.font_size_sm }
                             opacity: 0.7
                         }
                     }
@@ -169,31 +164,57 @@ PanelWindow {
                     Text {
                         id: dismissBtn
                         anchors {
-                            right: parent.right
+                            right:         parent.right
                             verticalCenter: parent.verticalCenter
-                            rightMargin: 16
+                            rightMargin:   16
                         }
                         text: "close"
-                        font.family: Theme.ligatureFont
-                        font.pixelSize: 16
+                        font { family: Theme.ligatureFont; pixelSize: 16 }
                         color: Theme.on_surface_variant
                         opacity: dismissHover.hovered ? 1.0 : 0.4
+                        Behavior on opacity { NumberAnimation { duration: 150 } }
 
-                        Behavior on opacity {
-                            NumberAnimation { duration: 150 }
-                        }
-
-                        HoverHandler {
-                            id: dismissHover
-                            cursorShape: Qt.PointingHandCursor
-                        }
-
-                        TapHandler {
-                            onTapped: NotifServer.history.remove(index)
-                        }
+                        HoverHandler { id: dismissHover; cursorShape: Qt.PointingHandCursor }
+                        TapHandler { onTapped: NotifServer.history.remove(index) }
                     }
                 }
             }
         }
+
+        states: [
+            State {
+                name: "open"
+                when: NotifServer.trayOpen
+                PropertyChanges { target: panel; opacity: 1.0; y: 0 }
+            },
+            State {
+                name: "closed"
+                when: !NotifServer.trayOpen
+                PropertyChanges { target: panel; opacity: 0.0; y: -10 }
+            }
+        ]
+
+        transitions: [
+            Transition {
+                from: "closed"; to: "open"
+                SequentialAnimation {
+                    ScriptAction { script: tray.visible = true }
+                    ParallelAnimation {
+                        NumberAnimation { target: panel; property: "opacity"; duration: 180; easing.type: Easing.OutQuad }
+                        NumberAnimation { target: panel; property: "y";       duration: 180; easing.type: Easing.OutQuad }
+                    }
+                }
+            },
+            Transition {
+                from: "open"; to: "closed"
+                SequentialAnimation {
+                    ParallelAnimation {
+                        NumberAnimation { target: panel; property: "opacity"; duration: 150; easing.type: Easing.OutQuad }
+                        NumberAnimation { target: panel; property: "y";       duration: 150; easing.type: Easing.OutQuad }
+                    }
+                    ScriptAction { script: tray.visible = false }
+                }
+            }
+        ]
     }
 }
