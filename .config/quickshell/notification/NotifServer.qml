@@ -36,15 +36,19 @@ NotificationServer {
     onNotification: notification => {
         // Enables automatic management within the trackedNotifications ObjectModel
         notification.tracked = true;
-           history.insert(0, {
-            notifId: notification.id,
-            appName: notification.appName,
-            summary: notification.summary,
-            body: notification.body,
-            appIcon: notification.appIcon,
-            time: new Date()
-        });
-        // cap history length
-        if (history.count > 50) history.remove(50);
+        if (!notification.hints["transient"]) {
+            history.insert(0, {
+                notifId: notification.id,
+                appName: notification.appName,
+                summary: notification.summary,
+                body: notification.body,
+                appIcon: notification.appIcon,
+                urgency: notification.hints["urgency"] ?? 1,
+                category: notification.hints["category"] ?? "",
+                time: new Date()
+            });
+            // cap history length
+            if (history.count > 50) history.remove(50);
+        }
     }
 }

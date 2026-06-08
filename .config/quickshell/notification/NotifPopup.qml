@@ -255,6 +255,25 @@ Variants {
 
                     readonly property string applicationName: (notificationEntry.appName == "notify-send" ? "" : notificationEntry.appName || "Notification")
                     readonly property var applicationIcon: notificationEntry.image || notificationEntry.appIcon || ""
+                    readonly property int urgency: {
+                        const u = notificationEntry.hints["urgency"];
+                        return (u !== undefined && u !== null) ? u : 1;
+                    }
+                    readonly property string category: notificationEntry.hints["category"] ?? ""
+                    readonly property string categoryIcon: {
+                        const prefix = category.split(".")[0];
+                        switch (prefix) {
+                            case "email":    return "";
+                            case "im":       return "";
+                            case "call":     return "";
+                            case "network":  return "󰀂";
+                            case "device":   return "";
+                            case "transfer": return "";
+                            case "presence": return "";
+                            case "battery":  return "";
+                            default:         return "!";
+                        }
+                    }
 
                     property real lifeSpanProgress: 1.0
 
@@ -262,8 +281,10 @@ Variants {
                         if (slidingOut)
                             return;
                         lifeSpanProgress = 1.0;
-                        expiryAnim.restart();
-                        updateExpiryPaused();
+                        if (urgency !== 2) {
+                            expiryAnim.restart();
+                            updateExpiryPaused();
+                        }
                     }
 
                     Connections {
@@ -307,8 +328,8 @@ Variants {
                         property: "lifeSpanProgress"
                         from: 1.0
                         to: 0.0
-                        duration: 7000
-                        running: true
+                        duration: cardDelegate.urgency === 0 ? 4000 : 7000
+                        running: cardDelegate.urgency !== 2
 
                         onRunningChanged: {
                             if (running) {
@@ -341,8 +362,10 @@ Variants {
 
                         radius: Theme.radius
                         color: interactionArea.containsMouse ? Theme.surface_container_high : Theme.surface
-                        border.color: Theme.popupBorder
-                        border.width: 1
+                        border.color: cardDelegate.urgency === 2
+                            ? Qt.rgba(Theme.critical.r, Theme.critical.g, Theme.critical.b, 0.7)
+                            : Theme.popupBorder
+                        border.width: cardDelegate.urgency === 2 ? 2 : 1
 
                         Behavior on color {
                             ColorAnimation { duration: 150 }
@@ -416,10 +439,10 @@ Variants {
 
                                         Text {
                                             anchors.centerIn: parent
-                                            text: "!"
+                                            text: cardDelegate.categoryIcon
                                             color: Theme.on_surface
                                             font {
-                                                family: Theme.font
+                                                family: Theme.nerdFont
                                                 pixelSize: 13
                                                 bold: true
                                             }
