@@ -25,7 +25,7 @@ Item {
 
         if (desktopEntry.runInTerminal) {
             finalCommand.push(myTerminal);
-            finalCommand.push("--");
+            finalCommand.push("-e"); // "--" for kitty
         }
 
         finalCommand = finalCommand.concat(desktopEntry.command);
