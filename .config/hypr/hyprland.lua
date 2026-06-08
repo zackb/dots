@@ -18,7 +18,8 @@ require("clamshell")
 ---------------------
 
 local terminal = "ghostty"
-local fileManager = "thunar"
+-- local fileManager = "thunar"
+local fileManager = terminal .. " -e yazi"
 local menu = "rofi -show drun"
 
 -------------------
