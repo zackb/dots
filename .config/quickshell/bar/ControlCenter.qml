@@ -16,6 +16,7 @@ PanelWindow {
         function close()  { root.isOpen = false }
     }
 
+    property var  barWindow: null
     property bool isOpen: false
 
     // ── Audio ──────────────────────────────────────────────────────────
@@ -48,347 +49,297 @@ PanelWindow {
     Component.onCompleted: brightWatcher.running = true
 
     // ── Window ─────────────────────────────────────────────────────────
+    screen: barWindow ? barWindow.screen : null
     visible: false
+
     anchors { top: true; bottom: true; left: true; right: true }
+
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: root.isOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    exclusionMode: ExclusionMode.Ignore
+    color: "transparent"
+
+    property int panelY: barWindow ? (barWindow.margins.top + barWindow.height + 6) : 34
 
     Shortcut {
         sequence: "Escape"
         onActivated: root.isOpen = false
     }
-    exclusionMode: ExclusionMode.Ignore
-    color: "transparent"
 
-    // ── Dim backdrop ───────────────────────────────────────────────────
-    Rectangle {
-        id: dimOverlay
+    // Transparent backdrop — click anywhere outside the panel to close
+    MouseArea {
         anchors.fill: parent
-        color: Qt.rgba(0, 0, 0, 0.45)
-        opacity: 0
+        onClicked: root.isOpen = false
+        z: -1
     }
 
     // ── Panel ──────────────────────────────────────────────────────────
     Rectangle {
         id: panel
-        anchors.right:  parent.right
-        anchors.top:    parent.top
-        anchors.bottom: parent.bottom
-        width: 320
-        color: Theme.surface
+        anchors.right:       parent.right
+        anchors.rightMargin: 8
+        y:      root.panelY
+        width:  320
+        height: contentCol.implicitHeight + 24
+        color:  Theme.popupBg
+        radius: Theme.radius
+        border.color: Theme.popupBorder
+        border.width: 1
 
-        // Left edge border
+        // Slide in from the right via transform
+        transform: Translate { id: panelSlide; x: panel.width }
+
+        // Drop shadow
         Rectangle {
-            z: 2
-            anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
-            width: 1
-            color: Theme.popupBorder
+            anchors.fill: parent
+            anchors.margins: -1
+            color: "transparent"
+            border.color: Qt.rgba(0, 0, 0, 0.4)
+            border.width: 1
+            radius: Theme.radius + 1
+            z: -1
         }
 
-        transform: Translate { id: panelSlide; x: panel.width }
+        // Swallow clicks so they don't reach the backdrop MouseArea
+        MouseArea { anchors.fill: parent }
 
         ColumnLayout {
             id: contentCol
-            width: panel.width
+            anchors {
+                top:         parent.top
+                left:        parent.left
+                right:       parent.right
+                topMargin:   12
+                leftMargin:  16
+                rightMargin: 16
+            }
             spacing: 0
 
-                // ── Header ────────────────────────────────────────────
-                Item {
+            // ── Header ────────────────────────────────────────────────
+            Text {
+                text:  "Control Center"
+                color: Theme.textColor
+                font { pixelSize: 15; bold: true; family: Theme.font }
+                Layout.bottomMargin: 10
+            }
+
+            // Divider
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.bottomMargin: 14
+                height: 1; color: Theme.popupBorder; opacity: 0.6
+            }
+
+            // ── Volume ────────────────────────────────────────────────
+            Text {
+                text:  "VOLUME"
+                color: Theme.outline
+                font { pixelSize: 10; bold: true; letterSpacing: 1.5; family: Theme.font }
+                Layout.bottomMargin: 10
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.bottomMargin: 14
+                spacing: 14
+
+                Text {
+                    text: {
+                        const v = root.sink?.audio?.volume ?? 0
+                        const m = root.sink?.audio?.muted  ?? false
+                        if (m || v === 0) return "󰝟"
+                        if (v < 0.33)     return "󰕿"
+                        if (v < 0.66)     return "󰖀"
+                        return "󰕾"
+                    }
+                    color: (root.sink?.audio?.muted ?? false)
+                           ? Qt.alpha(Theme.primary, 0.35)
+                           : Theme.primary
+                    font { pixelSize: 22; family: Theme.nerdFont }
+                    Behavior on color { ColorAnimation { duration: 120 } }
+                    HoverHandler { cursorShape: Qt.PointingHandCursor }
+                    TapHandler {
+                        onTapped: {
+                            if (root.sink?.audio)
+                                root.sink.audio.muted = !root.sink.audio.muted
+                        }
+                    }
+                }
+
+                ControlSlider {
                     Layout.fillWidth: true
-                    height: 64
+                    from: 0; to: 1.0
+                    value:      root.sink?.audio?.volume ?? 0
+                    trackColor: (root.sink?.audio?.muted ?? false)
+                                ? Theme.outline : Theme.primary
+                    onMoved: (v) => { if (root.sink?.audio) root.sink.audio.volume = v }
+                }
 
-                    // Accent stripe behind title
-                    Rectangle {
-                        anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
-                        width: 3
-                        color: Theme.primary
-                        opacity: 0.8
+                Text {
+                    text: Math.round((root.sink?.audio?.volume ?? 0) * 100) + "%"
+                    color: Theme.on_surface_variant
+                    font { pixelSize: 12; family: Theme.font }
+                    width: 38
+                    horizontalAlignment: Text.AlignRight
+                }
+            }
+
+            // Divider
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.bottomMargin: 14
+                height: 1; color: Theme.popupBorder; opacity: 0.4
+            }
+
+            // ── Brightness ────────────────────────────────────────────
+            Text {
+                text:  "BRIGHTNESS"
+                color: Theme.outline
+                font { pixelSize: 10; bold: true; letterSpacing: 1.5; family: Theme.font }
+                Layout.bottomMargin: 10
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.bottomMargin: 14
+                spacing: 14
+
+                Text {
+                    text: {
+                        const p = root.brightnessPercent
+                        if (p < 0.33) return "󰃞"
+                        if (p < 0.66) return "󰃟"
+                        return "󰃠"
                     }
+                    color: Theme.primary
+                    font { pixelSize: 22; family: Theme.nerdFont }
+                }
 
-                    Text {
-                        anchors {
-                            left:           parent.left
-                            leftMargin:     20
-                            verticalCenter: parent.verticalCenter
-                        }
-                        text:  "Control Center"
-                        color: Theme.on_surface
-                        font { pixelSize: 17; bold: true; family: Theme.font }
-                    }
+                ControlSlider {
+                    Layout.fillWidth: true
+                    from:  1
+                    to:    root.maxBrightness > 0 ? root.maxBrightness : 255
+                    value: root.brightness
+                    onMoved: (v) => Quickshell.execDetached(
+                        ["brightnessctl", "set", Math.round(v).toString()])
+                }
 
-                    // Close button
-                    Rectangle {
-                        id: closeBtn
-                        anchors {
-                            right:          parent.right
-                            rightMargin:    16
-                            verticalCenter: parent.verticalCenter
-                        }
-                        width: 30; height: 30; radius: 15
-                        color: closeMa.containsMouse
-                               ? Theme.surface_container_highest
-                               : Theme.surface_container_high
-                        border.color: Theme.popupBorder
+                Text {
+                    text: Math.round(root.brightnessPercent * 100) + "%"
+                    color: Theme.on_surface_variant
+                    font { pixelSize: 12; family: Theme.font }
+                    width: 38
+                    horizontalAlignment: Text.AlignRight
+                }
+            }
+
+            // Divider
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.bottomMargin: 14
+                height: 1; color: Theme.popupBorder; opacity: 0.4
+            }
+
+            // ── Session ───────────────────────────────────────────────
+            Text {
+                text:  "SESSION"
+                color: Theme.outline
+                font { pixelSize: 10; bold: true; letterSpacing: 1.5; family: Theme.font }
+                Layout.bottomMargin: 10
+            }
+
+            Grid {
+                id: sessionGrid
+                columns: 3
+                spacing: 8
+                Layout.fillWidth: true
+                Layout.bottomMargin: 4
+
+                Repeater {
+                    model: [
+                        { icon: "󰌾", label: "Lock",
+                          cmd: ["loginctl", "lock-session"],         critical: false },
+                        { icon: "󰒲", label: "Sleep",
+                          cmd: ["systemctl", "suspend"],             critical: false },
+                        { icon: "󰤄", label: "Hibernate",
+                          cmd: ["systemctl", "hibernate"],           critical: false },
+                        { icon: "󰍃", label: "Logout",
+                          cmd: ["hyprctl", "dispatch", "exit"],      critical: false },
+                        { icon: "󰑐", label: "Restart",
+                          cmd: ["systemctl", "reboot"],              critical: true  },
+                        { icon: "󰐥", label: "Shutdown",
+                          cmd: ["systemctl", "poweroff"],            critical: true  },
+                    ]
+
+                    delegate: Rectangle {
+                        required property var modelData
+                        property bool hov: false
+
+                        width:  (sessionGrid.width - sessionGrid.spacing * 2) / 3
+                        height: 72
+                        radius: Theme.radius_sm
+                        color:  hov
+                            ? (modelData.critical
+                               ? Qt.alpha(Theme.critical, 0.15)
+                               : Theme.surface_container_highest)
+                            : Theme.surface_container_high
+                        border.color: (hov && modelData.critical)
+                            ? Qt.alpha(Theme.critical, 0.5)
+                            : Theme.popupBorder
                         border.width: 1
-                        Behavior on color { ColorAnimation { duration: 100 } }
 
-                        Text {
+                        Behavior on color        { ColorAnimation { duration: 120 } }
+                        Behavior on border.color { ColorAnimation { duration: 120 } }
+
+                        Column {
                             anchors.centerIn: parent
-                            text:  "close"
-                            font { family: Theme.ligatureFont; pixelSize: 18 }
-                            color: Theme.on_surface_variant
-                        }
-                        MouseArea {
-                            id: closeMa
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape:  Qt.PointingHandCursor
-                            onClicked:    root.isOpen = false
-                        }
-                    }
-                }
+                            spacing: 6
 
-                // Divider
-                Rectangle {
-                    Layout.fillWidth: true
-                    height: 1; color: Theme.popupBorder; opacity: 0.6
-                }
-
-                // ── Volume ────────────────────────────────────────────
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Layout.topMargin:    20
-                    Layout.bottomMargin: 16
-                    Layout.leftMargin:   20
-                    Layout.rightMargin:  20
-                    spacing: 14
-
-                    Text {
-                        text:  "VOLUME"
-                        color: Theme.outline
-                        font { pixelSize: 10; bold: true; letterSpacing: 1.5; family: Theme.font }
-                    }
-
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: 14
-
-                        // Mute toggle icon
-                        Text {
-                            text: {
-                                const v = root.sink?.audio?.volume ?? 0
-                                const m = root.sink?.audio?.muted  ?? false
-                                if (m || v === 0) return "󰝟"
-                                if (v < 0.33)     return "󰕿"
-                                if (v < 0.66)     return "󰖀"
-                                return "󰕾"
+                            Text {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text:  modelData.icon
+                                font { family: Theme.nerdFont; pixelSize: 24 }
+                                color: (hov && modelData.critical)
+                                       ? Theme.critical : Theme.on_surface
+                                Behavior on color { ColorAnimation { duration: 120 } }
                             }
-                            color: (root.sink?.audio?.muted ?? false)
-                                   ? Qt.alpha(Theme.primary, 0.35)
-                                   : Theme.primary
-                            font { pixelSize: 22; family: Theme.nerdFont }
-                            Behavior on color { ColorAnimation { duration: 120 } }
-                            HoverHandler { cursorShape: Qt.PointingHandCursor }
-                            TapHandler {
-                                onTapped: {
-                                    if (root.sink?.audio)
-                                        root.sink.audio.muted = !root.sink.audio.muted
-                                }
+                            Text {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text:  modelData.label
+                                font { family: Theme.font; pixelSize: 11 }
+                                color: (hov && modelData.critical)
+                                       ? Theme.critical : Theme.on_surface_variant
+                                Behavior on color { ColorAnimation { duration: 120 } }
                             }
                         }
 
-                        // Volume slider
-                        ControlSlider {
-                            Layout.fillWidth: true
-                            from: 0; to: 1.0
-                            value:      root.sink?.audio?.volume ?? 0
-                            trackColor: (root.sink?.audio?.muted ?? false)
-                                        ? Theme.outline : Theme.primary
-                            onMoved: (v) => { if (root.sink?.audio) root.sink.audio.volume = v }
+                        HoverHandler {
+                            cursorShape: Qt.PointingHandCursor
+                            onHoveredChanged: parent.hov = hovered
                         }
-
-                        // Percentage label
-                        Text {
-                            text: Math.round((root.sink?.audio?.volume ?? 0) * 100) + "%"
-                            color: Theme.on_surface_variant
-                            font { pixelSize: 12; family: Theme.font }
-                            width: 38
-                            horizontalAlignment: Text.AlignRight
-                        }
-                    }
-                }
-
-                // Divider
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.leftMargin: 20; Layout.rightMargin: 20
-                    height: 1; color: Theme.popupBorder; opacity: 0.4
-                }
-
-                // ── Brightness ────────────────────────────────────────
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Layout.topMargin:    20
-                    Layout.bottomMargin: 16
-                    Layout.leftMargin:   20
-                    Layout.rightMargin:  20
-                    spacing: 14
-
-                    Text {
-                        text:  "BRIGHTNESS"
-                        color: Theme.outline
-                        font { pixelSize: 10; bold: true; letterSpacing: 1.5; family: Theme.font }
-                    }
-
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: 14
-
-                        Text {
-                            text: {
-                                const p = root.brightnessPercent
-                                if (p < 0.33) return "󰃞"
-                                if (p < 0.66) return "󰃟"
-                                return "󰃠"
-                            }
-                            color: Theme.primary
-                            font { pixelSize: 22; family: Theme.nerdFont }
-                        }
-
-                        ControlSlider {
-                            Layout.fillWidth: true
-                            from:  1
-                            to:    root.maxBrightness > 0 ? root.maxBrightness : 255
-                            value: root.brightness
-                            onMoved: (v) => Quickshell.execDetached(
-                                ["brightnessctl", "set", Math.round(v).toString()])
-                        }
-
-                        Text {
-                            text: Math.round(root.brightnessPercent * 100) + "%"
-                            color: Theme.on_surface_variant
-                            font { pixelSize: 12; family: Theme.font }
-                            width: 38
-                            horizontalAlignment: Text.AlignRight
-                        }
-                    }
-                }
-
-                // Divider
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.leftMargin: 20; Layout.rightMargin: 20
-                    height: 1; color: Theme.popupBorder; opacity: 0.4
-                }
-
-                // ── Session ───────────────────────────────────────────
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Layout.topMargin:    20
-                    Layout.bottomMargin: 24
-                    Layout.leftMargin:   20
-                    Layout.rightMargin:  20
-                    spacing: 14
-
-                    Text {
-                        text:  "SESSION"
-                        color: Theme.outline
-                        font { pixelSize: 10; bold: true; letterSpacing: 1.5; family: Theme.font }
-                    }
-
-                    Grid {
-                        columns:  3
-                        spacing:  8
-                        width:    panel.width - 40
-
-                        Repeater {
-                            model: [
-                                { icon: "󰌾", label: "Lock",
-                                  cmd: ["loginctl", "lock-session"],         critical: false },
-                                { icon: "󰒲", label: "Sleep",
-                                  cmd: ["systemctl", "suspend"],             critical: false },
-                                { icon: "󰤄", label: "Hibernate",
-                                  cmd: ["systemctl", "hibernate"],           critical: false },
-                                { icon: "󰍃", label: "Logout",
-                                  cmd: ["hyprctl", "dispatch", "exit"],      critical: false },
-                                { icon: "󰑐", label: "Restart",
-                                  cmd: ["systemctl", "reboot"],              critical: true  },
-                                { icon: "󰐥", label: "Shutdown",
-                                  cmd: ["systemctl", "poweroff"],            critical: true  },
-                            ]
-
-                            delegate: Rectangle {
-                                required property var modelData
-                                property bool hov: false
-
-                                // (panelWidth - 2×margin - 2×gap) / 3  =  (320-40-16)/3 = 88
-                                width:  (panel.width - 40 - 16) / 3
-                                height: 72
-                                radius: Theme.radius_sm
-                                color:  hov
-                                    ? (modelData.critical
-                                       ? Qt.alpha(Theme.critical, 0.15)
-                                       : Theme.surface_container_highest)
-                                    : Theme.surface_container_high
-                                border.color: (hov && modelData.critical)
-                                    ? Qt.alpha(Theme.critical, 0.5)
-                                    : Theme.popupBorder
-                                border.width: 1
-
-                                Behavior on color       { ColorAnimation { duration: 120 } }
-                                Behavior on border.color { ColorAnimation { duration: 120 } }
-
-                                Column {
-                                    anchors.centerIn: parent
-                                    spacing: 6
-
-                                    Text {
-                                        anchors.horizontalCenter: parent.horizontalCenter
-                                        text:  modelData.icon
-                                        font { family: Theme.nerdFont; pixelSize: 24 }
-                                        color: (hov && modelData.critical)
-                                               ? Theme.critical : Theme.on_surface
-                                        Behavior on color { ColorAnimation { duration: 120 } }
-                                    }
-                                    Text {
-                                        anchors.horizontalCenter: parent.horizontalCenter
-                                        text:  modelData.label
-                                        font { family: Theme.font; pixelSize: 11 }
-                                        color: (hov && modelData.critical)
-                                               ? Theme.critical : Theme.on_surface_variant
-                                        Behavior on color { ColorAnimation { duration: 120 } }
-                                    }
-                                }
-
-                                HoverHandler {
-                                    cursorShape: Qt.PointingHandCursor
-                                    onHoveredChanged: parent.hov = hovered
-                                }
-                                TapHandler {
-                                    onTapped: {
-                                        root.isOpen = false
-                                        Qt.callLater(() => Quickshell.execDetached(modelData.cmd))
-                                    }
-                                }
+                        TapHandler {
+                            onTapped: {
+                                root.isOpen = false
+                                Qt.callLater(() => Quickshell.execDetached(modelData.cmd))
                             }
                         }
                     }
                 }
             }
+        }
 
-        // ── States & Transitions ──────────────────────────────────────
         states: [
             State {
                 name: "open"
                 when: root.isOpen
                 PropertyChanges { target: panelSlide; x: 0 }
-                PropertyChanges { target: dimOverlay; opacity: 1.0 }
+                PropertyChanges { target: panel; opacity: 1.0 }
             },
             State {
                 name: "closed"
                 when: !root.isOpen
                 PropertyChanges { target: panelSlide; x: panel.width }
-                PropertyChanges { target: dimOverlay; opacity: 0.0 }
+                PropertyChanges { target: panel; opacity: 0.0 }
             }
         ]
 
@@ -398,14 +349,8 @@ PanelWindow {
                 SequentialAnimation {
                     ScriptAction { script: root.visible = true }
                     ParallelAnimation {
-                        NumberAnimation {
-                            target: panelSlide; property: "x"
-                            duration: 260; easing.type: Easing.OutCubic
-                        }
-                        NumberAnimation {
-                            target: dimOverlay; property: "opacity"
-                            duration: 260
-                        }
+                        NumberAnimation { target: panelSlide; property: "x";       duration: 260; easing.type: Easing.OutCubic }
+                        NumberAnimation { target: panel;      property: "opacity"; duration: 260 }
                     }
                 }
             },
@@ -413,26 +358,12 @@ PanelWindow {
                 from: "open"; to: "closed"
                 SequentialAnimation {
                     ParallelAnimation {
-                        NumberAnimation {
-                            target: panelSlide; property: "x"
-                            duration: 220; easing.type: Easing.InCubic
-                        }
-                        NumberAnimation {
-                            target: dimOverlay; property: "opacity"
-                            duration: 220
-                        }
+                        NumberAnimation { target: panelSlide; property: "x";       duration: 220; easing.type: Easing.InCubic }
+                        NumberAnimation { target: panel;      property: "opacity"; duration: 220 }
                     }
                     ScriptAction { script: root.visible = false }
                 }
             }
         ]
-    }
-
-    // Click-outside: the area to the left of the panel
-    MouseArea {
-        x: 0; y: 0
-        width:  root.width - panel.width
-        height: root.height
-        onClicked: root.isOpen = false
     }
 }

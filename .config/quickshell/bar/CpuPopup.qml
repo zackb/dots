@@ -36,8 +36,8 @@ PanelWindow {
         left: root.targetX
     }
 
-    width:  panel.width
-    height: panel.height
+    implicitWidth:  panel.width
+    implicitHeight: panel.height
 
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None

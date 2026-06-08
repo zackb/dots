@@ -7,6 +7,10 @@ PanelWindow {
     id: root
     required property var screen
     property var controlCenterRef: null
+    Component.onCompleted: {
+        if (controlCenterRef && !controlCenterRef.barWindow)
+            controlCenterRef.barWindow = root
+    }
 
     anchors {
         top:   true
