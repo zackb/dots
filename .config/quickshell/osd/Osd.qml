@@ -58,7 +58,7 @@ Item {
 
         function volumeUp() {
             if (osdRoot.sink?.audio)
-                osdRoot.sink.audio.volume = Math.min(1.5, (osdRoot.sink.audio.volume ?? 0) + 0.05)
+                osdRoot.sink.audio.volume = Math.min(1.0, (osdRoot.sink.audio.volume ?? 0) + 0.05)
             osdRoot.showOsd("volume")
         }
         function volumeDown() {
