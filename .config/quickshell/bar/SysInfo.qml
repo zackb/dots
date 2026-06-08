@@ -15,6 +15,14 @@ Capsule {
     property string temp: "0°"
     property string cpuModel: ""
     property var cpuCores: []
+    property bool cpuIsOpen: false
+    property real cpuHoverWidth: 0  // grows to max seen width, never shrinks
+
+    Timer {
+        id: cpuCloseTimer
+        interval: 250
+        onTriggered: root.cpuIsOpen = false
+    }
 
     Process {
         id: sysProcess
@@ -85,9 +93,20 @@ Capsule {
                     id: cpuChip
                     label: ""
                     value: root.cpu
+                    height: innerRow.height
+                    width: Math.max(implicitWidth, root.cpuHoverWidth)
+                    onImplicitWidthChanged: if (implicitWidth > root.cpuHoverWidth) root.cpuHoverWidth = implicitWidth
 
                     HoverHandler {
                         id: cpuHover
+                        onHoveredChanged: {
+                            if (hovered) {
+                                cpuCloseTimer.stop()
+                                root.cpuIsOpen = true
+                            } else if (!cpuPopup.panelHovered) {
+                                cpuCloseTimer.restart()
+                            }
+                        }
                     }
                 }
                 SysInfoChip { label: ""; value: root.mem  }
@@ -97,10 +116,21 @@ Capsule {
         }
     }
 
+    Connections {
+        target: cpuPopup
+        function onPanelHoveredChanged() {
+            if (cpuPopup.panelHovered) {
+                cpuCloseTimer.stop()
+            } else if (!cpuHover.hovered) {
+                cpuCloseTimer.restart()
+            }
+        }
+    }
+
     CpuPopup {
         id: cpuPopup
         barWindow: root.barWindow
-        isOpen: cpuHover.hovered
+        isOpen: root.cpuIsOpen
         targetItem: cpuChip
         cpuModel: root.cpuModel
         overallCpu: root.cpu

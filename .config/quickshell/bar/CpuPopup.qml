@@ -13,21 +13,31 @@ PanelWindow {
     property var targetItem
     property int targetX: 0
     property int targetY: 0
-    
+
     // Core data array: { index, pct, freq }
     property var cpuCores: []
     property string cpuModel: "Processor"
     property string overallCpu: "0%"
+    property bool panelHovered: panelHoverHandler.hovered
 
     screen: barWindow ? barWindow.screen : null
     visible: false
 
+    // Only anchor top+left so the surface covers just the panel area.
+    // margins position the surface; the full-screen overlay was stealing
+    // Wayland pointer focus away from the bar even without a MouseArea.
     anchors {
         top: true
-        bottom: true
         left: true
-        right: true
     }
+
+    margins {
+        top: root.targetY
+        left: root.targetX
+    }
+
+    width:  panel.width
+    height: panel.height
 
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
@@ -40,35 +50,26 @@ PanelWindow {
             var pos = targetItem.mapToItem(null, 0, 0)
             var marginTop = (barWindow && barWindow.margins) ? barWindow.margins.top : 0
             var screenWidth = barWindow ? barWindow.width : 1920
-            
+
             var globalX = pos.x
             var globalY = pos.y + marginTop
 
-            // Width of the popup panel
             var popupWidth = panel.width
             var xCoord = globalX + (targetItem.width / 2) - (popupWidth / 2)
-            
-            // Clamp to screen boundaries with padding
+
             if (xCoord < 10) xCoord = 10
             if (xCoord + popupWidth > screenWidth - 10) xCoord = screenWidth - popupWidth - 10
 
             targetX = xCoord
-            targetY = globalY + barWindow.height + 6 // 6px gap below the bar
+            targetY = globalY + barWindow.height + 6
         }
     }
 
-    // Capture click outside to close if necessary
-    MouseArea {
-        anchors.fill: parent
-        onClicked: root.isOpen = false
-        z: -1
-    }
-
-    // The actual popup panel
+    // The actual popup panel — sits at (0,0) in the now-small surface
     Rectangle {
         id: panel
-        x: targetX
-        y: targetY
+        x: 0
+        y: 0
         width: contentCol.implicitWidth + 24
         height: contentCol.implicitHeight + 24
         color: Theme.popupBg
@@ -87,9 +88,8 @@ PanelWindow {
             z: -1
         }
 
-        // Prevent clicks inside panel from closing it
-        MouseArea {
-            anchors.fill: parent
+        HoverHandler {
+            id: panelHoverHandler
         }
 
         ColumnLayout {
@@ -111,7 +111,7 @@ PanelWindow {
 
                 // CPU icon
                 Text {
-                    text: ""
+                    text: ""
                     color: Theme.primary
                     font.pixelSize: 18
                     font.family: Theme.nerdFont
@@ -157,7 +157,7 @@ PanelWindow {
                     delegate: Row {
                         id: coreRow
                         spacing: 8
-                        
+
                         property int pct: modelData.pct
                         property int freq: modelData.freq
 
@@ -220,12 +220,12 @@ PanelWindow {
             State {
                 name: "open"
                 when: root.isOpen
-                PropertyChanges { target: panel; opacity: 1.0; y: root.targetY }
+                PropertyChanges { target: panel; opacity: 1.0; y: 0 }
             },
             State {
                 name: "closed"
                 when: !root.isOpen
-                PropertyChanges { target: panel; opacity: 0.0; y: root.targetY - 10 }
+                PropertyChanges { target: panel; opacity: 0.0; y: -10 }
             }
         ]
 
