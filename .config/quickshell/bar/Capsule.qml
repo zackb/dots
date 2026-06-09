@@ -3,8 +3,12 @@ import "../"
 
 Rectangle {
     id: root
-    color:  Theme.capsuleBg
+    color:  hovered ? Theme.capsuleBgHover : Theme.capsuleBg
     radius: height / 2
+
+    Behavior on color {
+        ColorAnimation { duration: 150 }
+    }
     height: Theme.barHeight
     width:  (contentItem ? contentItem.implicitWidth : 0) + Theme.barHeight
 

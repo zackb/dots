@@ -15,14 +15,17 @@ Row {
             property bool isActive: modelData.id === Hyprland.focusedMonitor?.activeWorkspace?.id
             property bool isUrgent: modelData.toplevels.values.filter(c => c.urgent && c.workspace?.id === modelData.id).length > 0
 
+            property bool wsHovered: false
+
             width:  32
             height: 24
             radius: height / 2
 
-            color: isUrgent ? Qt.alpha(Theme.critical, 0.8) : Theme.capsuleBg
+            color: isUrgent ? Qt.alpha(Theme.critical, 0.8)
+                             : wsHovered ? Theme.capsuleBgHover : Theme.capsuleBg
 
             Behavior on color {
-                ColorAnimation { duration: 120 }
+                ColorAnimation { duration: 150 }
             }
 
             Text {
@@ -37,6 +40,7 @@ Row {
 
             HoverHandler {
                 cursorShape: Qt.PointingHandCursor
+                onHoveredChanged: parent.wsHovered = hovered
             }
 
             TapHandler {

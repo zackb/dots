@@ -81,8 +81,9 @@ Singleton {
     readonly property string scrim:                                                     "#000000"
 
     // derived
-    readonly property string textColor:    on_surface
-    readonly property color  popupBg:      Qt.alpha(surface, 0.95)
-    readonly property color  popupBorder:  surface_container_highest
-    readonly property color  capsuleBg:    Qt.alpha(surface, 0.5)
+    readonly property string textColor:       on_surface
+    readonly property color  popupBg:         Qt.alpha(surface, 0.95)
+    readonly property color  popupBorder:     surface_container_highest
+    readonly property color  capsuleBg:       Qt.alpha(surface, 0.5)
+    readonly property color  capsuleBgHover:  Qt.alpha(primary_container, 0.85)
 }
