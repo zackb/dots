@@ -60,7 +60,7 @@ PanelWindow {
             anchors.centerIn: parent
             spacing: 8
 
-            Clock {}
+            Clock { barWindow: root }
         }
 
         // ── Right ─────────────────────────────────────────────────────

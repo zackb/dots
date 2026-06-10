@@ -2,16 +2,20 @@ import QtQuick
 import "../"
 
 Item {
+    id: root
     width:  timeText.width
     height: timeText.height
 
-    property string timeStr: formatTime() // Qt.formatDateTime(new Date(), "ddd dd | h:mm")
+    property var barWindow
+    property bool calIsOpen: false
+
+    property string timeStr: formatTime()
 
     Timer {
         interval:  1000
         running:   true
         repeat:    true
-        onTriggered: timeStr = formatTime() // Qt.formatDateTime(new Date(), "ddd dd | h:mm")
+        onTriggered: timeStr = formatTime()
     }
 
     Text {
@@ -21,6 +25,16 @@ Item {
         font.pixelSize: Theme.fontSize
         font.bold:      true
         font.family:    Theme.font
+    }
+
+    TapHandler {
+        onTapped: root.calIsOpen = !root.calIsOpen
+    }
+
+    CalendarPopup {
+        id: calPopup
+        barWindow: root.barWindow
+        isOpen:    root.calIsOpen
     }
 
     function formatTime() {
