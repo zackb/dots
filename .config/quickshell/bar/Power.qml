@@ -8,7 +8,7 @@ Text {
     text:  "󰒓"
     font { 
         family: Theme.nerdFont
-        pixelSize: Theme.fontSize + 4
+        pixelSize: Theme.fontSize + 3
     }
     color: Theme.textColor
 
