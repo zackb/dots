@@ -45,6 +45,12 @@ PanelWindow {
 
     color: "transparent"
 
+    function closeNow() {
+        root.visible = false
+        panel.opacity = 0
+        panel.y = -10
+    }
+
     onIsOpenChanged: {
         if (isOpen && targetItem && barWindow) {
             var pos = targetItem.mapToItem(null, 0, 0)

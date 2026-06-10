@@ -27,9 +27,15 @@ done < /proc/stat
 while true; do
     # Memory usage
     mem=$(free | awk '/Mem:/ {printf "%d", $3/$2*100}')
-    
+
+    # Memory detail (MB): total used buff/cache available
+    read mem_total_mb mem_used_mb mem_buff_mb mem_avail_mb <<< "$(free -m | awk '/Mem:/ {print $2, $3, $6, $7}')"
+
     # Disk usage
     disk=$(df / | awk 'NR==2 {print int($5)}')
+
+    # Disk detail (MB): total used available
+    read disk_total_mb disk_used_mb disk_avail_mb <<< "$(df -BM / | awk 'NR==2 {gsub("M",""); print $2, $3, $4}')"
     
     # Temperature
     temp=0
@@ -86,8 +92,8 @@ while true; do
         fi
     done < /proc/stat
     
-    # Print: cpu_model;overall_cpu;mem;disk;temp;cores_data
-    echo "${cpu_model};${overall_cpu};${mem};${disk};${temp};${cores_data# }"
+    # Print: cpu_model;overall_cpu;mem%;disk%;temp;cores_data;mem_used_mb;mem_total_mb;mem_buff_mb;mem_avail_mb;disk_used_mb;disk_total_mb;disk_avail_mb
+    echo "${cpu_model};${overall_cpu};${mem};${disk};${temp};${cores_data# };${mem_used_mb};${mem_total_mb};${mem_buff_mb};${mem_avail_mb};${disk_used_mb};${disk_total_mb};${disk_avail_mb}"
     
     sleep 3
 done

@@ -15,14 +15,27 @@ Capsule {
     property string temp: "0°"
     property string cpuModel: ""
     property var cpuCores: []
-    property bool cpuIsOpen: false
-    property real cpuHoverWidth: 0  // grows to max seen width, never shrinks
 
-    Timer {
-        id: cpuCloseTimer
-        interval: 250
-        onTriggered: root.cpuIsOpen = false
-    }
+    property int tempValue: 0
+    property int memUsed:   0
+    property int memTotal:  1
+    property int memBuff:   0
+    property int memAvail:  0
+    property int diskUsed:  0
+    property int diskTotal: 1
+    property int diskAvail: 0
+
+    property bool cpuIsOpen:  false
+    property bool memIsOpen:  false
+    property bool diskIsOpen: false
+    property bool tempIsOpen: false
+
+    property real cpuHoverWidth: 0
+
+    Timer { id: cpuCloseTimer;  interval: 250; onTriggered: root.cpuIsOpen  = false }
+    Timer { id: memCloseTimer;  interval: 250; onTriggered: root.memIsOpen  = false }
+    Timer { id: diskCloseTimer; interval: 250; onTriggered: root.diskIsOpen = false }
+    Timer { id: tempCloseTimer; interval: 250; onTriggered: root.tempIsOpen = false }
 
     Process {
         id: sysProcess
@@ -37,6 +50,7 @@ Capsule {
                 root.mem      = parts[2] + "%"
                 root.disk     = parts[3] + "%"
                 root.temp     = parts[4] + "°"
+                root.tempValue = parseInt(parts[4]) || 0
 
                 const coresStr = parts[5].trim().split(" ")
                 const coresList = []
@@ -49,6 +63,14 @@ Capsule {
                     })
                 }
                 root.cpuCores = coresList
+
+                root.memUsed  = parseInt(parts[6])  || 0
+                root.memTotal = parseInt(parts[7])  || 1
+                root.memBuff  = parseInt(parts[8])  || 0
+                root.memAvail = parseInt(parts[9])  || 0
+                root.diskUsed  = parseInt(parts[10]) || 0
+                root.diskTotal = parseInt(parts[11]) || 1
+                root.diskAvail = parseInt(parts[12]) || 0
             }
         }
     }
@@ -91,7 +113,7 @@ Capsule {
 
                 SysInfoChip {
                     id: cpuChip
-                    label: ""
+                    label: ""
                     value: root.cpu
                     height: innerRow.height
                     width: Math.max(implicitWidth, root.cpuHoverWidth)
@@ -101,6 +123,9 @@ Capsule {
                         id: cpuHover
                         onHoveredChanged: {
                             if (hovered) {
+                                memPopup.closeNow();  root.memIsOpen  = false; memCloseTimer.stop()
+                                diskPopup.closeNow(); root.diskIsOpen = false; diskCloseTimer.stop()
+                                tempPopup.closeNow(); root.tempIsOpen = false; tempCloseTimer.stop()
                                 cpuCloseTimer.stop()
                                 root.cpuIsOpen = true
                             } else if (!cpuPopup.panelHovered) {
@@ -109,9 +134,72 @@ Capsule {
                         }
                     }
                 }
-                SysInfoChip { label: ""; value: root.mem  }
-                SysInfoChip { label: "󰋊 "; value: root.disk }
-                SysInfoChip { label: ""; value: root.temp }
+
+                SysInfoChip {
+                    id: memChip
+                    label: ""
+                    value: root.mem
+                    height: innerRow.height
+
+                    HoverHandler {
+                        id: memHover
+                        onHoveredChanged: {
+                            if (hovered) {
+                                cpuPopup.closeNow();  root.cpuIsOpen  = false; cpuCloseTimer.stop()
+                                diskPopup.closeNow(); root.diskIsOpen = false; diskCloseTimer.stop()
+                                tempPopup.closeNow(); root.tempIsOpen = false; tempCloseTimer.stop()
+                                memCloseTimer.stop()
+                                root.memIsOpen = true
+                            } else if (!memPopup.panelHovered) {
+                                memCloseTimer.restart()
+                            }
+                        }
+                    }
+                }
+
+                SysInfoChip {
+                    id: diskChip
+                    label: "󰋊 "
+                    value: root.disk
+                    height: innerRow.height
+
+                    HoverHandler {
+                        id: diskHover
+                        onHoveredChanged: {
+                            if (hovered) {
+                                cpuPopup.closeNow();  root.cpuIsOpen  = false; cpuCloseTimer.stop()
+                                memPopup.closeNow();  root.memIsOpen  = false; memCloseTimer.stop()
+                                tempPopup.closeNow(); root.tempIsOpen = false; tempCloseTimer.stop()
+                                diskCloseTimer.stop()
+                                root.diskIsOpen = true
+                            } else if (!diskPopup.panelHovered) {
+                                diskCloseTimer.restart()
+                            }
+                        }
+                    }
+                }
+
+                SysInfoChip {
+                    id: tempChip
+                    label: ""
+                    value: root.temp
+                    height: innerRow.height
+
+                    HoverHandler {
+                        id: tempHover
+                        onHoveredChanged: {
+                            if (hovered) {
+                                cpuPopup.closeNow();  root.cpuIsOpen  = false; cpuCloseTimer.stop()
+                                memPopup.closeNow();  root.memIsOpen  = false; memCloseTimer.stop()
+                                diskPopup.closeNow(); root.diskIsOpen = false; diskCloseTimer.stop()
+                                tempCloseTimer.stop()
+                                root.tempIsOpen = true
+                            } else if (!tempPopup.panelHovered) {
+                                tempCloseTimer.restart()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -127,6 +215,39 @@ Capsule {
         }
     }
 
+    Connections {
+        target: memPopup
+        function onPanelHoveredChanged() {
+            if (memPopup.panelHovered) {
+                memCloseTimer.stop()
+            } else if (!memHover.hovered) {
+                memCloseTimer.restart()
+            }
+        }
+    }
+
+    Connections {
+        target: diskPopup
+        function onPanelHoveredChanged() {
+            if (diskPopup.panelHovered) {
+                diskCloseTimer.stop()
+            } else if (!diskHover.hovered) {
+                diskCloseTimer.restart()
+            }
+        }
+    }
+
+    Connections {
+        target: tempPopup
+        function onPanelHoveredChanged() {
+            if (tempPopup.panelHovered) {
+                tempCloseTimer.stop()
+            } else if (!tempHover.hovered) {
+                tempCloseTimer.restart()
+            }
+        }
+    }
+
     CpuPopup {
         id: cpuPopup
         barWindow: root.barWindow
@@ -135,5 +256,37 @@ Capsule {
         cpuModel: root.cpuModel
         overallCpu: root.cpu
         cpuCores: root.cpuCores
+    }
+
+    MemPopup {
+        id: memPopup
+        barWindow: root.barWindow
+        isOpen: root.memIsOpen
+        targetItem: memChip
+        overallMem: root.mem
+        memUsed:  root.memUsed
+        memTotal: root.memTotal
+        memBuff:  root.memBuff
+        memAvail: root.memAvail
+    }
+
+    DiskPopup {
+        id: diskPopup
+        barWindow: root.barWindow
+        isOpen: root.diskIsOpen
+        targetItem: diskChip
+        overallDisk: root.disk
+        diskUsed:  root.diskUsed
+        diskTotal: root.diskTotal
+        diskAvail: root.diskAvail
+    }
+
+    TempPopup {
+        id: tempPopup
+        barWindow: root.barWindow
+        isOpen: root.tempIsOpen
+        targetItem: tempChip
+        tempValue:  root.tempValue
+        overallTemp: root.temp
     }
 }
