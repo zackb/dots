@@ -211,7 +211,7 @@ PanelWindow {
                 Rectangle {
                     id: mainUi
                     anchors.fill: parent
-                    color: Theme.surface_container
+                    color: Qt.tint(Theme.surface_container, Qt.alpha(Theme.primary, 0.07))
                     radius: 28
                     focus: true
 
@@ -240,15 +240,24 @@ PanelWindow {
 
                         Rectangle {
                             anchors.fill: parent
-                            color: Theme.primary
-                            opacity: 0.15
+                            gradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop {
+                                    position: 0.0
+                                    color: Qt.alpha(Theme.primary, 0.30)
+                                }
+                                GradientStop {
+                                    position: 1.0
+                                    color: Qt.alpha(Theme.tertiary, 0.25)
+                                }
+                            }
                         }
 
                         Rectangle {
                             anchors.bottom: parent.bottom
                             anchors.left: parent.left
                             anchors.right: parent.right
-                            height: 80
+                            height: 100
                             gradient: Gradient {
                                 GradientStop {
                                     position: 0.0
@@ -256,7 +265,7 @@ PanelWindow {
                                 }
                                 GradientStop {
                                     position: 1.0
-                                    color: "#40000000"
+                                    color: mainUi.color
                                 }
                             }
                         }
@@ -296,7 +305,14 @@ PanelWindow {
                         anchors.verticalCenter: edgeBanner.bottom
 
                         radius: height / 2
-                        color: Theme.surface_container_highest
+                        color: Qt.tint(Theme.surface_container_highest, Qt.alpha(Theme.primary, 0.10))
+                        border.width: searchField.activeFocus ? 2 : 1
+                        border.color: searchField.activeFocus ? Theme.primary : Qt.alpha(Theme.outline, 0.35)
+                        Behavior on border.color {
+                            ColorAnimation {
+                                duration: 150
+                            }
+                        }
 
                         layer.enabled: true
                         layer.effect: MultiEffect {
@@ -406,7 +422,7 @@ PanelWindow {
                                 }
                                 GradientStop {
                                     position: 1.0
-                                    color: Theme.surface_container
+                                    color: mainUi.color
                                 }
                             }
                         }
@@ -446,6 +462,14 @@ PanelWindow {
                                 letterSpacing: 0.5
                             }
                         }
+                    }
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: parent.radius
+                        color: "transparent"
+                        border.width: 1
+                        border.color: Qt.alpha(Theme.primary, 0.4)
                     }
                 }
             }
