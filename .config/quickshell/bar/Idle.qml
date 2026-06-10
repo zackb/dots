@@ -9,7 +9,7 @@ Text {
     text:           inhibiting ? "" : ""
 
     color:          Theme.textColor
-    font.pixelSize: Theme.fontSize + 2
+    font.pixelSize: Theme.fontSize + 4
     font.family:    Theme.nerdFont
 
     IdleInhibitor {
