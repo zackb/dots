@@ -70,7 +70,13 @@ PanelWindow {
                     return false;
                 var n = app.name.toLowerCase();
                 return !hiddenKeywords.some(keyword => n.includes(keyword));
-            }).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+            }).sort((a, b) => {
+                // most-frecent first; unused/ties fall back to alphabetical
+                var fb = ctrl.frecency(b.id), fa = ctrl.frecency(a.id);
+                if (fb !== fa)
+                    return fb - fa;
+                return (a.name || "").localeCompare(b.name || "");
+            });
         }
 
         // Check if the user's search explicitly contains any of the hidden keywords
@@ -129,6 +135,10 @@ PanelWindow {
         scored.sort((a, b) => {
             if (b.score !== a.score)
                 return b.score - a.score;
+            // equal match quality: prefer the more-frecent app, then alphabetical
+            var fb = ctrl.frecency(b.entry.id), fa = ctrl.frecency(a.entry.id);
+            if (fb !== fa)
+                return fb - fa;
             return (a.entry.name || "").localeCompare(b.entry.name || "");
         });
 
