@@ -3,14 +3,14 @@
 wall=$(hyprwat --wallpaper ~/.local/share/wallpapers)
 
 if [ -n "$wall" ]; then
-    sed -i "s|^\$image = .*|\$image = $wall|" ~/.config/hypr/hyprlock.conf
+    # sed -i "s|^\$image = .*|\$image = $wall|" ~/.config/hypr/hyprlock.conf
     # hyprpaper < 0.8.0
-    sed -i "s|^preload = .*|preload = $wall|" ~/.config/hypr/hyprpaper.conf
-    sed -i "s|^wallpaper =.*,.*|wallpaper = , $wall|" ~/.config/hypr/hyprpaper.conf
+    # sed -i "s|^preload = .*|preload = $wall|" ~/.config/hypr/hyprpaper.conf
+    # sed -i "s|^wallpaper =.*,.*|wallpaper = , $wall|" ~/.config/hypr/hyprpaper.conf
     # hyprpaper >= 0.8.0
-    sed -i "s|\(path[[:space:]]*=[[:space:]]*\).*|\1$wall|" ~/.config/hypr/hyprpaper.conf
-    qs ipc call wallpaper set "$wall"
+    # sed -i "s|\(path[[:space:]]*=[[:space:]]*\).*|\1$wall|" ~/.config/hypr/hyprpaper.conf
     # matugen image --source-color-index 0 "$wall"
     # qs ipc call shell reload
+    qs ipc call wallpaper set "$wall"
 fi
 
