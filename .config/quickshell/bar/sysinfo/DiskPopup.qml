@@ -2,7 +2,7 @@ import Quickshell
 import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
-import "../"
+import qs
 
 PanelWindow {
     id: root
@@ -13,12 +13,11 @@ PanelWindow {
     property int targetX: 0
     property int targetY: 0
 
-    property int tempValue: 0
-    property string overallTemp: "0°"
+    property int diskUsed:  0
+    property int diskTotal: 1
+    property int diskAvail: 0
+    property string overallDisk: "0%"
     property bool panelHovered: panelHoverHandler.hovered
-
-    readonly property color tempColor: tempValue < 60 ? Theme.battery_high : (tempValue < 80 ? Theme.battery_mid : Theme.battery_low)
-    readonly property string tempStatus: tempValue < 60 ? "Normal" : (tempValue < 80 ? "Warm" : "Hot")
 
     screen: barWindow ? barWindow.screen : null
     visible: false
@@ -57,10 +56,12 @@ PanelWindow {
         }
     }
 
+    function toGB(mb) { return (mb / 1024).toFixed(1) }
+
     Rectangle {
         id: panel
         x: 0; y: 0
-        width:  Math.max(contentCol.implicitWidth + 24, 200)
+        width:  Math.max(contentCol.implicitWidth + 24, 230)
         height: contentCol.implicitHeight + 24
         color: Theme.popupBg
         radius: Theme.radius
@@ -92,8 +93,8 @@ PanelWindow {
                 spacing: 8
 
                 Text {
-                    text: ""
-                    color: root.tempColor
+                    text: "󰋊"
+                    color: Theme.tertiary
                     font.pixelSize: 18
                     font.family: Theme.nerdFont
                 }
@@ -101,13 +102,13 @@ PanelWindow {
                 ColumnLayout {
                     spacing: 2
                     Text {
-                        text: "CPU Temperature"
+                        text: "Storage"
                         color: Theme.textColor
                         font { pixelSize: 13; bold: true; family: Theme.font }
                     }
                     Text {
-                        text: root.tempStatus
-                        color: root.tempColor
+                        text: "Usage: " + root.overallDisk
+                        color: Theme.on_surface_variant
                         font { pixelSize: 11; family: Theme.font }
                     }
                 }
@@ -115,9 +116,9 @@ PanelWindow {
                 Item { Layout.fillWidth: true }
 
                 Text {
-                    text: root.overallTemp + "C"
-                    color: root.tempColor
-                    font { pixelSize: 20; bold: true; family: Theme.font }
+                    text: root.toGB(root.diskUsed) + " / " + root.toGB(root.diskTotal) + " GB"
+                    color: Theme.textColor
+                    font { pixelSize: 12; family: Theme.font }
                 }
             }
 
@@ -128,28 +129,45 @@ PanelWindow {
                 opacity: 0.5
             }
 
-            // Temperature bar (scale: 0–100°C)
             Rectangle {
                 Layout.fillWidth: true
                 height: 6
                 radius: 3
                 color: Theme.surface_container_high
 
+                readonly property real pct: root.diskTotal > 0 ? root.diskUsed / root.diskTotal : 0
+                readonly property color fillColor: pct < 0.5 ? Theme.battery_high : (pct < 0.8 ? Theme.battery_mid : Theme.battery_low)
+
                 Rectangle {
-                    width: Math.max(Math.min(root.tempValue / 100, 1.0) * parent.width, radius * 2)
+                    width: parent.pct * parent.width
                     height: parent.height
                     radius: 3
-                    color: root.tempColor
+                    color: parent.fillColor
                 }
             }
 
-            RowLayout {
+            ColumnLayout {
                 Layout.fillWidth: true
-                Text { text: "0°C";   color: Theme.outline; font { pixelSize: 10; family: Theme.font } }
-                Item { Layout.fillWidth: true }
-                Text { text: "50°C";  color: Theme.outline; font { pixelSize: 10; family: Theme.font } }
-                Item { Layout.fillWidth: true }
-                Text { text: "100°C"; color: Theme.outline; font { pixelSize: 10; family: Theme.font } }
+                spacing: 4
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    Text { text: "Used";      color: Theme.on_surface_variant; font { pixelSize: 11; family: Theme.font } }
+                    Item { Layout.fillWidth: true }
+                    Text { text: root.toGB(root.diskUsed)  + " GB"; color: Theme.textColor; font { pixelSize: 11; family: Theme.font } }
+                }
+                RowLayout {
+                    Layout.fillWidth: true
+                    Text { text: "Available"; color: Theme.on_surface_variant; font { pixelSize: 11; family: Theme.font } }
+                    Item { Layout.fillWidth: true }
+                    Text { text: root.toGB(root.diskAvail) + " GB"; color: Theme.textColor; font { pixelSize: 11; family: Theme.font } }
+                }
+                RowLayout {
+                    Layout.fillWidth: true
+                    Text { text: "Total";     color: Theme.on_surface_variant; font { pixelSize: 11; family: Theme.font } }
+                    Item { Layout.fillWidth: true }
+                    Text { text: root.toGB(root.diskTotal) + " GB"; color: Theme.textColor; font { pixelSize: 11; family: Theme.font } }
+                }
             }
         }
 

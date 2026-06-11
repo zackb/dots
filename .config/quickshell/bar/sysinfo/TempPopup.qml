@@ -2,7 +2,7 @@ import Quickshell
 import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
-import "../"
+import qs
 
 PanelWindow {
     id: root
@@ -13,12 +13,12 @@ PanelWindow {
     property int targetX: 0
     property int targetY: 0
 
-    property int memUsed:  0
-    property int memTotal: 1
-    property int memBuff:  0
-    property int memAvail: 0
-    property string overallMem: "0%"
+    property int tempValue: 0
+    property string overallTemp: "0°"
     property bool panelHovered: panelHoverHandler.hovered
+
+    readonly property color tempColor: tempValue < 60 ? Theme.battery_high : (tempValue < 80 ? Theme.battery_mid : Theme.battery_low)
+    readonly property string tempStatus: tempValue < 60 ? "Normal" : (tempValue < 80 ? "Warm" : "Hot")
 
     screen: barWindow ? barWindow.screen : null
     visible: false
@@ -57,12 +57,10 @@ PanelWindow {
         }
     }
 
-    function toGB(mb) { return (mb / 1024).toFixed(1) }
-
     Rectangle {
         id: panel
         x: 0; y: 0
-        width:  Math.max(contentCol.implicitWidth + 24, 230)
+        width:  Math.max(contentCol.implicitWidth + 24, 200)
         height: contentCol.implicitHeight + 24
         color: Theme.popupBg
         radius: Theme.radius
@@ -95,7 +93,7 @@ PanelWindow {
 
                 Text {
                     text: ""
-                    color: Theme.secondary
+                    color: root.tempColor
                     font.pixelSize: 18
                     font.family: Theme.nerdFont
                 }
@@ -103,13 +101,13 @@ PanelWindow {
                 ColumnLayout {
                     spacing: 2
                     Text {
-                        text: "Memory"
+                        text: "CPU Temperature"
                         color: Theme.textColor
                         font { pixelSize: 13; bold: true; family: Theme.font }
                     }
                     Text {
-                        text: "Usage: " + root.overallMem
-                        color: Theme.on_surface_variant
+                        text: root.tempStatus
+                        color: root.tempColor
                         font { pixelSize: 11; family: Theme.font }
                     }
                 }
@@ -117,9 +115,9 @@ PanelWindow {
                 Item { Layout.fillWidth: true }
 
                 Text {
-                    text: root.toGB(root.memUsed) + " / " + root.toGB(root.memTotal) + " GB"
-                    color: Theme.textColor
-                    font { pixelSize: 12; family: Theme.font }
+                    text: root.overallTemp + "C"
+                    color: root.tempColor
+                    font { pixelSize: 20; bold: true; family: Theme.font }
                 }
             }
 
@@ -130,51 +128,28 @@ PanelWindow {
                 opacity: 0.5
             }
 
+            // Temperature bar (scale: 0–100°C)
             Rectangle {
                 Layout.fillWidth: true
                 height: 6
                 radius: 3
                 color: Theme.surface_container_high
 
-                readonly property real pct: root.memTotal > 0 ? root.memUsed / root.memTotal : 0
-                readonly property color fillColor: pct < 0.5 ? Theme.battery_high : (pct < 0.8 ? Theme.battery_mid : Theme.battery_low)
-
                 Rectangle {
-                    width: parent.pct * parent.width
+                    width: Math.max(Math.min(root.tempValue / 100, 1.0) * parent.width, radius * 2)
                     height: parent.height
                     radius: 3
-                    color: parent.fillColor
+                    color: root.tempColor
                 }
             }
 
-            ColumnLayout {
+            RowLayout {
                 Layout.fillWidth: true
-                spacing: 4
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    Text { text: "Used";       color: Theme.on_surface_variant; font { pixelSize: 11; family: Theme.font } }
-                    Item { Layout.fillWidth: true }
-                    Text { text: root.toGB(root.memUsed)  + " GB"; color: Theme.textColor; font { pixelSize: 11; family: Theme.font } }
-                }
-                RowLayout {
-                    Layout.fillWidth: true
-                    Text { text: "Available";  color: Theme.on_surface_variant; font { pixelSize: 11; family: Theme.font } }
-                    Item { Layout.fillWidth: true }
-                    Text { text: root.toGB(root.memAvail) + " GB"; color: Theme.textColor; font { pixelSize: 11; family: Theme.font } }
-                }
-                RowLayout {
-                    Layout.fillWidth: true
-                    Text { text: "Buff/Cache"; color: Theme.on_surface_variant; font { pixelSize: 11; family: Theme.font } }
-                    Item { Layout.fillWidth: true }
-                    Text { text: root.toGB(root.memBuff)  + " GB"; color: Theme.textColor; font { pixelSize: 11; family: Theme.font } }
-                }
-                RowLayout {
-                    Layout.fillWidth: true
-                    Text { text: "Total";      color: Theme.on_surface_variant; font { pixelSize: 11; family: Theme.font } }
-                    Item { Layout.fillWidth: true }
-                    Text { text: root.toGB(root.memTotal) + " GB"; color: Theme.textColor; font { pixelSize: 11; family: Theme.font } }
-                }
+                Text { text: "0°C";   color: Theme.outline; font { pixelSize: 10; family: Theme.font } }
+                Item { Layout.fillWidth: true }
+                Text { text: "50°C";  color: Theme.outline; font { pixelSize: 10; family: Theme.font } }
+                Item { Layout.fillWidth: true }
+                Text { text: "100°C"; color: Theme.outline; font { pixelSize: 10; family: Theme.font } }
             }
         }
 

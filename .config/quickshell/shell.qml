@@ -2,6 +2,7 @@ import Quickshell
 import Quickshell.Io
 import QtQuick
 import qs.bar
+import qs.bar.controlcenter
 import qs.launcher
 import qs.notification
 import qs.bluetooth

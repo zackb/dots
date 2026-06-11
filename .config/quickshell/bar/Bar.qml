@@ -2,6 +2,8 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Hyprland
 import QtQuick
+import qs.bar.clock
+import qs.bar.sysinfo
 
 PanelWindow {
     id: root

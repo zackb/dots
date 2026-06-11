@@ -2,7 +2,7 @@ import Quickshell
 import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
-import "../"
+import qs
 
 PanelWindow {
     id: root
@@ -13,10 +13,11 @@ PanelWindow {
     property int targetX: 0
     property int targetY: 0
 
-    property int diskUsed:  0
-    property int diskTotal: 1
-    property int diskAvail: 0
-    property string overallDisk: "0%"
+    property int memUsed:  0
+    property int memTotal: 1
+    property int memBuff:  0
+    property int memAvail: 0
+    property string overallMem: "0%"
     property bool panelHovered: panelHoverHandler.hovered
 
     screen: barWindow ? barWindow.screen : null
@@ -93,8 +94,8 @@ PanelWindow {
                 spacing: 8
 
                 Text {
-                    text: "󰋊"
-                    color: Theme.tertiary
+                    text: ""
+                    color: Theme.secondary
                     font.pixelSize: 18
                     font.family: Theme.nerdFont
                 }
@@ -102,12 +103,12 @@ PanelWindow {
                 ColumnLayout {
                     spacing: 2
                     Text {
-                        text: "Storage"
+                        text: "Memory"
                         color: Theme.textColor
                         font { pixelSize: 13; bold: true; family: Theme.font }
                     }
                     Text {
-                        text: "Usage: " + root.overallDisk
+                        text: "Usage: " + root.overallMem
                         color: Theme.on_surface_variant
                         font { pixelSize: 11; family: Theme.font }
                     }
@@ -116,7 +117,7 @@ PanelWindow {
                 Item { Layout.fillWidth: true }
 
                 Text {
-                    text: root.toGB(root.diskUsed) + " / " + root.toGB(root.diskTotal) + " GB"
+                    text: root.toGB(root.memUsed) + " / " + root.toGB(root.memTotal) + " GB"
                     color: Theme.textColor
                     font { pixelSize: 12; family: Theme.font }
                 }
@@ -135,7 +136,7 @@ PanelWindow {
                 radius: 3
                 color: Theme.surface_container_high
 
-                readonly property real pct: root.diskTotal > 0 ? root.diskUsed / root.diskTotal : 0
+                readonly property real pct: root.memTotal > 0 ? root.memUsed / root.memTotal : 0
                 readonly property color fillColor: pct < 0.5 ? Theme.battery_high : (pct < 0.8 ? Theme.battery_mid : Theme.battery_low)
 
                 Rectangle {
@@ -152,21 +153,27 @@ PanelWindow {
 
                 RowLayout {
                     Layout.fillWidth: true
-                    Text { text: "Used";      color: Theme.on_surface_variant; font { pixelSize: 11; family: Theme.font } }
+                    Text { text: "Used";       color: Theme.on_surface_variant; font { pixelSize: 11; family: Theme.font } }
                     Item { Layout.fillWidth: true }
-                    Text { text: root.toGB(root.diskUsed)  + " GB"; color: Theme.textColor; font { pixelSize: 11; family: Theme.font } }
+                    Text { text: root.toGB(root.memUsed)  + " GB"; color: Theme.textColor; font { pixelSize: 11; family: Theme.font } }
                 }
                 RowLayout {
                     Layout.fillWidth: true
-                    Text { text: "Available"; color: Theme.on_surface_variant; font { pixelSize: 11; family: Theme.font } }
+                    Text { text: "Available";  color: Theme.on_surface_variant; font { pixelSize: 11; family: Theme.font } }
                     Item { Layout.fillWidth: true }
-                    Text { text: root.toGB(root.diskAvail) + " GB"; color: Theme.textColor; font { pixelSize: 11; family: Theme.font } }
+                    Text { text: root.toGB(root.memAvail) + " GB"; color: Theme.textColor; font { pixelSize: 11; family: Theme.font } }
                 }
                 RowLayout {
                     Layout.fillWidth: true
-                    Text { text: "Total";     color: Theme.on_surface_variant; font { pixelSize: 11; family: Theme.font } }
+                    Text { text: "Buff/Cache"; color: Theme.on_surface_variant; font { pixelSize: 11; family: Theme.font } }
                     Item { Layout.fillWidth: true }
-                    Text { text: root.toGB(root.diskTotal) + " GB"; color: Theme.textColor; font { pixelSize: 11; family: Theme.font } }
+                    Text { text: root.toGB(root.memBuff)  + " GB"; color: Theme.textColor; font { pixelSize: 11; family: Theme.font } }
+                }
+                RowLayout {
+                    Layout.fillWidth: true
+                    Text { text: "Total";      color: Theme.on_surface_variant; font { pixelSize: 11; family: Theme.font } }
+                    Item { Layout.fillWidth: true }
+                    Text { text: root.toGB(root.memTotal) + " GB"; color: Theme.textColor; font { pixelSize: 11; family: Theme.font } }
                 }
             }
         }

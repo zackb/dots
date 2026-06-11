@@ -1,7 +1,8 @@
 import Quickshell
 import Quickshell.Io
 import QtQuick
-import "../"
+import qs
+import qs.bar
 
 Capsule {
     id: root
@@ -39,7 +40,7 @@ Capsule {
 
     Process {
         id: sysProcess
-        command: [Qt.resolvedUrl("scripts/sys_info.sh").toString().replace("file://", "")]
+        command: [Qt.resolvedUrl("../scripts/sys_info.sh").toString().replace("file://", "")]
         running: expanded
         stdout: SplitParser {
             onRead: data => {

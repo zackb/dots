@@ -4,7 +4,7 @@ import Quickshell.Wayland
 import Quickshell.Services.Pipewire
 import QtQuick
 import QtQuick.Layouts
-import "../"
+import qs
 
 PanelWindow {
     id: root
