@@ -139,25 +139,36 @@ PanelWindow {
         id: ctrl
 
         onOpenMenuRequested: {
-            if (launcherWindow.visible) {
+            if (launcherWindow.visible)
                 closeMenu();
-            } else {
-                ctrl.searchText = ""; // Reset backend state
-                launcherWindow.visible = true; // Triggers UI build
-            }
+            else
+                launcherWindow.visible = true; // just maps the pre-built window
         }
 
         onCloseMenuRequested: closeMenu()
     }
 
     function closeMenu() {
-        launcherWindow.visible = false; // Destroys the UI and frees memory
+        launcherWindow.visible = false; // unmaps; content stays alive for next open
+    }
+
+    // decode at a downscaled width. shrinks the decode and the GPU texture upload. 
+    readonly property int bannerSourceWidth: 1280
+
+    // hidden Image stays alive for the life of the shell, keeping decoded image in memory
+    Image {
+        source: Theme.wallpaper
+        sourceSize.width: launcherWindow.bannerSourceWidth
+        asynchronous: true
+        cache: true
+        visible: false
     }
 
     LazyLoader {
         id: contentLoader
 
-        activeAsync: launcherWindow.visible
+        // build UI once, asynchronously, and keep it alive for the life of the shell.
+        activeAsync: true
 
         component: Component {
             Item {
@@ -175,9 +186,19 @@ PanelWindow {
                     onCleared: launcherWindow.closeMenu()
                 }
 
-                Component.onCompleted: {
-                    focusGrab.active = true;
-                    searchField.forceActiveFocus();
+                Connections {
+                    target: launcherWindow
+                    function onVisibleChanged() {
+                        if (launcherWindow.visible) {
+                            searchField.text = "";
+                            Qt.callLater(() => {
+                                focusGrab.active = true;
+                                searchField.forceActiveFocus();
+                            });
+                        } else {
+                            focusGrab.active = false;
+                        }
+                    }
                 }
 
                 Rectangle {
@@ -234,8 +255,11 @@ PanelWindow {
                         Image {
                             anchors.fill: parent
                             source: Theme.wallpaper
+                            sourceSize.width: launcherWindow.bannerSourceWidth
                             fillMode: Image.PreserveAspectCrop
-                            asynchronous: true
+                            // synchronous: the preloader keeps this size warm
+                            asynchronous: false
+                            cache: true
                         }
 
                         Rectangle {
