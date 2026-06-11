@@ -35,6 +35,11 @@ Item {
 
         function set(path: string): void { root.setWallpaper(path) }
         function get(): string { return Theme.wallpaper }
+
+        // swap animation: fade | wipe | circle | dissolve | pixelate |
+        //                 push | blinds | clock | ripple | random
+        function setTransition(mode: string): void { Theme.wallpaperTransition = mode }
+        function getTransition(): string { return Theme.wallpaperTransition }
     }
 
     Variants {
@@ -54,38 +59,103 @@ Item {
 
             readonly property string source: Theme.wallpaper ? "file://" + Theme.wallpaper : ""
 
-            // double-buffered crossfade
-            property bool showA: true
+            // ping-pong buffers: one image holds the wallpaper currently shown,
+            // the other loads the incoming one. A shader blends from the shown
+            // image to the incoming
+            property bool aActive:   true   // which image is currently shown
+            property bool animating: false  // true only while a swap is in flight
+            property real progress:  0
+            property string effect:  "fade"
 
-            function apply(src) {
-                const incoming = showA ? b : a
+            readonly property var effects: ["fade", "wipe", "circle", "dissolve",
+                                            "pixelate", "push", "blinds", "clock", "ripple"]
+
+            function pickEffect() {
+                var e = Theme.wallpaperTransition
+                if (e === "random")
+                    e = effects[Math.floor(Math.random() * effects.length)]
+                if (effects.indexOf(e) < 0)
+                    e = "fade"
+                effect = e
+            }
+
+            // Load `src` into the hidden buffer; the animation kicks off once
+            // that image reports Ready (see WallImage.onStatusChanged).
+            function swap(src) {
+                var incoming = aActive ? bImg : aImg
+                if (incoming.source == src)
+                    return
+                pickEffect()
+                animating = true            // wake the ShaderEffectSources
                 incoming.source = src
             }
 
-            onSourceChanged: apply(source)
-            Component.onCompleted: apply(source)
+            function beginAnim() {
+                progress = 0
+                anim.restart()
+            }
 
-            component Layer: Image {
+            function endAnim() {
+                aActive = !aActive          // incoming buffer is now the shown one
+                progress = 0
+                animating = false
+            }
+
+            onSourceChanged: swap(source)
+            Component.onCompleted: swap(source)
+
+            NumberAnimation {
+                id: anim
+                target: win
+                property: "progress"
+                from: 0; to: 1
+                duration: Theme.wallpaperTransitionDuration
+                easing.type: Easing.InOutQuad
+                onFinished: win.endAnim()
+            }
+
+            component WallImage: Image {
+                anchors.fill:  parent
+                visible:       false        // only the ShaderEffect is drawn
+                fillMode:      Image.PreserveAspectCrop
+                asynchronous:  true
+                cache:         false
+                smooth:        true
+            }
+
+            WallImage {
+                id: aImg
+                onStatusChanged: if (status === Image.Ready && !win.aActive && win.animating) win.beginAnim()
+            }
+            WallImage {
+                id: bImg
+                onStatusChanged: if (status === Image.Ready && win.aActive && win.animating) win.beginAnim()
+            }
+
+            ShaderEffectSource {
+                id: aSrc
                 anchors.fill: parent
-                fillMode:     Image.PreserveAspectCrop
-                asynchronous: true
-                cache:        false
-                smooth:       true
-                Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.InOutQuad } }
+                sourceItem:   aImg
+                hideSource:   true
+                live:         win.animating
+                visible:      false
+            }
+            ShaderEffectSource {
+                id: bSrc
+                anchors.fill: parent
+                sourceItem:   bImg
+                hideSource:   true
+                live:         win.animating
+                visible:      false
             }
 
-            Layer {
-                id: a
-                z: win.showA ? 1 : 0
-                opacity: win.showA ? 1 : 0
-                onStatusChanged: if (status === Image.Ready && !win.showA) win.showA = true
-            }
-
-            Layer {
-                id: b
-                z: win.showA ? 0 : 1
-                opacity: win.showA ? 0 : 1
-                onStatusChanged: if (status === Image.Ready && win.showA) win.showA = false
+            ShaderEffect {
+                anchors.fill:   parent
+                fragmentShader: Qt.resolvedUrl("shaders/" + win.effect + ".frag.qsb")
+                property real     progress: win.progress
+                property real     aspect:   width / height
+                property variant  fromTex:  win.aActive ? aSrc : bSrc
+                property variant  toTex:    win.aActive ? bSrc : aSrc
             }
         }
     }

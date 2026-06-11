@@ -23,6 +23,12 @@ Singleton {
     readonly property string defaultWallpaper: "/home/zackb/.local/share/wallpapers/4199401.jpg"
     property string wallpaper: defaultWallpaper
 
+    // wallpaper swap animation. One of the shaders in wallpaper/shaders/
+    // ("fade", "wipe", "circle", "dissolve", "pixelate", "push", "blinds",
+    // "clock", "ripple") or "random" to pick a different one on every swap.
+    property string wallpaperTransition: "random"
+    readonly property int wallpaperTransitionDuration: 800
+
     // utility status colors
     readonly property color connected:    "#a6e3a1"
     readonly property color warning:      "#f9e2af"
