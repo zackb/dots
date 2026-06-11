@@ -1,4 +1,3 @@
-claude --resume d802d2d0-454b-450f-bd87-533fb8547d3b
 # Quickshell idle + lock
 
 ## How it works
