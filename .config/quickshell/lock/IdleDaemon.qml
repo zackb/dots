@@ -15,6 +15,8 @@ Item {
 
     // Layer 1: dim the screen
     IdleMonitor {
+        enabled: !LockState.externalInhibited
+        // respectInhibitors honours the Wayland idle-inhibit protocol
         respectInhibitors: true
         timeout: Theme.idleDimTimeout
         onIsIdleChanged: isIdle ? LockState.dim() : LockState.undim()
@@ -22,6 +24,7 @@ Item {
 
     // Layer 2: lock the session (never auto-unlocks; unlock requires auth)
     IdleMonitor {
+        enabled: !LockState.externalInhibited
         respectInhibitors: true
         timeout: Theme.idleLockTimeout
         onIsIdleChanged: if (isIdle) LockState.engageLock()

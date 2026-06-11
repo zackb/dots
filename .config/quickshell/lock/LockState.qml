@@ -5,6 +5,7 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Services.Pam
 import QtQuick
+import qs.backend
 import "../"
 
 // Single source of truth for the idle/lock system. Owns the Wayland session
@@ -22,6 +23,11 @@ Singleton {
     property string fpHint: ""        // fingerprint hint, e.g. "Place finger"
     property string errorText: ""     // shown in red under the password field
     property bool   busy: false       // a password attempt is in flight
+
+    // true while an app holds a DBus ScreenSaver idle inhibit
+    // brokered by the Go backend daemon.
+    // Wayland-protocol inhibits are handled separately by IdleMonitor.respectInhibitors.
+    readonly property bool   externalInhibited: Backend.screensaverInhibited
 
     // private
     property bool   _wantLocked: false   // drives the lock object's `locked`
