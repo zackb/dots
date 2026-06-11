@@ -30,6 +30,9 @@ Singleton {
     readonly property string pamFingerprintConfig: "quickshell-fprint"
     // hardware backlight device used for idle dimming
     readonly property string backlightDevice:      "amdgpu_bl1"
+    // lock screen background: blurred wallpaper + darkening scrim
+    readonly property int    lockBlurMax:          64     // max blur radius (px)
+    readonly property real   lockScrimOpacity:     0.35   // 0 = none, 1 = black
 
     // default wallpaper lives here; overridden live and across reloads by
     // wallpaper.txt, written by the `wallpaper` IPC.

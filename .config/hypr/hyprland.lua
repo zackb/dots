@@ -30,7 +30,7 @@ hl.on("hyprland.start", function()
 	-- hl.exec_cmd("waybar")
 	-- hl.exec_cmd("swaync")
 	-- hl.exec_cmd("hyprpaper")
-	hl.exec_cmd("hypridle")
+	-- hl.exec_cmd("hypridle")
 	hl.exec_cmd("systemctl --user start hyprpolkitagent")
 	hl.exec_cmd("quickshell")
 end)
@@ -175,7 +175,8 @@ hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ action = "toggle" }))
 hl.bind(mainMod .. " + P", hl.dsp.window.pin({ action = "toggle" }))
 
 -- lockscreen
-hl.bind(mainMod .. " + SHIFT + L", hl.dsp.exec_cmd("hyprlock"))
+-- hl.bind(mainMod .. " + SHIFT + L", hl.dsp.exec_cmd("hyprlock"))
+hl.bind(mainMod .. " + SHIFT + L", hl.dsp.exec_cmd("qs ipc call lock lock"))
 
 -- Move focus with mainMod + arrow keys
 hl.bind(mainMod .. " + H", hl.dsp.focus({ direction = "l" }))

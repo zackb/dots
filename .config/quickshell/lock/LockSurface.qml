@@ -2,6 +2,7 @@ import Quickshell
 import Quickshell.Wayland
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Effects
 import "../"
 
 // One instance per screen (WlSessionLock instantiates the surface Component for
@@ -13,6 +14,35 @@ WlSessionLockSurface {
 
     // solid fallback so a crashed/late surface never reveals the desktop
     color: Theme.background
+
+    // blurred wallpaper background
+    Image {
+        id: wallpaper
+        anchors.fill: parent
+        source: Theme.wallpaper ? "file://" + Theme.wallpaper : ""
+        fillMode: Image.PreserveAspectCrop
+        asynchronous: true
+        cache: true
+        smooth: true
+        visible: false              // drawn via the MultiEffect below
+    }
+
+    MultiEffect {
+        anchors.fill: parent
+        source: wallpaper
+        visible: wallpaper.status === Image.Ready
+        blurEnabled: true
+        blur: 1.0
+        blurMax: Theme.lockBlurMax
+        autoPaddingEnabled: false
+    }
+
+    // darkening scrim so the clock + field stay legible over any wallpaper
+    Rectangle {
+        anchors.fill: parent
+        color: Theme.scrim
+        opacity: Theme.lockScrimOpacity
+    }
 
     Timer {
         id: clock
@@ -30,7 +60,8 @@ WlSessionLockSurface {
 
         Text {
             anchors.horizontalCenter: parent.horizontalCenter
-            text: Qt.formatTime(clock.now, "HH:mm")
+            text: (clock.now.getHours() % 12 || 12) + ":"
+                  + String(clock.now.getMinutes()).padStart(2, "0")
             color: Theme.on_surface
             font.pixelSize: 88
             font.family: Theme.font
@@ -61,6 +92,9 @@ WlSessionLockSurface {
             topPadding: 12
             bottomPadding: 12
 
+            // no caret
+            cursorDelegate: Item {}
+
             background: Rectangle {
                 color: Theme.surface_container
                 radius: Theme.radius
@@ -77,12 +111,12 @@ WlSessionLockSurface {
             onTextChanged: if (text !== "" && LockState.errorText !== "") LockState.errorText = ""
         }
 
-        // status line: error (red) takes priority over the fingerprint hint
+        // status line: password errors only
         Text {
             anchors.horizontalCenter: parent.horizontalCenter
             visible: text !== ""
-            text: LockState.errorText !== "" ? LockState.errorText : LockState.fpHint
-            color: LockState.errorText !== "" ? Theme.critical : Theme.on_surface_variant
+            text: LockState.errorText
+            color: Theme.critical
             font.family: Theme.font
             font.pixelSize: Theme.font_size_sm
         }
