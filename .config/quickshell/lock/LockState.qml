@@ -13,16 +13,18 @@ import "../"
 //
 // IdleDaemon (idle monitors) and LockSurface (per-screen UI) both talk to this
 // singleton and never to each other.
+//
 Singleton {
     id: root
 
     // public state
-    readonly property bool   locked: sessionLock.locked
+    readonly property bool   locked: _wantLocked
     property string fpHint: ""        // fingerprint hint, e.g. "Place finger"
     property string errorText: ""     // shown in red under the password field
     property bool   busy: false       // a password attempt is in flight
 
     // private
+    property bool   _wantLocked: false   // drives the lock object's `locked`
     property string _pendingPassword: ""
     property bool   _unlocking: false
     property bool   _dimmed: false
@@ -31,37 +33,47 @@ Singleton {
 
     WlSessionLock {
         id: sessionLock
+        locked: root._wantLocked     // declarative; re-locks fine on toggle
         LockSurface {}
-    }
-
-    onLockedChanged: {
-        if (locked) {
-            _unlocking = false
-            errorText = ""
-            fpHint = ""
-            _pendingPassword = ""
-            busy = false
-            fingerprintCtx.start()        // start listening for a finger swipe
-            dpmsTimer.restart()           // blank screens dpmsAfterLock later
-        } else {
-            // teardown on unlock (auth success path or external unlock)
-            passwordCtx.abort()
-            fingerprintCtx.abort()
-            fpRestart.stop()
-            dpmsTimer.stop()
-            dpmsOn()
-            _pendingPassword = ""
-            busy = false
-            // keep logind's view in sync with our state
-            Quickshell.execDetached(["loginctl", "unlock-session"])
-        }
-        _persist()
     }
 
     // Locking
     function engageLock() {
-        if (sessionLock.locked) return
-        sessionLock.locked = true     // onLockedChanged does the rest
+        if (root._wantLocked) return
+
+        // reset all auth state up front -- do not depend on lock notify signals
+        root._unlocking = false
+        root.errorText = ""
+        root.fpHint = ""
+        root._pendingPassword = ""
+        root.busy = false
+
+        root._wantLocked = true       // engages the WlSessionLock + surfaces
+
+        // start listening for a finger immediately; the password field drives
+        // the password context on submit.
+        const ok = fingerprintCtx.start()
+        console.log("lock engaged; fingerprintCtx.start ->", ok)
+
+        dpmsTimer.restart()           // blank screens dpmsAfterLock later
+        _persist()
+    }
+
+    // Tear everything down and release the compositor lock.
+    function _disengageLock() {
+        passwordCtx.abort()
+        fingerprintCtx.abort()
+        fpRestart.stop()
+        dpmsTimer.stop()
+        dpmsOn()
+        root._pendingPassword = ""
+        root.busy = false
+
+        root._wantLocked = false      // sends unlock to the compositor
+
+        // keep logind's view in sync with our state
+        Quickshell.execDetached(["loginctl", "unlock-session"])
+        _persist()
     }
 
     // qs ipc call lock lock
@@ -83,6 +95,7 @@ Singleton {
             if (responseRequired) respond(root._pendingPassword)
         }
         onCompleted: result => {
+            console.log("password completed:", result)
             root.busy = false
             root._pendingPassword = ""
             if (result === PamResult.Success) {
@@ -93,6 +106,7 @@ Singleton {
             }
         }
         onError: err => {
+            console.log("pass: failed with", err)
             root.busy = false
             root.errorText = "Authentication error"
         }
@@ -102,9 +116,11 @@ Singleton {
         id: fingerprintCtx
         config: Theme.pamFingerprintConfig
         onPamMessage: {
+            console.log("fingerprint message:", message)
             root.fpHint = message
         }
         onCompleted: result => {
+            console.log("fingerprint result =", result)
             if (result === PamResult.Success) {
                 root._authSuccess()
             } else if (!root._unlocking && root.locked) {
@@ -113,6 +129,7 @@ Singleton {
             }
         }
         onError: err => {
+            console.log("fprint: failed with", err)
             if (!root._unlocking && root.locked) fpRestart.restart()
         }
     }
@@ -143,7 +160,7 @@ Singleton {
         root._unlocking = true
         root.errorText = ""
         root.fpHint = ""
-        sessionLock.locked = false    // onLockedChanged tears everything down
+        _disengageLock()
     }
 
     // Idle dimming (hardware backlight). Reads the current raw value, saves
@@ -204,7 +221,7 @@ Singleton {
     // While locked, any activity wakes the screens and restarts the blank countdown.
     IdleMonitor {
         enabled: root.locked
-        respectInhibitors: false
+        respectInhibitors: true
         timeout: 2
         onIsIdleChanged: {
             if (!isIdle) {
@@ -251,7 +268,7 @@ Singleton {
 
     function _persist() {
         stateFile.setText(JSON.stringify({
-            locked: sessionLock.locked,
+            locked: root._wantLocked,
             dimmed: root._dimmed,
             savedBrightness: root._savedBrightness
         }))
