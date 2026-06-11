@@ -17,7 +17,11 @@ Singleton {
     readonly property int radius:          12
     readonly property int radius_sm:       8
     readonly property int font_size_sm:    11
-    readonly property string wallpaper:    "/home/zackb/.local/share/wallpapers/4199401.jpg"
+
+    // default wallpaper lives here; overridden live and across reloads by
+    // wallpaper.txt, written by the `wallpaper` IPC.
+    readonly property string defaultWallpaper: "/home/zackb/.local/share/wallpapers/4199401.jpg"
+    property string wallpaper: defaultWallpaper
 
     // utility status colors
     readonly property color connected:    "#a6e3a1"
@@ -26,14 +30,16 @@ Singleton {
     readonly property color battery_mid:  "#f9e2af"
     readonly property color battery_low:  "#f38ba8"
 
-    // matugen override (live-reloads when colors.json changes)
+    // matugen override.
     // matugen image --source-color-index 0 "$wall"
     // remove colors.json to revert to Catppuccin Mocha Mauve defaults.
+    // call reloadColors() to force re-read
     FileView {
         id: colorFile
         path: "/home/zackb/.config/quickshell/colors.json"
         watchChanges: true
         onTextChanged: themeRoot._loadColors()
+        onLoaded:      themeRoot._loadColors()
     }
 
     property var _c: ({})
@@ -43,7 +49,28 @@ Singleton {
         catch(e) { _c = {} }
     }
 
-    Component.onCompleted: _loadColors()
+    // force a re-read of colors.json
+    function reloadColors() {
+        colorFile.reload()
+    }
+
+    // wallpaper path persistence (live-reloads when wallpaper.txt changes)
+    FileView {
+        id: wallpaperFile
+        path: "/home/zackb/.config/quickshell/wallpaper.txt"
+        watchChanges: true
+        onTextChanged: themeRoot._loadWallpaper()
+    }
+
+    function _loadWallpaper() {
+        const p = wallpaperFile.text().trim()
+        themeRoot.wallpaper = p.length > 0 ? p : themeRoot.defaultWallpaper
+    }
+
+    Component.onCompleted: {
+        _loadColors()
+        _loadWallpaper()
+    }
 
     // Palette: Catppuccin Mocha Mauve defaults
     readonly property string primary:                   _c.primary                   || "#cba6f7"

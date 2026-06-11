@@ -8,6 +8,7 @@ import qs.notification
 import qs.bluetooth
 import qs.mlb
 import qs.osd
+import qs.wallpaper
 
 ShellRoot {
 
@@ -24,6 +25,8 @@ ShellRoot {
             Quickshell.reload(false)
         }
     }
+
+    Wallpaper {}
 
     ControlCenter { id: controlCenter }
 
