@@ -9,6 +9,7 @@ import qs.bluetooth
 import qs.mlb
 import qs.osd
 import qs.wallpaper
+import qs.lock
 
 ShellRoot {
 
@@ -44,6 +45,8 @@ ShellRoot {
     NotifTray {}
 
     Osd {}
+
+    IdleDaemon {}
 
     Launcher {}
     ScoreWidget {

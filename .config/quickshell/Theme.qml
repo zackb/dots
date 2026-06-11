@@ -18,6 +18,19 @@ Singleton {
     readonly property int radius_sm:       8
     readonly property int font_size_sm:    11
 
+    // idle / lock
+    // timeouts are in seconds
+    readonly property int    idleDimTimeout:       120    // dim the screen after 2 min idle
+    readonly property real   idleDimFraction:      0.30   // dim to 30% of the current level
+    readonly property int    idleLockTimeout:      300    // lock after 5 min idle
+    readonly property int    dpmsAfterLock:        30     // power screens off 30s after locking
+    // PAM service names: /etc/pam.d/<name>.
+    // two services so fingerprint + password race concurrently
+    readonly property string pamPasswordConfig:    "quickshell-lock"
+    readonly property string pamFingerprintConfig: "quickshell-fprint"
+    // hardware backlight device used for idle dimming
+    readonly property string backlightDevice:      "amdgpu_bl1"
+
     // default wallpaper lives here; overridden live and across reloads by
     // wallpaper.txt, written by the `wallpaper` IPC.
     readonly property string defaultWallpaper: "/home/zackb/.local/share/wallpapers/4199401.jpg"
@@ -42,7 +55,7 @@ Singleton {
     // call reloadColors() to force re-read
     FileView {
         id: colorFile
-        path: "/home/zackb/.config/quickshell/colors.json"
+        path: Quickshell.shellPath("colors.json")
         watchChanges: true
         onTextChanged: themeRoot._loadColors()
         onLoaded:      themeRoot._loadColors()
@@ -63,7 +76,7 @@ Singleton {
     // wallpaper path persistence (live-reloads when wallpaper.txt changes)
     FileView {
         id: wallpaperFile
-        path: "/home/zackb/.config/quickshell/wallpaper.txt"
+        path: Quickshell.shellPath("wallpaper.txt")
         watchChanges: true
         onTextChanged: themeRoot._loadWallpaper()
     }
