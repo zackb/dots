@@ -4,6 +4,7 @@ import Quickshell.Wayland
 import Quickshell.Services.Pipewire
 import QtQuick
 import QtQuick.Layouts
+import qs.backend
 import qs
 
 PanelWindow {
@@ -19,36 +20,16 @@ PanelWindow {
     property var  barWindow: null
     property bool isOpen: false
 
-    // ── Audio ──────────────────────────────────────────────────────────
+    // Audio
     PwObjectTracker { objects: [Pipewire.defaultAudioSink] }
     property PwNode sink: Pipewire.defaultAudioSink
 
-    // ── Brightness ─────────────────────────────────────────────────────
-    property int  brightness:    0
-    property int  maxBrightness: 255
+    // Brightness
+    property int  brightness:    Backend.backlight.brightness
+    property int  maxBrightness: Backend.backlight.max
     property real brightnessPercent: maxBrightness > 0 ? brightness / maxBrightness : 0
 
-    Process {
-        id: brightWatcher
-        running: false
-        command: ["bash", "-c", `
-            max=$(cat /sys/class/backlight/amdgpu_bl1/max_brightness)
-            echo "max:$max"
-            cat /sys/class/backlight/amdgpu_bl1/brightness
-            while inotifywait -q -e modify /sys/class/backlight/amdgpu_bl1/brightness 2>/dev/null; do
-                cat /sys/class/backlight/amdgpu_bl1/brightness
-            done
-        `]
-        stdout: SplitParser {
-            onRead: data => {
-                if (data.startsWith("max:")) root.maxBrightness = parseInt(data.slice(4))
-                else root.brightness = parseInt(data)
-            }
-        }
-    }
-    Component.onCompleted: brightWatcher.running = true
-
-    // ── Window ─────────────────────────────────────────────────────────
+    // Window
     screen: barWindow ? barWindow.screen : null
     visible: false
 
@@ -73,7 +54,7 @@ PanelWindow {
         z: -1
     }
 
-    // ── Panel ──────────────────────────────────────────────────────────
+    // Panel
     Rectangle {
         id: panel
         anchors.right:       parent.right
@@ -115,7 +96,7 @@ PanelWindow {
             }
             spacing: 0
 
-            // ── Header ────────────────────────────────────────────────
+            // Header
             Text {
                 text:  "Control Center"
                 color: Theme.textColor
@@ -130,7 +111,7 @@ PanelWindow {
                 height: 1; color: Theme.popupBorder; opacity: 0.6
             }
 
-            // ── Volume ────────────────────────────────────────────────
+            // Volume
             Text {
                 text:  "VOLUME"
                 color: Theme.outline
@@ -191,7 +172,7 @@ PanelWindow {
                 height: 1; color: Theme.popupBorder; opacity: 0.4
             }
 
-            // ── Brightness ────────────────────────────────────────────
+            // Brightness
             Text {
                 text:  "BRIGHTNESS"
                 color: Theme.outline
@@ -240,7 +221,7 @@ PanelWindow {
                 height: 1; color: Theme.popupBorder; opacity: 0.4
             }
 
-            // ── Session ───────────────────────────────────────────────
+            // Session
             Text {
                 text:  "SESSION"
                 color: Theme.outline
