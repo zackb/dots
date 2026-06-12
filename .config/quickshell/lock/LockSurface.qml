@@ -96,11 +96,14 @@ WlSessionLockSurface {
             cursorDelegate: Item {}
 
             background: Rectangle {
-                color: Theme.surface_container
-                radius: Theme.radius
-                border.width: 1
+                color: Qt.tint(Theme.surface_container_highest, Qt.alpha(Theme.primary, 0.10))
+                radius: height / 2
+                border.width: pwField.activeFocus ? 2 : 1
                 border.color: LockState.errorText !== "" ? Theme.critical
-                              : (pwField.activeFocus ? Theme.primary : Theme.outline)
+                              : (pwField.activeFocus ? Theme.primary : Qt.alpha(Theme.outline, 0.35))
+                Behavior on border.color {
+                    ColorAnimation { duration: 150 }
+                }
             }
 
             onAccepted: {

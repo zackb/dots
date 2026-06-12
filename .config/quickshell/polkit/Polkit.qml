@@ -119,12 +119,15 @@ Scope {
                     cursorDelegate: Item {}     // no caret
 
                     background: Rectangle {
-                        color: Theme.surface_container_high
-                        radius: Theme.radius_sm
-                        border.width: 1
+                        color: Qt.tint(Theme.surface_container_highest, Qt.alpha(Theme.primary, 0.10))
+                        radius: height / 2
+                        border.width: pwField.activeFocus ? 2 : 1
                         border.color: (root.flow && root.flow.supplementaryIsError)
                                       ? Theme.critical
-                                      : (pwField.activeFocus ? Theme.primary : Theme.outline)
+                                      : (pwField.activeFocus ? Theme.primary : Qt.alpha(Theme.outline, 0.35))
+                        Behavior on border.color {
+                            ColorAnimation { duration: 150 }
+                        }
                     }
 
                     onAccepted: if (root.flow) root.flow.submit(text)
@@ -154,7 +157,7 @@ Scope {
                         signal clicked
                         width: 140
                         height: 40
-                        radius: Theme.radius_sm
+                        radius: height / 2
                         color: hover.hovered ? Qt.alpha(accent, 0.18) : Qt.alpha(accent, 0.10)
                         border.width: 1
                         border.color: Qt.alpha(accent, 0.5)
