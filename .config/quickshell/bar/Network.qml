@@ -1,7 +1,7 @@
 import Quickshell
 import QtQuick
 import qs.backend
-import "../"
+import qs.theme
 
 Capsule {
     id: root

@@ -3,7 +3,7 @@ import Quickshell.Wayland
 import Quickshell.Services.Polkit
 import QtQuick
 import QtQuick.Controls
-import "../"
+import qs.theme
 
 // PolicyKit authentication agent.
 Scope {

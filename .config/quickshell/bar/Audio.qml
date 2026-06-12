@@ -1,7 +1,7 @@
 import Quickshell
 import Quickshell.Services.Pipewire
 import QtQuick
-import "../"
+import qs.theme
 
 Capsule {
     id: root

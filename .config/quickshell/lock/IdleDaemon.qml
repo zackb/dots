@@ -1,7 +1,7 @@
 import Quickshell
 import Quickshell.Wayland
 import QtQuick
-import "../"
+import qs.theme
 
 // Each IdleMonitor is one layer and drives LockState. 
 // respectInhibitors honours the bar's IdleInhibitor toggle (bar/Idle.qml) 

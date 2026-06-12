@@ -1,5 +1,5 @@
 import QtQuick
-import "../"
+import qs.theme
 
 Rectangle {
     width:  1

@@ -4,7 +4,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import qs.backend
-import "../"
+import qs.theme
 
 // MLB scoreboard for the configured team's game today. Data comes from the fenrizd backend
 PanelWindow {

@@ -1,6 +1,6 @@
 import Quickshell
 import QtQuick
-import "../"
+import qs.theme
 
 Text {
     property var ccRef: null

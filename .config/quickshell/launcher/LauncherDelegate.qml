@@ -1,6 +1,6 @@
 import QtQuick
 import Quickshell.Widgets
-import "../"
+import qs.theme
 
 Item {
     id: delegateRoot

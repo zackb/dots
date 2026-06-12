@@ -2,7 +2,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import QtQuick
-import "../"
+import qs.theme
 
 Item {
     id: root

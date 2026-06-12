@@ -3,7 +3,7 @@ import Quickshell.Wayland
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Effects
-import "../"
+import qs.theme
 
 // One instance per screen (WlSessionLock instantiates the surface Component for
 // each output). Visuals only -- all auth state lives in the LockState

@@ -1,7 +1,7 @@
 import Quickshell
 import Quickshell.Hyprland
 import QtQuick
-import "../"
+import qs.theme
 
 Capsule {
     id: root

@@ -8,8 +8,8 @@ import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-import "../bluetooth"
-import "../"
+import qs.bluetooth
+import qs.theme
 
 PanelWindow {
     id: root

@@ -5,7 +5,7 @@ import Quickshell.Services.Pipewire
 import QtQuick
 import QtQuick.Layouts
 import qs.backend
-import qs
+import qs.theme
 
 PanelWindow {
     id: root

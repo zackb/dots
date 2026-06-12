@@ -1,7 +1,7 @@
 import Quickshell
 import Quickshell.Services.UPower
 import QtQuick
-import "../"
+import qs.theme
 
 Capsule {
     id: root

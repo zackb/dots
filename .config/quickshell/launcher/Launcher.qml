@@ -4,7 +4,7 @@ import Quickshell.Hyprland
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Effects
-import "../"
+import qs.theme
 
 PanelWindow {
     id: launcherWindow

@@ -3,7 +3,7 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
 import QtQuick
-import "../"
+import qs.theme
 
 PanelWindow {
     id: tray

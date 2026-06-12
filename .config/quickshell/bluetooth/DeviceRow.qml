@@ -1,7 +1,7 @@
 // DeviceRow.qml
 import QtQuick
 import QtQuick.Layouts
-import "../"
+import "../theme"
 
 Rectangle {
     id: row

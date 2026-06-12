@@ -4,7 +4,7 @@ import Quickshell.Wayland
 import Quickshell.Services.Pipewire
 import QtQuick
 import qs.backend
-import "../"
+import qs.theme
 
 Item {
     id: osdRoot

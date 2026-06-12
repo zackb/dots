@@ -1,7 +1,7 @@
 import Quickshell
 import QtQuick
-import "../"
-import "../bluetooth"
+import qs.theme
+import qs.bluetooth
 
 Capsule {
     id: bluetoothButton

@@ -1,7 +1,7 @@
 import Quickshell
 import QtQuick
 import Quickshell.Io
-import "../"
+import qs.theme
 
 Capsule {
     id: root

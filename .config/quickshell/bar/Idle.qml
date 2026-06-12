@@ -1,7 +1,7 @@
 import Quickshell
 import Quickshell.Wayland
 import QtQuick
-import "../"
+import qs.theme
 
 Text {
     property bool inhibiting: false

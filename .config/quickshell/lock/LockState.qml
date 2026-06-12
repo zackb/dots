@@ -6,7 +6,7 @@ import Quickshell.Wayland
 import Quickshell.Services.Pam
 import QtQuick
 import qs.backend
-import "../"
+import qs.theme
 
 // Single source of truth for the idle/lock system. Owns the Wayland session
 // lock, the two concurrent PAM contexts (password + fingerprint), idle

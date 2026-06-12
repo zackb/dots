@@ -2,7 +2,7 @@ import Quickshell
 import Quickshell.Io
 import QtQuick
 import qs.notification
-import "../"
+import qs.theme
 
 Text {
     id: root

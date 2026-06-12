@@ -4,7 +4,7 @@ import Quickshell.Hyprland
 import QtQuick
 import QtQuick.Effects
 import QtQuick.Shapes
-import "../"
+import qs.theme
 
 Variants {
     id: root
