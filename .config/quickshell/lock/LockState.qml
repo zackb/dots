@@ -209,12 +209,22 @@ Singleton {
     function dpmsOff() {
         if (root._dpmsBlanked) return
         root._dpmsBlanked = true
-        Quickshell.execDetached(["hyprctl", "dispatch", "dpms", "off"])
+        // Quickshell.execDetached(["hyprctl", "dispatch", "dpms", "off"])
+        Quickshell.execDetached([
+            "hyprctl",
+            "dispatch",
+            "hl.dsp.dpms({ action = \"disable\" })"
+        ])
     }
     function dpmsOn() {
         if (!root._dpmsBlanked) return
         root._dpmsBlanked = false
-        Quickshell.execDetached(["hyprctl", "dispatch", "dpms", "on"])
+        // Quickshell.execDetached(["hyprctl", "dispatch", "dpms", "on"])
+        Quickshell.execDetached([
+            "hyprctl",
+            "dispatch",
+            "hl.dsp.dpms({ action = \"enable\" })"
+        ])
     }
 
     // blank the screens dpmsAfterLock seconds after the lock engages
