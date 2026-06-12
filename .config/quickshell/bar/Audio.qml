@@ -23,7 +23,14 @@ Capsule {
     }
 
     TapHandler {
-        onTapped:       sink.audio.muted = !sink.audio.muted
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
+        onTapped: (eventPoint, button) => {
+            if (button === Qt.RightButton) {
+                Quickshell.execDetached(["hyprwat", "--audio"])
+            } else {
+                sink.audio.muted = !sink.audio.muted
+            }
+        }
     }
 
     WheelHandler {
