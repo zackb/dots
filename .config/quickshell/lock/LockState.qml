@@ -6,6 +6,7 @@ import Quickshell.Wayland
 import Quickshell.Services.Pam
 import QtQuick
 import qs.backend
+import qs.store
 import qs.theme
 
 // Single source of truth for the idle/lock system. Owns the Wayland session
@@ -276,23 +277,19 @@ Singleton {
     // keeps the session locked until a new lock client re-attaches. We persist
     // enough to re-engage the lock (so you can still authenticate) and to undo
     // a dim that was active when the reload happened.
-    FileView {
-        id: stateFile
-        path: Quickshell.shellPath(".lockstate.json")
-        onLoaded: root._restoreState()
-    }
+    readonly property string _stateFile: "lockstate.json"
+    Component.onCompleted: root._restoreState()
 
     function _persist() {
-        stateFile.setText(JSON.stringify({
+        Store.writeJson(root._stateFile, {
             locked: root._wantLocked,
             dimmed: root._dimmed,
             savedBrightness: root._savedBrightness
-        }))
+        })
     }
 
     function _restoreState() {
-        let s
-        try { s = JSON.parse(stateFile.text()) } catch (e) { return }
+        const s = Store.readJson(root._stateFile, null)
         if (!s) return
         // undo a dim that was in effect when we were reloaded
         if (s.dimmed && s.savedBrightness > 0) {

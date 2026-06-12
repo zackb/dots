@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.store
 
 Item {
     id: backend
@@ -17,17 +18,9 @@ Item {
     // { "<DesktopEntry.id>": { count: N, last: <epochMs> } }
     property var usage: ({})
 
-    // Persisted to disk; the launcher is the only writer
-    FileView {
-        id: usageFile
-        path: Quickshell.shellPath("launcher_usage.json")
-        onLoaded: backend._loadUsage()
-    }
-
-    function _loadUsage() {
-        try { backend.usage = JSON.parse(usageFile.text()) }
-        catch (e) { backend.usage = {} }
-    }
+    // Persisted to disk; the launcher is the only writer.
+    readonly property string _usageFile: "launcher_usage.json"
+    Component.onCompleted: backend.usage = Store.readJson(backend._usageFile)
 
     function recordUse(id) {
         if (!id)
@@ -37,7 +30,7 @@ Item {
         u.last = Date.now();
         // reassign so bindings (the launcher's sort) re-evaluate
         backend.usage = Object.assign({}, backend.usage, { [id]: u });
-        usageFile.setText(JSON.stringify(backend.usage));
+        Store.writeJson(backend._usageFile, backend.usage);
     }
 
     function _recencyWeight(ageMs) {

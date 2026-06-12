@@ -3,6 +3,7 @@ pragma Singleton
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import qs.store
 
 
 Singleton {
@@ -79,7 +80,7 @@ Singleton {
     // wallpaper path persistence (live-reloads when wallpaper.txt changes)
     FileView {
         id: wallpaperFile
-        path: Quickshell.shellPath("wallpaper.txt")
+        path: Store.path("wallpaper.txt")
         watchChanges: true
         onTextChanged: themeRoot._loadWallpaper()
     }

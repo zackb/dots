@@ -2,6 +2,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import QtQuick
+import qs.store
 import qs.theme
 
 Item {
@@ -9,15 +10,19 @@ Item {
 
     // Apply a new wallpaper:
     //  - update Theme.wallpaper directly so the background swaps immediately,
-    //  - persist the path to wallpaper.txt so the choice survives a reload
+    //  - persist the path to wallpaper.txt so the choice survives a reload.
+    //    Written non-atomically (printf, not setText) on purpose: Theme watches
+    //    this file and an atomic rename is missed by the FileView watch -- same
+    //    quirk that makes matugen's colors.json writes need an explicit reload().
     //  - regenerate the matugen palette into colors.json, then force Theme to
-    //    re-read it (matugen's atomic write are missed by FileView watch).
+    //    re-read it.
     function setWallpaper(path) {
         if (!path || path.length === 0)
             return
         Theme.wallpaper = path
         Quickshell.execDetached(["bash", "-c",
-            'printf "%s" "$1" > ~/.config/quickshell/wallpaper.txt', "bash", path])
+            'mkdir -p "$(dirname "$1")"; printf "%s" "$2" > "$1"',
+            "bash", Store.path("wallpaper.txt"), path])
         matugen.command = ["matugen", "image", "--source-color-index", "0", path]
         matugen.running = true
     }
