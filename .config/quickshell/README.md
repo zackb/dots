@@ -1,6 +1,23 @@
-# Quickshell idle + lock
+# Fenriz Quickshell
 
-## How it works
+## Why?
+The goal of this quickshell was to replace:
+  - waybar
+  - rofi / wofi
+  - swaync
+  - hyprpaper
+  - hypridle
+  - hyprlock
+  - hyprpolkitagent
+  - bluetui / blueman
+
+I love these tools and think basically everyone should use them. Don't be like me.
+But I was willing to put in the work and more importantly, maintenance to unify my
+hyprland desktop into a single setup.
+
+## Idle Monitor
+
+### How it works
 
 | Layer | Default | Action |
 |-------|---------|--------|
@@ -39,7 +56,7 @@ Files:
 
 ## Required setup
 
-### 0. Build
+### Build
 
 ```sh
 make            # builds shaders + the backend daemon (backend/fenrizd)
