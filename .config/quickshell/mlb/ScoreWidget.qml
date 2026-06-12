@@ -75,6 +75,9 @@ PanelWindow {
             anchors.centerIn: parent
             spacing: 8
 
+            TeamScore { team: root.state.home }
+            TeamScore { team: root.state.away }
+
             Text {
                 visible: text !== ""
                 text: root.state.status || ""
@@ -82,10 +85,6 @@ PanelWindow {
                 font.pixelSize: 14
                 font.family: "monospace"
             }
-
-            TeamScore { team: root.state.home }
-            TeamScore { team: root.state.away }
-
         }
 
         ToolTip.visible: hoverHandler.hovered && (root.state.tooltip || "") !== ""
