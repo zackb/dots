@@ -6,6 +6,7 @@ import QtQuick
 import QtQuick.Layouts
 import qs.backend
 import qs.theme
+import qs.dock
 
 PanelWindow {
     id: root
@@ -303,6 +304,97 @@ PanelWindow {
                                 root.isOpen = false
                                 Qt.callLater(() => Quickshell.execDetached(modelData.cmd))
                             }
+                        }
+                    }
+                }
+            }
+
+            // Divider
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.topMargin: 14
+                Layout.bottomMargin: 14
+                height: 1; color: Theme.popupBorder; opacity: 0.4
+            }
+
+            // Dock
+            Text {
+                text:  "DOCK"
+                color: Theme.outline
+                font { pixelSize: 10; bold: true; letterSpacing: 1.5; family: Theme.font }
+                Layout.bottomMargin: 10
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.bottomMargin: DockState.enabled ? 12 : 4
+                spacing: 12
+
+                Text {
+                    text: "Enable dock"
+                    color: Theme.on_surface
+                    font { pixelSize: 12; family: Theme.font }
+                }
+
+                Item { Layout.fillWidth: true }
+
+                // ON/OFF pill toggle
+                Rectangle {
+                    width: 44; height: 24; radius: 12
+                    color: DockState.enabled ? Theme.primary : Theme.surface_container_high
+                    border.color: Theme.surface_container_highest
+                    border.width: 1
+                    Behavior on color { ColorAnimation { duration: 120 } }
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: DockState.enabled ? "ON" : "OFF"
+                        color: DockState.enabled ? Theme.on_primary : Theme.outline
+                        font { pixelSize: 10; bold: true; family: Theme.font }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: DockState.enabled = !DockState.enabled
+                    }
+                }
+            }
+
+            // Position selector (only meaningful while enabled)
+            RowLayout {
+                id: dockPositions
+                Layout.fillWidth: true
+                Layout.bottomMargin: 4
+                spacing: 8
+                visible: DockState.enabled
+
+                Repeater {
+                    model: DockState.positions
+
+                    delegate: Rectangle {
+                        required property string modelData
+                        readonly property bool active: DockState.position === modelData
+
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 32
+                        radius: Theme.radius_sm
+                        color: active ? Theme.primary : Theme.surface_container_high
+                        border.color: active ? Theme.primary : Theme.popupBorder
+                        border.width: 1
+                        Behavior on color { ColorAnimation { duration: 120 } }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: modelData.charAt(0).toUpperCase() + modelData.slice(1)
+                            color: parent.active ? Theme.on_primary : Theme.on_surface_variant
+                            font { pixelSize: 11; family: Theme.font }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: DockState.position = modelData
                         }
                     }
                 }

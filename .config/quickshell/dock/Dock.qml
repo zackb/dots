@@ -1,0 +1,143 @@
+import QtQuick
+import Quickshell
+import Quickshell.Wayland
+import qs.theme
+import qs.dock
+
+// Floating, translucent, auto-hiding app dock. Single instance (primary screen).
+// Attaches to bottom/left/right per DockState.position; reveals on edge hover.
+PanelWindow {
+    id: root
+
+    // tuning
+    readonly property int innerPad: 8     // padding inside the dock around the icons
+    readonly property int iconSpacing: 6
+    readonly property int gap:  10        // floating gap between dock and screen edge
+    readonly property int peek: 4         // sliver left visible when hidden (the reveal zone)
+
+    readonly property string position: DockState.position
+    readonly property bool isHorizontal: position === "bottom"
+
+    // Resolve pinned ids -> DesktopEntries, dropping any that don't exist.
+    readonly property var apps: {
+        var out = []
+        const ids = DockState.pinnedApps || []
+        for (var i = 0; i < ids.length; i++) {
+            const e = DesktopEntries.heuristicLookup(ids[i])
+            if (e)
+                out.push({ id: ids[i], entry: e })
+        }
+        return out
+    }
+
+    // reveal state
+    property bool revealed: false
+    Timer {
+        id: hideTimer
+        interval: 400
+        onTriggered: root.revealed = false
+    }
+
+    // window
+
+    visible: DockState.enabled
+    color: "transparent"
+
+    WlrLayershell.layer:         WlrLayer.Top
+    WlrLayershell.namespace:     "dock"
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+    exclusionMode: ExclusionMode.Ignore
+
+    anchors {
+        bottom: root.position === "bottom"
+        left:   root.position === "left"
+        right:  root.position === "right"
+    }
+
+    implicitWidth:  isHorizontal ? dock.implicitWidth  : dock.implicitWidth  + gap
+    implicitHeight: isHorizontal ? dock.implicitHeight + gap : dock.implicitHeight
+
+    // Only the visible dock area grabs input; the rest of the band (and the dock
+    // while hidden, save the peek strip) passes clicks through to the desktop.
+    mask: Region { item: dock }
+
+    // dock body
+
+    Rectangle {
+        id: dock
+
+        implicitWidth:  content.implicitWidth  + root.innerPad * 2
+        implicitHeight: content.implicitHeight + root.innerPad * 2
+
+        radius: Theme.radius
+        color: Qt.alpha(Theme.surface, 0.55)
+        border.color: Theme.popupBorder
+        border.width: 1
+
+        // how far to slide off-screen when hidden (leaving `peek`)
+        readonly property real hideOffset:
+            (root.isHorizontal ? implicitHeight : implicitWidth) + root.gap - root.peek
+
+        // resting (revealed) top-left within the window
+        readonly property real restX:
+            root.position === "left"  ? root.gap
+          : root.position === "right" ? root.width - root.gap - implicitWidth
+          : (root.width - implicitWidth) / 2
+        readonly property real restY:
+            root.position === "bottom" ? root.height - root.gap - implicitHeight
+          : (root.height - implicitHeight) / 2
+
+        x: restX + (root.revealed ? 0
+              : root.position === "left"  ? -hideOffset
+              : root.position === "right" ?  hideOffset
+              : 0)
+        y: restY + (root.revealed && root.position === "bottom" ? 0
+              : root.position === "bottom" ? hideOffset
+              : 0)
+
+        Behavior on x { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+        Behavior on y { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+
+        HoverHandler {
+            onHoveredChanged: {
+                if (hovered) { hideTimer.stop(); root.revealed = true }
+                else hideTimer.restart()
+            }
+        }
+
+        // Horizontal layout (bottom dock)
+        Row {
+            id: rowLayout
+            visible: root.isHorizontal
+            anchors.centerIn: parent
+            spacing: root.iconSpacing
+            Repeater {
+                model: root.isHorizontal ? root.apps : []
+                delegate: DockIcon {
+                    required property var modelData
+                    appId: modelData.id
+                    entry: modelData.entry
+                }
+            }
+        }
+
+        // Vertical layout (left/right dock)
+        Column {
+            id: colLayout
+            visible: !root.isHorizontal
+            anchors.centerIn: parent
+            spacing: root.iconSpacing
+            Repeater {
+                model: root.isHorizontal ? [] : root.apps
+                delegate: DockIcon {
+                    required property var modelData
+                    appId: modelData.id
+                    entry: modelData.entry
+                }
+            }
+        }
+
+        // points the layout sizing at whichever positioner is active
+        property var content: root.isHorizontal ? rowLayout : colLayout
+    }
+}

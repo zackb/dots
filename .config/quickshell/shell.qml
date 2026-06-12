@@ -4,6 +4,7 @@ import QtQuick
 import qs.bar
 import qs.bar.controlcenter
 import qs.launcher
+import qs.dock
 import qs.notification
 import qs.bluetooth
 import qs.mlb
@@ -52,6 +53,7 @@ ShellRoot {
     Polkit {}
 
     Launcher {}
+    Dock {}
     ScoreWidget {
         active: shellVisible
     }
