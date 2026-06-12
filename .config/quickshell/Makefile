@@ -16,7 +16,7 @@ BACKEND_DIR := backend
 BACKEND_BIN := $(BACKEND_DIR)/fenrizd
 BACKEND_SRC := $(shell find $(BACKEND_DIR) -name '*.go') $(BACKEND_DIR)/go.mod
 
-.PHONY: all shaders backend clean clean-shaders clean-backend
+.PHONY: all shaders backend test-polkit clean clean-shaders clean-backend
 all: shaders backend
 
 # shaders
@@ -30,6 +30,12 @@ backend: $(BACKEND_BIN)
 
 $(BACKEND_BIN): $(BACKEND_SRC)
 	cd $(BACKEND_DIR) && go build -o fenrizd .
+
+# test the polkit agent (polkit/Polkit.qml): triggers a real PolicyKit prompt so
+# polkit caches auth for a few minutes, so a repeat run may not
+test-polkit:
+	@echo "Triggering a polkit prompt..."
+	pkexec --user root id
 
 # cleanup
 clean: clean-shaders clean-backend

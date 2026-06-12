@@ -10,6 +10,7 @@ import qs.mlb
 import qs.osd
 import qs.wallpaper
 import qs.lock
+import qs.polkit
 
 ShellRoot {
 
@@ -47,6 +48,8 @@ ShellRoot {
     Osd {}
 
     IdleDaemon {}
+
+    Polkit {}
 
     Launcher {}
     ScoreWidget {
