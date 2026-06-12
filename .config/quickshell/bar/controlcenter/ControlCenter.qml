@@ -264,7 +264,7 @@ PanelWindow {
                         { icon: "󰤄", label: "Hibernate",
                           cmd: ["systemctl", "hibernate"],           critical: false },
                         { icon: "󰍃", label: "Logout",
-                          cmd: ["hyprctl", "dispatch", "exit"],      critical: false },
+                          cmd: ["hyprctl", "dispatch", "hl.dsp.exit()"], critical: false },
                         { icon: "󰑐", label: "Restart",
                           cmd: ["systemctl", "reboot"],              critical: true  },
                         { icon: "󰐥", label: "Shutdown",
