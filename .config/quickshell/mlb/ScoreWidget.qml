@@ -58,7 +58,7 @@ PanelWindow {
             onRead: data => {
                 try {
                     const j = JSON.parse(data);
-                    root.scoreText = j.text || j.tooltip || "";
+                    root.scoreText = j.text || "";
                     root.tooltipText = j.tooltip || "";
                     root.gameClass = j.class || "mlb-idle";
                     hasData = root.scoreText !== "";
