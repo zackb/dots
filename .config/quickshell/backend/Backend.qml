@@ -21,6 +21,16 @@ Singleton {
     // mlb scoreboard for the configured team's game today
     property var mlbState: ({ active: false, class: "mlb-idle" })
 
+    // primary network connection (NetworkManager)
+    property var networkState: ({ type: "none", ssid: "", signal: 0, iface: "" })
+
+    // cpu / memory / disk / temperature
+    property var sysinfo: ({
+        cpuModel: "", overallCpu: 0, memPercent: 0, diskPercent: 0, tempC: 0,
+        cpuCores: [], memUsedMB: 0, memTotalMB: 1, memBuffMB: 0, memAvailMB: 0,
+        diskUsedMB: 0, diskTotalMB: 1, diskAvailMB: 0
+    })
+
     // generic hook for event-driven consumers
     signal serviceEvent(string service, var data)
 
@@ -42,6 +52,10 @@ Singleton {
                     root._screensaver = msg.data
                 else if (msg.service === "mlb")
                     root.mlbState = msg.data
+                else if (msg.service === "network")
+                    root.networkState = msg.data
+                else if (msg.service === "sysinfo")
+                    root.sysinfo = msg.data
                 root.serviceEvent(msg.service, msg.data)
             }
         }
@@ -51,6 +65,7 @@ Singleton {
         onExited: (code, status) => {
             root._screensaver = ({ inhibited: false, count: 0, inhibitors: [] })
             root.mlbState = ({ active: false, class: "mlb-idle" })
+            root.networkState = ({ type: "none", ssid: "", signal: 0, iface: "" })
             relaunch.start()
         }
     }

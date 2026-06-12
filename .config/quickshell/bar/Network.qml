@@ -1,16 +1,17 @@
 import Quickshell
-import Quickshell.Io
 import QtQuick
+import qs.backend
 import "../"
 
 Capsule {
     id: root
 
-    property string iface:    ""
-    property string ssid:     ""
-    property int    strength: 0
-    property bool   connected: false
-    property bool   ethernet: false
+    readonly property var net: Backend.networkState
+    property string iface:    net.iface || ""
+    property string ssid:     net.ssid || ""
+    property int    strength: net.signal || 0
+    property bool   connected: net.type !== "none"
+    property bool   ethernet:  net.type === "ethernet"
 
     property bool clicked: false
 
@@ -21,34 +22,6 @@ Capsule {
         if (strength < 50) return "󰤢"  // ok
         if (strength < 75) return "󰤥"  // good
         return                    "󰤨"  // excellent
-    }
-
-    Timer {
-        interval: 10000
-        running:  true
-        repeat:   true
-        triggeredOnStart: true
-        onTriggered: {
-            networkProcess.running = false
-            networkProcess.running = true
-        }
-    }
-
-    Process {
-        id: networkProcess
-        command: ["bash", Qt.resolvedUrl("scripts/network.sh").toString().replace("file://", "")]
-        stderr: SplitParser {
-            onRead: data => console.log("network stderr:", data)
-        }
-        stdout: SplitParser {
-            onRead: data => {
-                const j = JSON.parse(data)
-                root.connected = j.type !== "none"
-                root.ethernet  = j.type === "ethernet"
-                root.ssid      = j.ssid
-                root.strength  = j.signal
-            }
-        }
     }
 
     contentItem: Row {

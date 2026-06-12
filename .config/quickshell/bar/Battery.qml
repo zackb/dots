@@ -1,13 +1,34 @@
 import Quickshell
-import Quickshell.Io
+import Quickshell.Services.UPower
 import QtQuick
 import "../"
 
 Capsule {
     id: root
 
-    property int  percentage: 0
-    property bool charging:   false
+    // The real battery, picked by sysfs name. We avoid UPower.displayDevice
+    // because this machine exposes phantom USB-C power supplies that
+    // skew the aggregate percentage.
+    readonly property UPowerDevice bat: {
+        const list = UPower.devices ? UPower.devices.values : []
+        for (const d of list)
+            if (d && d.type === UPowerDeviceType.Battery && d.nativePath === "BAT1")
+                return d
+        for (const d of list)
+            if (d && d.isLaptopBattery)
+                return d
+        return UPower.displayDevice
+    }
+
+    // Quickshell reports percentage as a 0.0-1.0 fraction
+    property int percentage: {
+        if (!bat) return 0
+        const p = bat.percentage
+        return Math.round(p <= 1 ? p * 100 : p)
+    }
+    // Charging from UPower's line-power-derived global, NOT the battery's own
+    // state: BAT1 firmware reports "discharging" even while on AC.
+    property bool charging: !UPower.onBattery
     property bool clicked: false
 
     function batteryIcon() {
@@ -22,29 +43,6 @@ Capsule {
         if (percentage < 80) return "󰂀"
         if (percentage < 90) return "󰂁"
         return "󰂂"
-    }
-
-    Process {
-        id: batteryProcess
-        command: ["bash", "-c", "echo $(cat /sys/class/power_supply/BAT1/capacity) $(cat /sys/class/power_supply/ACAD/online)"]
-        stdout: SplitParser {
-            onRead: data => {
-                const parts = data.trim().split(" ")
-                root.percentage = parseInt(parts[0]) || 0
-                root.charging   = parts[1] === "1"
-            }
-        }
-    }
-
-    Timer {
-        interval: 30000
-        running:  true
-        repeat:   true
-        triggeredOnStart: true
-        onTriggered: {
-            batteryProcess.running = false
-            batteryProcess.running = true
-        }
     }
 
     TapHandler {

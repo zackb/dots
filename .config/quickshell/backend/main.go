@@ -18,9 +18,11 @@ import (
 
 	"fenriz/internal/log"
 	"fenriz/internal/mlb"
+	"fenriz/internal/network"
 	"fenriz/internal/proto"
 	"fenriz/internal/screensaver"
 	"fenriz/internal/service"
+	"fenriz/internal/sysinfo"
 )
 
 func main() {
@@ -39,6 +41,8 @@ func main() {
 	services := []service.Service{
 		screensaver.New(),
 		mlb.New(),
+		network.New(),
+		sysinfo.New(),
 	}
 
 	commanders := map[string]service.Commander{}

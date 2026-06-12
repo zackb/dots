@@ -1,8 +1,8 @@
 import Quickshell
-import Quickshell.Io
 import QtQuick
 import qs
 import qs.bar
+import qs.backend
 
 Capsule {
     id: root
@@ -10,21 +10,24 @@ Capsule {
     property var barWindow
     property bool expanded: false
 
-    property string cpu:  "0%"
-    property string mem:  "0%"
-    property string disk: "0%"
-    property string temp: "0°"
-    property string cpuModel: ""
-    property var cpuCores: []
+    // all metrics come from the fenrizd sysinfo service via the Backend singleton
+    readonly property var si: Backend.sysinfo
 
-    property int tempValue: 0
-    property int memUsed:   0
-    property int memTotal:  1
-    property int memBuff:   0
-    property int memAvail:  0
-    property int diskUsed:  0
-    property int diskTotal: 1
-    property int diskAvail: 0
+    property string cpu:  si.overallCpu + "%"
+    property string mem:  si.memPercent + "%"
+    property string disk: si.diskPercent + "%"
+    property string temp: si.tempC + "°"
+    property string cpuModel: si.cpuModel || ""
+    property var cpuCores: si.cpuCores || []
+
+    property int tempValue: si.tempC || 0
+    property int memUsed:   si.memUsedMB || 0
+    property int memTotal:  si.memTotalMB || 1
+    property int memBuff:   si.memBuffMB || 0
+    property int memAvail:  si.memAvailMB || 0
+    property int diskUsed:  si.diskUsedMB || 0
+    property int diskTotal: si.diskTotalMB || 1
+    property int diskAvail: si.diskAvailMB || 0
 
     property bool cpuIsOpen:  false
     property bool memIsOpen:  false
@@ -37,44 +40,6 @@ Capsule {
     Timer { id: memCloseTimer;  interval: 250; onTriggered: root.memIsOpen  = false }
     Timer { id: diskCloseTimer; interval: 250; onTriggered: root.diskIsOpen = false }
     Timer { id: tempCloseTimer; interval: 250; onTriggered: root.tempIsOpen = false }
-
-    Process {
-        id: sysProcess
-        command: [Qt.resolvedUrl("../scripts/sys_info.sh").toString().replace("file://", "")]
-        running: expanded
-        stdout: SplitParser {
-            onRead: data => {
-                const parts = data.trim().split(";")
-                if (parts.length < 6) return
-                root.cpuModel = parts[0]
-                root.cpu      = parts[1] + "%"
-                root.mem      = parts[2] + "%"
-                root.disk     = parts[3] + "%"
-                root.temp     = parts[4] + "°"
-                root.tempValue = parseInt(parts[4]) || 0
-
-                const coresStr = parts[5].trim().split(" ")
-                const coresList = []
-                for (let i = 0; i < coresStr.length; i++) {
-                    const cParts = coresStr[i].split(":")
-                    coresList.push({
-                        index: i,
-                        pct: parseInt(cParts[0]) || 0,
-                        freq: parseInt(cParts[1]) || 0
-                    })
-                }
-                root.cpuCores = coresList
-
-                root.memUsed  = parseInt(parts[6])  || 0
-                root.memTotal = parseInt(parts[7])  || 1
-                root.memBuff  = parseInt(parts[8])  || 0
-                root.memAvail = parseInt(parts[9])  || 0
-                root.diskUsed  = parseInt(parts[10]) || 0
-                root.diskTotal = parseInt(parts[11]) || 1
-                root.diskAvail = parseInt(parts[12]) || 0
-            }
-        }
-    }
 
     TapHandler {
         onTapped: root.expanded = !root.expanded
