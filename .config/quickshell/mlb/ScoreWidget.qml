@@ -66,6 +66,7 @@ PanelWindow {
         radius: Theme.radius_sm
         color: Qt.rgba(0, 0, 0, 0.4)
         border.color: root.gameClass === "mlb-live" ? Theme.connected
+                    : root.gameClass === "mlb-delay" ? Theme.warning
                     : root.gameClass === "mlb-final" ? Theme.secondary
                     : Theme.outline
         border.width: 1

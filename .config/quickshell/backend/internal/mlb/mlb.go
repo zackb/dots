@@ -51,7 +51,7 @@ type Team struct {
 // when there's nothing worth showing, which the widget treats as "hide me".
 type State struct {
 	Active  bool   `json:"active"`
-	Class   string `json:"class"` // mlb-live | mlb-final | mlb-pre | mlb-idle | mlb-error
+	Class   string `json:"class"` // mlb-live | mlb-delay | mlb-final | mlb-pre | mlb-idle | mlb-error
 	Status  string `json:"status"`
 	Tooltip string `json:"tooltip"`
 	Home    Team   `json:"home"`
@@ -134,6 +134,7 @@ type apiGame struct {
 	Status   struct {
 		CodedGameState string `json:"codedGameState"`
 		DetailedState  string `json:"detailedState"`
+		Reason         string `json:"reason"` // e.g. "Rain" during a delay/suspension
 	} `json:"status"`
 	Teams struct {
 		Home apiSide `json:"home"`
@@ -220,7 +221,35 @@ func phaseOf(code string) phase {
 	}
 }
 
+// delayed reports whether the game is paused (rain delay, suspended start, etc).
+// A delay can strike before or during a game and isn't reliably encoded in the
+// single-letter codedGameState, so key off the human-readable detailedState.
+func delayed(g apiGame) bool {
+	s := strings.ToLower(g.Status.DetailedState)
+	return strings.Contains(s, "delay") || strings.Contains(s, "suspended")
+}
+
+// delayStatus is the compact badge shown while a game is delayed, e.g.
+// "⏸ Rain Delay". Falls back to a bare "⏸ Delayed" when no reason is given.
+func delayStatus(g apiGame) string {
+	reason := strings.TrimSpace(g.Status.Reason)
+	if reason == "" {
+		// detailedState often carries the cause after a colon, e.g.
+		// "Delayed: Rain" or "Delayed Start: Rain".
+		if i := strings.LastIndex(g.Status.DetailedState, ":"); i >= 0 {
+			reason = strings.TrimSpace(g.Status.DetailedState[i+1:])
+		}
+	}
+	if reason == "" {
+		return "⏸ Delayed"
+	}
+	return fmt.Sprintf("⏸ %s Delay", reason)
+}
+
 func rank(g apiGame) int {
+	if delayed(g) {
+		return 0 // a delay is as worth showing as a live game
+	}
 	switch phaseOf(g.Status.CodedGameState) {
 	case live:
 		return 0
@@ -242,6 +271,14 @@ func (s *Service) format(g apiGame, now time.Time) (State, time.Duration) {
 		Away:   away,
 		Tooltip: fmt.Sprintf("%s vs %s\nScore: %d – %d\nStatus: %s",
 			home.Name, away.Name, home.Score, away.Score, g.Status.DetailedState),
+	}
+
+	// A delay overrides the normal pre/live/final phase: keep showing the
+	// running score but flag the stoppage and poll often for the resume.
+	if delayed(g) {
+		st.Class = "mlb-delay"
+		st.Status = delayStatus(g)
+		return st, livePoll
 	}
 
 	var next time.Duration
