@@ -3,7 +3,7 @@ hyprlock
 hypridle
 hyprpaper
 hyprshot
-hyprpolkitagent
+# hyprpolkitagent
 waybar
 rofi
 fuzzel
