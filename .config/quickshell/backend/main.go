@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"fenriz/internal/log"
+	"fenriz/internal/mlb"
 	"fenriz/internal/proto"
 	"fenriz/internal/screensaver"
 	"fenriz/internal/service"
@@ -37,6 +38,7 @@ func main() {
 
 	services := []service.Service{
 		screensaver.New(),
+		mlb.New(),
 	}
 
 	commanders := map[string]service.Commander{}

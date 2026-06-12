@@ -18,6 +18,9 @@ Singleton {
     readonly property var  screensaverInhibitors: _screensaver.inhibitors || []
     property var _screensaver: ({ inhibited: false, count: 0, inhibitors: [] })
 
+    // mlb scoreboard for the configured team's game today
+    property var mlbState: ({ active: false, class: "mlb-idle" })
+
     // generic hook for event-driven consumers
     signal serviceEvent(string service, var data)
 
@@ -37,6 +40,8 @@ Singleton {
                     return
                 if (msg.service === "screensaver")
                     root._screensaver = msg.data
+                else if (msg.service === "mlb")
+                    root.mlbState = msg.data
                 root.serviceEvent(msg.service, msg.data)
             }
         }
@@ -45,6 +50,7 @@ Singleton {
         // inhibiting (that would wedge idle off). Reset, then relaunch shortly.
         onExited: (code, status) => {
             root._screensaver = ({ inhibited: false, count: 0, inhibitors: [] })
+            root.mlbState = ({ active: false, class: "mlb-idle" })
             relaunch.start()
         }
     }
