@@ -1,13 +1,15 @@
 import Quickshell
-import Quickshell.Io
 import QtQuick
+import qs.backend
 import "../"
 
 Capsule {
     id: root
 
-    property int brightness:    0
-    property int maxBrightness: 255
+    // brightness comes from the fenrizd backlight service
+    // writing brightness is brightnessctl spawn in the WheelHandler below.
+    property int brightness:    Backend.backlight.brightness
+    property int maxBrightness: Backend.backlight.max
 
     property real percent: maxBrightness > 0 ? brightness / maxBrightness : 0
 
@@ -18,32 +20,6 @@ Capsule {
         if (percent < 0.66) return "󰃟"
         return                     "󰃠"
     }
-
-    Process {
-        id: brightnessProcess
-        command: ["bash", "-c", `
-            max=$(cat /sys/class/backlight/amdgpu_bl1/max_brightness)
-            echo "max:$max"
-            cat /sys/class/backlight/amdgpu_bl1/brightness
-            while inotifywait -q -e modify /sys/class/backlight/amdgpu_bl1/brightness 2>/dev/null; do
-                cat /sys/class/backlight/amdgpu_bl1/brightness
-            done
-        `]
-        stdout: SplitParser {
-            onRead: data => {
-                if (data.startsWith("max:")) {
-                    root.maxBrightness = parseInt(data.slice(4))
-                } else {
-                    root.brightness = parseInt(data)
-                }
-            }
-        }
-        stderr: SplitParser {
-            onRead: data => console.log("backlight stderr:", data)
-        }
-    }
-
-    Component.onCompleted: brightnessProcess.running = true
 
     contentItem: Row {
         id:               row

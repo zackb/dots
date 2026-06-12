@@ -16,6 +16,7 @@ import (
 	"syscall"
 	"time"
 
+	"fenriz/internal/backlight"
 	"fenriz/internal/log"
 	"fenriz/internal/mlb"
 	"fenriz/internal/network"
@@ -43,6 +44,7 @@ func main() {
 		mlb.New(),
 		network.New(),
 		sysinfo.New(),
+		backlight.New(),
 	}
 
 	commanders := map[string]service.Commander{}

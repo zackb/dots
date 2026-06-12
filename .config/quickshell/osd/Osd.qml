@@ -3,6 +3,7 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Services.Pipewire
 import QtQuick
+import qs.backend
 import "../"
 
 Item {
@@ -12,29 +13,10 @@ Item {
     PwObjectTracker { objects: [Pipewire.defaultAudioSink] }
     property PwNode sink: Pipewire.defaultAudioSink
 
-    // Brightness
-    property int  brightness:    0
-    property int  maxBrightness: 255
+    // Brightness — from the fenrizd backlight service (single shared inotify watch)
+    property int  brightness:    Backend.backlight.brightness
+    property int  maxBrightness: Backend.backlight.max
     property real brightnessPercent: maxBrightness > 0 ? brightness / maxBrightness : 0
-
-    Process {
-        id: brightWatcher
-        running: true
-        command: ["bash", "-c", `
-            max=$(cat /sys/class/backlight/amdgpu_bl1/max_brightness)
-            echo "max:$max"
-            cat /sys/class/backlight/amdgpu_bl1/brightness
-            while inotifywait -q -e modify /sys/class/backlight/amdgpu_bl1/brightness 2>/dev/null; do
-                cat /sys/class/backlight/amdgpu_bl1/brightness
-            done
-        `]
-        stdout: SplitParser {
-            onRead: data => {
-                if (data.startsWith("max:")) osdRoot.maxBrightness = parseInt(data.slice(4))
-                else osdRoot.brightness = parseInt(data)
-            }
-        }
-    }
 
     // OSD state
     property string osdMode:    "volume"   // "volume" | "brightness"

@@ -24,6 +24,9 @@ Singleton {
     // primary network connection (NetworkManager)
     property var networkState: ({ type: "none", ssid: "", signal: 0, iface: "" })
 
+    // screen brightness (sysfs backlight)
+    property var backlight: ({ brightness: 0, max: 1 })
+
     // cpu / memory / disk / temperature
     property var sysinfo: ({
         cpuModel: "", overallCpu: 0, memPercent: 0, diskPercent: 0, tempC: 0,
@@ -56,6 +59,8 @@ Singleton {
                     root.networkState = msg.data
                 else if (msg.service === "sysinfo")
                     root.sysinfo = msg.data
+                else if (msg.service === "backlight")
+                    root.backlight = msg.data
                 root.serviceEvent(msg.service, msg.data)
             }
         }
