@@ -72,7 +72,7 @@ Singleton {
         fingerprintCtx.abort()
         fpRestart.stop()
         dpmsTimer.stop()
-        dpmsOn()
+        _dpmsForceOn()
         root._pendingPassword = ""
         root.busy = false
 
@@ -208,6 +208,12 @@ Singleton {
 
     // DPMS (screen power). No native API
     function dpmsOff() {
+        // Never blank an unlocked session. The blank timer only exists to power
+        // screens off *while locked*; if we are not locked (e.g. a stray timer
+        // left over from a reload race re-engaging on stale persisted state),
+        // blanking would be unrecoverable -- the wake IdleMonitor is gated on
+        // `locked`, so nothing would turn the screen back on. See _disengageLock.
+        if (!root.locked) return
         if (root._dpmsBlanked) return
         root._dpmsBlanked = true
         // Quickshell.execDetached(["hyprctl", "dispatch", "dpms", "off"])
@@ -219,6 +225,14 @@ Singleton {
     }
     function dpmsOn() {
         if (!root._dpmsBlanked) return
+        _dpmsForceOn()
+    }
+    // Force screens on regardless of our cached _dpmsBlanked belief. Used at
+    // startup/reload, on resume, and on unlock -- points where the hardware
+    // DPMS state may not match ours (a reload resets _dpmsBlanked to false
+    // while the screen is physically still off), so the guarded dpmsOn() would
+    // wrongly short-circuit and leave the session bricked.
+    function _dpmsForceOn() {
         root._dpmsBlanked = false
         // Quickshell.execDetached(["hyprctl", "dispatch", "dpms", "on"])
         Quickshell.execDetached([
@@ -268,6 +282,13 @@ Singleton {
                     root.engageLock()
                 else if (line.includes("PrepareForSleep") && line.includes("true"))
                     root.engageLock()
+                else if (line.includes("PrepareForSleep") && line.includes("false")) {
+                    // resume from suspend: wake the screens (replaces hypridle's
+                    // after_sleep_cmd) and, if still locked, restart the blank
+                    // countdown rather than leaving them off.
+                    root._dpmsForceOn()
+                    if (root.locked) dpmsTimer.restart()
+                }
             }
         }
     }
@@ -278,7 +299,11 @@ Singleton {
     // enough to re-engage the lock (so you can still authenticate) and to undo
     // a dim that was active when the reload happened.
     readonly property string _stateFile: "lockstate.json"
-    Component.onCompleted: root._restoreState()
+    // Always wake the screens when this singleton (re)starts. A reload resets
+    // _dpmsBlanked to false while the hardware may still be DPMS-off (e.g. the
+    // lid-open path triggers `qs ipc call shell reload`), so force them on first
+    // -- otherwise the stale guard would leave the session bricked.
+    Component.onCompleted: { root._dpmsForceOn(); root._restoreState() }
 
     function _persist() {
         Store.writeJson(root._stateFile, {

@@ -31,9 +31,20 @@ local function enable_internal()
 	hl.monitor({ output = INTERNAL, disabled = false, mode = "preferred", position = "auto", scale = 2.0 })
 end
 
--- After the monitor set changes, outpus are repositioned/rescaled
+-- After the monitor set changes, outputs are repositioned/rescaled, so reload
+-- the shell. A single resume fires several monitor events (removed at suspend,
+-- added at resume) and the lid handlers can pile on too, so debounce: each call
+-- bumps a generation token and, after a short settle delay, only the latest
+-- call actually reloads. One reload per burst instead of two or three.
+local reload_gen = 0
 local function reload_shell()
-	hl.exec_cmd("bash -c 'sleep 1 && qs ipc call shell reload'")
+	reload_gen = reload_gen + 1
+	local gen = reload_gen
+	hl.exec_cmd(string.format(
+		"bash -c 'echo %d > /tmp/fenriz-reload-gen; sleep 1; "
+		.. "[ \"$(cat /tmp/fenriz-reload-gen 2>/dev/null)\" = \"%d\" ] "
+		.. "&& qs ipc call shell reload'",
+		gen, gen))
 end
 
 local function sync()

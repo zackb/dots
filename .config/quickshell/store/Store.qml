@@ -72,10 +72,16 @@ Singleton {
     }
 
     // Shared write handle. atomicWrites guards against a half-written file on a
-    // crash mid-write.
+    // crash mid-write. blockWrites makes setText() flush synchronously (the
+    // write-side analog of blockLoading) so a writeJson() is durable the moment
+    // it returns -- otherwise a follow-up readJson() in another singleton can
+    // race the queued write and read stale state. This bit the lock module: a
+    // resume-time shell reload re-read stale `locked:true` after an unlock and
+    // silently re-engaged the lock. See lock/LockState.qml.
     FileView {
         id: _writer
         blockLoading: true
+        blockWrites: true
         atomicWrites: true
         printErrors: false
     }
