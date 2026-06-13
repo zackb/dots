@@ -25,10 +25,9 @@ Singleton {
     property var pinnedApps: [
         { id: "zen-browser", icon: "zen-browser" },
         "com.mitchellh.ghostty",
-        "org.gnome.Nautilus",
-        "code",
-        "spotify",
-        "discord",
+        "thunar",
+        "gimp",
+        "cider",
     ]
 
     // launching

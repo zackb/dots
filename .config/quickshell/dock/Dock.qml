@@ -61,8 +61,14 @@ PanelWindow {
         right:  root.position === "right"
     }
 
-    implicitWidth:  isHorizontal ? dock.implicitWidth  : dock.implicitWidth  + gap
-    implicitHeight: isHorizontal ? dock.implicitHeight + gap : dock.implicitHeight
+    // Transparent headroom around the dock so name tooltips can render outside
+    readonly property int tipBand:  40    // above the dock (bottom layout)
+    readonly property int tipSpace: 220   // beside the dock (for tooltips)
+
+    implicitWidth:  isHorizontal ? dock.implicitWidth + tipSpace * 2
+                                 : dock.implicitWidth + gap + tipSpace
+    implicitHeight: isHorizontal ? dock.implicitHeight + gap + tipBand
+                                 : dock.implicitHeight
 
     // Only the visible dock area grabs input; the rest of the band (and the dock
     // while hidden, save the peek strip) passes clicks through to the desktop.

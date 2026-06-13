@@ -52,17 +52,25 @@ Item {
         }
     }
 
-    // Name tooltip on hover
+    // Name tooltip on hover. Sits on the screen-interior side of the dock so it
+    // never runs off the screen edge: above for a bottom dock, to the right for
+    // a left dock, to the left for a right dock.
     Rectangle {
         id: tip
         visible: opacity > 0
         opacity: mouse.containsMouse && root.entry ? 1 : 0
         Behavior on opacity { NumberAnimation { duration: 120 } }
 
-        // place opposite the launch direction is unnecessary; sit above the icon
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.top
+        readonly property string pos: DockState.position
+
+        anchors.horizontalCenter: pos === "bottom" ? parent.horizontalCenter : undefined
+        anchors.verticalCenter:   pos === "bottom" ? undefined : parent.verticalCenter
+        anchors.bottom:      pos === "bottom" ? parent.top   : undefined
+        anchors.left:        pos === "left"   ? parent.right : undefined
+        anchors.right:       pos === "right"  ? parent.left  : undefined
         anchors.bottomMargin: 6
+        anchors.leftMargin:   6
+        anchors.rightMargin:  6
 
         width:  tipText.implicitWidth + 16
         height: tipText.implicitHeight + 8
