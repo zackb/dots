@@ -19,9 +19,11 @@ Singleton {
     property string position: "bottom"
     readonly property var positions: ["bottom", "left", "right"]
 
-    // Apps to show, DesktopEntry id (the .desktop basename, see DesktopEntries.heuristicLookup
+    // Apps to show, DesktopEntry id (the .desktop basename, see DesktopEntries.heuristicLookup)
+    // Each entry is a DesktopEntry id string, or { id, icon } to override the
+    // icon when the app's own icon is ugly.
     property var pinnedApps: [
-        "zen-browser",
+        { id: "zen-browser", icon: "zen-browser" },
         "com.mitchellh.ghostty",
         "org.gnome.Nautilus",
         "code",

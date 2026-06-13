@@ -19,13 +19,20 @@ PanelWindow {
     readonly property bool isHorizontal: position === "bottom"
 
     // Resolve pinned ids -> DesktopEntries, dropping any that don't exist.
+    // Touch DesktopEntries.applications so this re-resolves once the app
+    // database finishes loading.
+    // Each pinnedApps item is either an id string, or { id, icon } to override icon
     readonly property var apps: {
+        const _ = DesktopEntries.applications.values.length
         var out = []
-        const ids = DockState.pinnedApps || []
-        for (var i = 0; i < ids.length; i++) {
-            const e = DesktopEntries.heuristicLookup(ids[i])
+        const items = DockState.pinnedApps || []
+        for (var i = 0; i < items.length; i++) {
+            const it = items[i]
+            const id = (typeof it === "string") ? it : it.id
+            const e = DesktopEntries.heuristicLookup(id)
             if (e)
-                out.push({ id: ids[i], entry: e })
+                out.push({ id: id, entry: e,
+                           icon: (typeof it === "object" && it.icon) ? it.icon : "" })
         }
         return out
     }
@@ -69,10 +76,9 @@ PanelWindow {
         implicitWidth:  content.implicitWidth  + root.innerPad * 2
         implicitHeight: content.implicitHeight + root.innerPad * 2
 
-        radius: Theme.radius
+        radius: Math.min(implicitWidth, implicitHeight) / 2
         color: Qt.alpha(Theme.surface, 0.55)
-        border.color: Theme.popupBorder
-        border.width: 1
+        antialiasing: true
 
         // how far to slide off-screen when hidden (leaving `peek`)
         readonly property real hideOffset:
@@ -117,6 +123,7 @@ PanelWindow {
                     required property var modelData
                     appId: modelData.id
                     entry: modelData.entry
+                    iconOverride: modelData.icon
                 }
             }
         }
@@ -133,6 +140,7 @@ PanelWindow {
                     required property var modelData
                     appId: modelData.id
                     entry: modelData.entry
+                    iconOverride: modelData.icon
                 }
             }
         }

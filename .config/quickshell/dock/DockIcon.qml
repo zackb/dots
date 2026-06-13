@@ -11,6 +11,8 @@ Item {
     property string appId: ""
     // resolved to a DesktopEntry
     property var entry: null
+    // optional icon override. falls back to the DesktopEntry's own icon when empty
+    property string iconOverride: ""
 
     property int iconSize: 44
 
@@ -20,7 +22,7 @@ Item {
     Rectangle {
         id: bg
         anchors.fill: parent
-        radius: Theme.radius_sm
+        radius: height / 2
         color: mouse.containsMouse ? Theme.surface_container_highest : "transparent"
 
         scale: mouse.pressed ? 0.92 : (mouse.containsMouse ? 1.06 : 1.0)
@@ -34,7 +36,9 @@ Item {
             height: root.iconSize
 
             source: {
-                const ic = root.entry ? root.entry.icon : ""
+                const ic = root.iconOverride !== ""
+                    ? root.iconOverride
+                    : (root.entry ? root.entry.icon : "")
                 if (!ic || ic === "")
                     return "image://icon/application-x-executable"
                 if (ic.startsWith("/"))
