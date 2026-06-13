@@ -56,6 +56,10 @@ brightnessctl
 terminus-font
 greetd
 greetd-tuigreet
+pipewire-alsa
+pipewire-audio
+pipewire-pulseaudio
+libcamera
 # Thunderbird Theme: https://github.com/catppuccin/thunderbird.git
 # Font: Cantarell
 # gsettings set org.gnome.desktop.wm.preferences button-layout : 
