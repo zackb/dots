@@ -246,6 +246,12 @@ PanelWindow {
                     radius: 28
                     focus: true
 
+                    // calc result card is showing
+                    readonly property bool calcVisible: ctrl.calcActive && ctrl.calcResult !== ""
+                    // calc card is the current Enter target (vs. the app list)
+                    property bool calcFocused: false
+                    readonly property bool calcSelected: calcVisible && calcFocused
+
                     layer.enabled: true
                     layer.smooth: true
                     layer.effect: MultiEffect {
@@ -316,13 +322,24 @@ PanelWindow {
                             searchField.forceActiveFocus();
                             event.accepted = true;
                         } else if (event.key === Qt.Key_J || event.key === Qt.Key_Down) {
-                            listView.incrementCurrentIndex();
+                            if (mainUi.calcSelected) {
+                                mainUi.calcFocused = false;
+                                listView.currentIndex = 0;
+                            } else {
+                                listView.incrementCurrentIndex();
+                            }
                             event.accepted = true;
                         } else if (event.key === Qt.Key_K || event.key === Qt.Key_Up) {
-                            listView.decrementCurrentIndex();
+                            if (mainUi.calcVisible && listView.currentIndex <= 0) {
+                                mainUi.calcFocused = true;
+                            } else {
+                                listView.decrementCurrentIndex();
+                            }
                             event.accepted = true;
                         } else if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
-                            if (listView.currentItem)
+                            if (mainUi.calcSelected)
+                                ctrl.copyCalcResult();
+                            else if (listView.currentItem)
                                 listView.currentItem.launch();
                             event.accepted = true;
                         }
@@ -396,6 +413,8 @@ PanelWindow {
                             onTextChanged: {
                                 ctrl.searchText = text;
                                 listView.currentIndex = 0;
+                                // a new calc query re-arms the calc card as the Enter target
+                                mainUi.calcFocused = mainUi.calcVisible;
                             }
 
                             Keys.onPressed: event => {
@@ -403,15 +422,144 @@ PanelWindow {
                                     mainUi.forceActiveFocus();
                                     event.accepted = true;
                                 } else if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
-                                    if (listView.currentItem)
+                                    if (mainUi.calcSelected)
+                                        ctrl.copyCalcResult();
+                                    else if (listView.currentItem)
                                         listView.currentItem.launch();
                                     event.accepted = true;
                                 } else if (event.key === Qt.Key_Down || (event.key === Qt.Key_J && (event.modifiers & Qt.ControlModifier))) {
-                                    listView.incrementCurrentIndex();
+                                    if (mainUi.calcSelected) {
+                                        mainUi.calcFocused = false;
+                                        listView.currentIndex = 0;
+                                    } else {
+                                        listView.incrementCurrentIndex();
+                                    }
                                     event.accepted = true;
                                 } else if (event.key === Qt.Key_Up || (event.key === Qt.Key_K && (event.modifiers & Qt.ControlModifier))) {
-                                    listView.decrementCurrentIndex();
+                                    if (mainUi.calcVisible && listView.currentIndex <= 0) {
+                                        mainUi.calcFocused = true;
+                                    } else {
+                                        listView.decrementCurrentIndex();
+                                    }
                                     event.accepted = true;
+                                }
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        id: calcCard
+                        visible: mainUi.calcVisible
+                        height: 64
+                        anchors.top: searchArea.bottom
+                        anchors.topMargin: 16
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.leftMargin: 32
+                        anchors.rightMargin: 32
+
+                        radius: 16
+                        color: Qt.tint(Theme.surface_container_highest, Qt.alpha(Theme.primary, 0.10))
+                        border.width: mainUi.calcSelected ? 2 : 1
+                        border.color: mainUi.calcSelected ? Theme.primary : Qt.alpha(Theme.outline, 0.35)
+                        Behavior on border.color {
+                            ColorAnimation {
+                                duration: 150
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onEntered: mainUi.calcFocused = true
+                            onClicked: ctrl.copyCalcResult()
+                        }
+
+                        Text {
+                            id: calcIcon
+                            anchors.left: parent.left
+                            anchors.leftMargin: 20
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: "calculate"
+                            font {
+                                family: Theme.ligatureFont
+                                pixelSize: 28
+                            }
+                            color: mainUi.calcSelected ? Theme.primary : Theme.on_surface_variant
+                            Behavior on color {
+                                ColorAnimation {
+                                    duration: 150
+                                }
+                            }
+                        }
+
+                        Text {
+                            anchors.left: calcIcon.right
+                            anchors.right: copyPill.left
+                            anchors.leftMargin: 16
+                            anchors.rightMargin: 16
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: ctrl.calcExpression + " = " + ctrl.calcResult
+                            color: Theme.on_surface
+                            elide: Text.ElideLeft
+                            font {
+                                family: Theme.font
+                                pixelSize: 20
+                                weight: Font.DemiBold
+                            }
+                        }
+
+                        Rectangle {
+                            id: copyPill
+                            anchors.right: parent.right
+                            anchors.rightMargin: 16
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 86
+                            height: 32
+                            radius: 16
+                            color: Theme.primary
+                            opacity: mainUi.calcSelected ? 1.0 : 0.0
+                            scale: mainUi.calcSelected ? 1.0 : 0.8
+
+                            Behavior on opacity {
+                                NumberAnimation {
+                                    duration: 100
+                                }
+                            }
+                            Behavior on scale {
+                                NumberAnimation {
+                                    duration: 100
+                                    easing.type: Easing.OutBack
+                                }
+                            }
+
+                            Row {
+                                anchors.centerIn: parent
+                                spacing: 6
+
+                                Text {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    topPadding: 2
+                                    verticalAlignment: Text.AlignVCenter
+                                    text: "Copy"
+                                    color: Theme.on_primary
+                                    font {
+                                        family: "Google Sans Medium"
+                                        pixelSize: 13
+                                    }
+                                }
+
+                                Text {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    topPadding: 2
+                                    verticalAlignment: Text.AlignVCenter
+                                    text: "content_copy"
+                                    color: Theme.on_primary
+                                    font {
+                                        family: Theme.ligatureFont
+                                        pixelSize: 16
+                                    }
                                 }
                             }
                         }
@@ -419,7 +567,7 @@ PanelWindow {
 
                     Item {
                         id: listContainer
-                        anchors.top: searchArea.bottom
+                        anchors.top: mainUi.calcVisible ? calcCard.bottom : searchArea.bottom
                         anchors.topMargin: 16
                         anchors.bottom: footer.top
                         anchors.left: parent.left

@@ -14,6 +14,62 @@ Item {
 
     property string myTerminal: "ghostty"
 
+    // Inline calculator (libqalculate). calcExpression is what we send to qalc;
+    // calcResult is its terse output. calcActive gates the UI card.
+    property string calcExpression: ""
+    property string calcResult: ""
+    readonly property bool calcActive: calcExpression !== ""
+
+    // Returns the expression to evaluate, or "" if the query isn't a calculation.
+    // A leading "=" forces calc mode (units, functions, conversions); otherwise we
+    // auto-detect plain arithmetic (a digit AND an operator). qalc happily evaluates
+    // non-math input, so this gate must decide before we ever run it.
+    function calcQueryOf(text) {
+        const t = text.trim();
+        if (t.startsWith("="))
+            return t.slice(1).trim();
+        if (/[0-9]/.test(t) && /[+\-*/^%]/.test(t))
+            return t;
+        return "";
+    }
+
+    onSearchTextChanged: {
+        const expr = calcQueryOf(backend.searchText);
+        backend.calcExpression = expr;
+        if (expr === "") {
+            backend.calcResult = "";
+            calcProc.running = false;
+        } else {
+            // restart the process so the new expression is evaluated
+            calcProc.running = false;
+            calcProc.running = true;
+        }
+    }
+
+    Process {
+        id: calcProc
+        running: false
+        command: ["qalc", "-t", backend.calcExpression]
+
+        stdout: SplitParser {
+            onRead: data => {
+                const r = data.trim();
+                if (r !== "")
+                    backend.calcResult = r;
+            }
+        }
+        stderr: SplitParser {
+            onRead: data => console.log("qalc stderr:", data)
+        }
+    }
+
+    function copyCalcResult() {
+        if (backend.calcResult === "")
+            return;
+        Quickshell.execDetached(["wl-copy", "--", backend.calcResult]);
+        backend.closeMenuRequested();
+    }
+
     // Per-desktop-entry usage for frecency ranking.
     // { "<DesktopEntry.id>": { count: N, last: <epochMs> } }
     property var usage: ({})
