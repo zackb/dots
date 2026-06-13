@@ -33,9 +33,10 @@ const (
 	logoURL     = "https://www.mlbstatic.com/team-logos/%d.svg"
 	userAgent   = "Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0"
 
-	livePoll  = 2 * time.Minute  // refresh cadence while a game is in progress
-	preBuffer = 10 * time.Minute // wake this long before a scheduled first pitch
-	errRetry  = 5 * time.Minute  // back off this long after a fetch failure
+	livePoll    = 2 * time.Minute  // refresh cadence while a game is in progress
+	preBuffer   = 10 * time.Minute // wake this long before a scheduled first pitch
+	errRetryMin = 5 * time.Second  // first retry after a fetch failure
+	errRetryMax = 5 * time.Minute  // backoff cap for sustained outages
 )
 
 // Team is one club's line in the scoreboard. Logo is a local file path (or empty if
@@ -54,6 +55,7 @@ type State struct {
 	Class   string `json:"class"` // mlb-live | mlb-delay | mlb-final | mlb-pre | mlb-idle | mlb-error
 	Status  string `json:"status"`
 	Tooltip string `json:"tooltip"`
+	Stale   bool   `json:"stale"` // last-known data re-shown during a fetch outage
 	Home    Team   `json:"home"`
 	Away    Team   `json:"away"`
 }
@@ -63,6 +65,7 @@ type Service struct {
 	logoDir string
 	client  *http.Client
 	emit    service.Emitter
+	last    State // last good (active) state, replayed across transient outages
 }
 
 func New() *Service {
@@ -90,9 +93,29 @@ func (s *Service) Start(ctx context.Context, emit service.Emitter) error {
 }
 
 // run polls, emits, then sleeps for a state-dependent interval until ctx ends.
+// Fetch failures retry on an exponential backoff (errRetryMin..errRetryMax) so
+// the widget recovers within seconds of the network returning, and the last
+// good scoreboard is replayed (flagged stale) so a transient blip doesn't blank
+// a live game.
 func (s *Service) run(ctx context.Context) {
+	var fails int
 	for {
-		st, next := s.poll(ctx)
+		st, next, err := s.poll(ctx)
+		if err != nil {
+			fails++
+			next = backoff(fails)
+			// Only surface the bare error state when we have nothing good to
+			// fall back to (e.g. boot before the network is up), where the
+			// widget stays hidden anyway. Otherwise keep the last game on
+			// screen, just dimmed as stale.
+			if s.last.Active {
+				st = s.last
+				st.Stale = true
+			}
+		} else {
+			fails = 0
+			s.last = st
+		}
 		s.emit(st)
 		select {
 		case <-ctx.Done():
@@ -102,12 +125,12 @@ func (s *Service) run(ctx context.Context) {
 	}
 }
 
-func (s *Service) poll(ctx context.Context) (State, time.Duration) {
+func (s *Service) poll(ctx context.Context) (State, time.Duration, error) {
 	now := time.Now()
 	games, err := s.fetch(ctx, fmt.Sprintf(scheduleURL, now.Format("2006-01-02")))
 	if err != nil {
 		log.Warnf("mlb: fetch: %v", err)
-		return State{Active: false, Class: "mlb-error", Tooltip: err.Error()}, errRetry
+		return State{Active: false, Class: "mlb-error", Tooltip: err.Error()}, 0, err
 	}
 
 	game, ok := s.pick(games)
@@ -116,9 +139,23 @@ func (s *Service) poll(ctx context.Context) (State, time.Duration) {
 			Active:  false,
 			Class:   "mlb-idle",
 			Tooltip: fmt.Sprintf("No %s game today", s.team),
-		}, untilNextMorning(now)
+		}, untilNextMorning(now), nil
 	}
-	return s.format(game, now)
+	st, next := s.format(game, now)
+	return st, next, nil
+}
+
+// backoff returns the sleep before the next retry after fails consecutive fetch
+// failures: errRetryMin doubled each time, capped at errRetryMax.
+func backoff(fails int) time.Duration {
+	d := errRetryMin
+	for i := 1; i < fails && d < errRetryMax; i++ {
+		d *= 2
+	}
+	if d > errRetryMax {
+		d = errRetryMax
+	}
+	return d
 }
 
 // MLB Stats API

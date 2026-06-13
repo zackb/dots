@@ -65,6 +65,8 @@ PanelWindow {
         anchors.fill: parent
         radius: Theme.radius_sm
         color: Qt.rgba(0, 0, 0, 0.4)
+        // dim when showing a stale (last-known) score during a network outage
+        opacity: root.state.stale === true ? 0.5 : 1.0
         border.color: root.gameClass === "mlb-live" ? Theme.connected
                     : root.gameClass === "mlb-delay" ? Theme.warning
                     : root.gameClass === "mlb-final" ? Theme.secondary
