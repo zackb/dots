@@ -9,6 +9,8 @@ Capsule {
 
     property var toplevel: Hyprland.activeToplevel
     property var workspace: Hyprland.focusedWorkspace
+    property real maxWidth: 220                                         // set by Bar.qml budget
+    readonly property real naturalTextWidth: windowTitle.naturalWidth   // unconstrained title width
 
     visible: toplevel != null && toplevel.workspace == workspace
 
@@ -37,14 +39,15 @@ Capsule {
             height: 16
         }
 
-        Text {
+        Marquee {
             id: windowTitle
-            property string title: Hyprland.activeToplevel?.title ?? ""
             anchors.verticalCenter: parent.verticalCenter
-            text:           title.length > 40 ? title.slice(0, 40) + "…" : title
-            color:          Theme.textColor
-            font.pixelSize: Theme.fontSize
-            font.family:    Theme.font
+            maxWidth:      root.maxWidth
+            hovered:       root.hovered
+            text:          Hyprland.activeToplevel?.title ?? ""
+            color:         Theme.textColor
+            fontFamily:    Theme.font
+            fontPixelSize: Theme.fontSize
         }
     }
 }

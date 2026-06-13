@@ -35,25 +35,53 @@ PanelWindow {
     }
 
     Rectangle {
+        id:           barBody
         anchors.fill: parent
         color:        Qt.rgba(0.0, 0.0, 0.0, 0.0)
 
-        // ── Left ──────────────────────────────────────────────────────
+        // Left section may grow up to clockGap before the centered Clock; title
+        // and song share the leftover, Workspaces always stays full.
+        readonly property int  leftStart: 8     // = leftSection.leftMargin
+        readonly property int  clockGap:  12
+        readonly property int  capsuleOverhead:    46  // icon + spacing + padding, per capsule
+        readonly property int  sepSpacingOverhead: 18  // separators + Row spacings
+
+        readonly property real maxLeftWidth:  centerSection.x - leftStart - clockGap
+        readonly property real capsuleBudget: maxLeftWidth - workspaces.width - sepSpacingOverhead
+        readonly property int  visibleFlex:   (activeWindow.visible ? 1 : 0)
+                                            + (nowPlaying.visible   ? 1 : 0)
+        readonly property real textTotal: capsuleBudget - capsuleOverhead * visibleFlex
+        readonly property real titleNat:  activeWindow.visible ? activeWindow.naturalTextWidth : 0
+        readonly property real songNat:   nowPlaying.visible   ? nowPlaying.naturalTextWidth   : 0
+
+        // Shorter widget keeps full width, longer takes the slack, even half when both overflow.
+        function flexShare(selfNat, otherNat) {
+            if (selfNat + otherNat <= textTotal) return selfNat
+            const half = textTotal / 2
+            if (otherNat <= half) return textTotal - otherNat
+            if (selfNat  <= half) return selfNat
+            return half
+        }
+        readonly property real titleMax: Math.max(0, flexShare(titleNat, songNat))
+        readonly property real songMax:  Math.max(0, flexShare(songNat, titleNat))
+
+        // Left
         Row {
             id:               leftSection
             anchors {
                 left:           parent.left
                 verticalCenter: parent.verticalCenter
-                leftMargin:     8
+                leftMargin:     barBody.leftStart
             }
             spacing: 4
 
-            Workspaces {}
+            Workspaces { id: workspaces }
             BarSeparator {
                 visible: activeWindow.visible
             }
             ActiveWindow {
                 id: activeWindow
+                maxWidth: barBody.titleMax
             }
             BarSeparator {
                 visible: nowPlaying.visible
@@ -61,18 +89,20 @@ PanelWindow {
             Mpris {
                 id: nowPlaying
                 barWindow: root
+                maxWidth:  barBody.songMax
             }
         }
 
-        // ── Center ────────────────────────────────────────────────────
+        // Center
         Row {
+            id: centerSection
             anchors.centerIn: parent
             spacing: 8
 
             Clock { barWindow: root }
         }
 
-        // ── Right ─────────────────────────────────────────────────────
+        // Right
         Row {
             id: rightSection
             anchors {

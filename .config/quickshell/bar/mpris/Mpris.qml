@@ -9,6 +9,8 @@ Capsule {
 
     property var barWindow
     property bool popupOpen: false
+    property real maxWidth: 220                                       // set by Bar.qml budget
+    readonly property real naturalTextWidth: songMarquee.naturalWidth // unconstrained song width
 
     // Pick the "active" player: prefer one that is playing, else the first
     // available. Recomputed whenever the player list or any play-state flips.
@@ -80,8 +82,9 @@ Capsule {
         }
 
         Marquee {
+            id: songMarquee
             anchors.verticalCenter: parent.verticalCenter
-            maxWidth:      220
+            maxWidth:      root.maxWidth
             hovered:       root.hovered
             text:          root.player
                            ? (root.player.trackTitle || "Unknown")

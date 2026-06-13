@@ -15,6 +15,9 @@ Item {
     property bool   bold: false
     property bool   hovered: false
 
+    // Unclamped text width; independent of maxWidth, safe for callers to allocate against.
+    readonly property real naturalWidth: label.implicitWidth
+
     readonly property bool overflowing: label.implicitWidth > maxWidth
     readonly property bool scrolling: hovered && overflowing
 
