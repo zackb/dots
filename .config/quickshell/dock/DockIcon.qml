@@ -23,7 +23,7 @@ Item {
         id: bg
         anchors.fill: parent
         radius: height / 2
-        color: mouse.containsMouse ? Theme.surface_container_highest : "transparent"
+        color: mouse.containsMouse ? Theme.capsuleBgHover : "transparent"
 
         scale: mouse.pressed ? 0.92 : (mouse.containsMouse ? 1.06 : 1.0)
         Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutBack } }
@@ -83,8 +83,8 @@ Item {
             id: tipText
             anchors.centerIn: parent
             text: root.entry ? root.entry.name : ""
-            color: Theme.on_surface
-            font { family: Theme.font; pixelSize: 12 }
+            color: Theme.primary
+            font { family: Theme.font; pixelSize: 12; weight: Font.Medium }
         }
     }
 
