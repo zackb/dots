@@ -60,6 +60,9 @@ pipewire-alsa
 pipewire-audio
 pipewire-pulseaudio
 libcamera
+libqalculate
+qalculate-gtk
+
 # Thunderbird Theme: https://github.com/catppuccin/thunderbird.git
 # Font: Cantarell
 # gsettings set org.gnome.desktop.wm.preferences button-layout : 
