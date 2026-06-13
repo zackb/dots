@@ -1,43 +1,25 @@
-import Quickshell
-import Quickshell.Wayland
 import Quickshell.Services.Mpris
 import QtQuick
 import QtQuick.Layouts
+import qs.components
 import qs.theme
 
-PanelWindow {
+OverlayPopup {
     id: root
 
-    property var barWindow
     property Item anchorItem
     property MprisPlayer player
-    property bool isOpen: false
     property int targetX: 0
     property int targetY: 0
     property bool panelHovered: panelHoverHandler.hovered
 
-    signal requestClose()
-
-    readonly property bool hasLength: player ? player.length > 0 : false
-
-    screen: barWindow ? barWindow.screen : null
-    visible: false
-
-    anchors { top: true; left: true }
-    margins { top: root.targetY; left: root.targetX }
-
-    implicitWidth:  panel.width
-    implicitHeight: panel.height
-
-    WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: root.isOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
-    exclusionMode: ExclusionMode.Ignore
-    color: "transparent"
+    // Guard against the INT64_MAX sentinel some players report when the real track length is unknown
+    readonly property bool hasLength: player ? (player.length > 0 && player.length < 86400) : false
 
     function closeNow() {
         root.visible = false
         panel.opacity = 0
-        panel.y = -10
+        panelSlide.y = -10
     }
 
     function fmt(seconds) {
@@ -69,14 +51,28 @@ PanelWindow {
 
     Rectangle {
         id: panel
-        x: 0; y: 0
+        x: root.targetX
+        y: root.targetY
 
         width:  320
         height: content.implicitHeight + 24
+        // Smoothly absorb height changes when the track (and its seek bar /
+        // metadata) swaps, instead of snapping. Only while already shown so the
+        // open transition isn't animated.
+        Behavior on height {
+            enabled: root.visible
+            NumberAnimation { duration: 150; easing.type: Easing.OutQuad }
+        }
         color:  Theme.popupBg
         radius: Theme.radius
         border.color: Theme.popupBorder
         border.width: 1
+
+        // Slide-down on open via transform, so x/y stay pinned to the target.
+        transform: Translate { id: panelSlide; y: -10 }
+
+        // Swallow clicks so they don't reach the backdrop and close the popup.
+        MouseArea { anchors.fill: parent }
 
         Rectangle {
             anchors { fill: parent; margins: -1 }
@@ -204,7 +200,7 @@ PanelWindow {
                     }
                     Item { Layout.fillWidth: true }
                     Text {
-                        text: root.fmt(root.player?.length ?? 0)
+                        text: root.hasLength ? root.fmt(root.player.length) : "--:--"
                         color: Theme.on_surface_variant
                         font { family: Theme.font; pixelSize: 10 }
                     }
@@ -256,8 +252,8 @@ PanelWindow {
         }
 
         states: [
-            State { name: "open";   when: root.isOpen;  PropertyChanges { target: panel; opacity: 1.0; y: 0   } },
-            State { name: "closed"; when: !root.isOpen; PropertyChanges { target: panel; opacity: 0.0; y: -10 } }
+            State { name: "open";   when: root.isOpen;  PropertyChanges { target: panel; opacity: 1.0 } PropertyChanges { target: panelSlide; y: 0   } },
+            State { name: "closed"; when: !root.isOpen; PropertyChanges { target: panel; opacity: 0.0 } PropertyChanges { target: panelSlide; y: -10 } }
         ]
         transitions: [
             Transition {
@@ -265,8 +261,8 @@ PanelWindow {
                 SequentialAnimation {
                     ScriptAction { script: root.visible = true }
                     ParallelAnimation {
-                        NumberAnimation { target: panel; property: "opacity"; duration: 180; easing.type: Easing.OutQuad }
-                        NumberAnimation { target: panel; property: "y";       duration: 180; easing.type: Easing.OutQuad }
+                        NumberAnimation { target: panel;      property: "opacity"; duration: 180; easing.type: Easing.OutQuad }
+                        NumberAnimation { target: panelSlide; property: "y";       duration: 180; easing.type: Easing.OutQuad }
                     }
                 }
             },
@@ -274,8 +270,8 @@ PanelWindow {
                 from: "open"; to: "closed"
                 SequentialAnimation {
                     ParallelAnimation {
-                        NumberAnimation { target: panel; property: "opacity"; duration: 150; easing.type: Easing.OutQuad }
-                        NumberAnimation { target: panel; property: "y";       duration: 150; easing.type: Easing.OutQuad }
+                        NumberAnimation { target: panel;      property: "opacity"; duration: 150; easing.type: Easing.OutQuad }
+                        NumberAnimation { target: panelSlide; property: "y";       duration: 150; easing.type: Easing.OutQuad }
                     }
                     ScriptAction { script: root.visible = false }
                 }

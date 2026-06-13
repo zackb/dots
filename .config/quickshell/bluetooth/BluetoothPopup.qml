@@ -3,17 +3,18 @@
 // Displays connected/paired devices, battery levels, scan toggle,
 // and adapter power control. Triggered via IPC or keybind.
 
-import Quickshell
 import Quickshell.Io
 import Quickshell.Bluetooth
-import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import qs.components
 import qs.theme
 
-PanelWindow {
+OverlayPopup {
     id: root
+
+    onRequestClose: root.visible = false
 
     IpcHandler {
         target: "bluetooth"
@@ -46,24 +47,6 @@ PanelWindow {
             }
         }
     }
-
-    // ── Window geometry ────────────────────────────────────────────
-    visible:   false
-
-    anchors {
-        top:   true
-        bottom: true
-        left:  true
-        right: true
-    }
-
-    // Layer shell settings — float above everything, no keyboard grab
-    WlrLayershell.layer:      WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
-    exclusionMode:            ExclusionMode.Ignore
-
-    // Close on click-outside via an invisible full-screen underlay
-    // (handled by the MouseArea below)
 
     // ── Bluetooth state ────────────────────────────────────────────
     readonly property BluetoothAdapter adapter: Bluetooth.defaultAdapter
@@ -140,16 +123,6 @@ PanelWindow {
         var bar = ""
         for (var i = 0; i < 10; i++) bar += (i < filled ? "█" : "░")
         return bar
-    }
-
-    // ── Root visual ────────────────────────────────────────────────
-    color: "transparent"
-
-    // Click-outside dismissal
-    MouseArea {
-        anchors.fill: parent
-        onClicked: root.visible = false
-        z: -1
     }
 
     Rectangle {

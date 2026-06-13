@@ -1,15 +1,16 @@
-import Quickshell
 import Quickshell.Io
-import Quickshell.Wayland
 import Quickshell.Services.Pipewire
 import QtQuick
 import QtQuick.Layouts
 import qs.backend
+import qs.components
 import qs.theme
 import qs.dock
 
-PanelWindow {
+OverlayPopup {
     id: root
+
+    onRequestClose: root.isOpen = false
 
     IpcHandler {
         target: "controlcenter"
@@ -17,9 +18,6 @@ PanelWindow {
         function open()   { root.isOpen = true  }
         function close()  { root.isOpen = false }
     }
-
-    property var  barWindow: null
-    property bool isOpen: false
 
     // Audio
     PwObjectTracker { objects: [Pipewire.defaultAudioSink] }
@@ -30,29 +28,11 @@ PanelWindow {
     property int  maxBrightness: Backend.backlight.max
     property real brightnessPercent: maxBrightness > 0 ? brightness / maxBrightness : 0
 
-    // Window
-    screen: barWindow ? barWindow.screen : null
-    visible: false
-
-    anchors { top: true; bottom: true; left: true; right: true }
-
-    WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: root.isOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
-    exclusionMode: ExclusionMode.Ignore
-    color: "transparent"
-
     property int panelY: barWindow ? (barWindow.margins.top + barWindow.height + 6) : 34
 
     Shortcut {
         sequence: "Escape"
         onActivated: root.isOpen = false
-    }
-
-    // Transparent backdrop — click anywhere outside the panel to close
-    MouseArea {
-        anchors.fill: parent
-        onClicked: root.isOpen = false
-        z: -1
     }
 
     // Panel
