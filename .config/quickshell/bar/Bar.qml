@@ -4,6 +4,7 @@ import Quickshell.Hyprland
 import QtQuick
 import qs.bar.clock
 import qs.bar.sysinfo
+import qs.bar.mpris
 
 PanelWindow {
     id: root
@@ -53,6 +54,13 @@ PanelWindow {
             }
             ActiveWindow {
                 id: activeWindow
+            }
+            BarSeparator {
+                visible: nowPlaying.visible
+            }
+            Mpris {
+                id: nowPlaying
+                barWindow: root
             }
         }
 
