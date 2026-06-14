@@ -114,13 +114,13 @@ PanelWindow {
 
             // Tray { barWindow: root }
             Updates {}
-            Audio {}
+            Audio { barWindow: root }
             Bluetooth {
                 barWindow: root
             }
             Backlight {}
             Network {}
-            Battery {}
+            Battery { barWindow: root }
             SysInfo {
                 barWindow: root
             }

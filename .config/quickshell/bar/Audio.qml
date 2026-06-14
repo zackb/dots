@@ -6,6 +6,9 @@ import qs.theme
 Capsule {
     id: root
 
+    property var barWindow
+    property bool menuOpen: false
+
     // track the default audio sink
     PwObjectTracker {
         objects: [Pipewire.defaultAudioSink]
@@ -26,7 +29,7 @@ Capsule {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         onTapped: (eventPoint, button) => {
             if (button === Qt.RightButton) {
-                Quickshell.execDetached(["hyprwat", "--audio"])
+                root.menuOpen = !root.menuOpen
             } else {
                 sink.audio.muted = !sink.audio.muted
             }
@@ -63,5 +66,12 @@ Capsule {
             font.pixelSize: Theme.fontSize
             font.family:    Theme.font
         }
+    }
+
+    AudioMenu {
+        barWindow:  root.barWindow
+        anchorItem: root
+        isOpen:     root.menuOpen
+        onRequestClose: root.menuOpen = false
     }
 }

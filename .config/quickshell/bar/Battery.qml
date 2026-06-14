@@ -6,6 +6,9 @@ import qs.theme
 Capsule {
     id: root
 
+    property var barWindow
+    property bool menuOpen: false
+
     // The real battery, picked by sysfs name. We avoid UPower.displayDevice
     // because this machine exposes phantom USB-C power supplies that
     // skew the aggregate percentage.
@@ -49,7 +52,7 @@ Capsule {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         onTapped: (eventPoint, button) => {
             if (button === Qt.RightButton) {
-                Quickshell.execDetached(["bash", Qt.resolvedUrl("scripts/battery.sh").toString().replace("file://", "")])
+                root.menuOpen = !root.menuOpen
             } else {
                 root.clicked = !root.clicked
             }
@@ -76,5 +79,12 @@ Capsule {
             font.pixelSize: Theme.fontSize
             font.family:    Theme.font
         }
+    }
+
+    PowerProfileMenu {
+        barWindow:  root.barWindow
+        anchorItem: root
+        isOpen:     root.menuOpen
+        onRequestClose: root.menuOpen = false
     }
 }

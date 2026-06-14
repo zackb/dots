@@ -6,6 +6,7 @@ import qs.bluetooth
 Capsule {
     id: bluetoothButton
     property var barWindow
+    property bool menuOpen: false
 
     contentItem: Row {
         id:              row
@@ -20,11 +21,14 @@ Capsule {
     }
 
     TapHandler {
-        onTapped: bluetoothMenu.toggleMenu(bluetoothButton)
+        onTapped: bluetoothButton.menuOpen = !bluetoothButton.menuOpen
     }
 
     BluetoothMenu {
         id: bluetoothMenu
-        barWindow: bluetoothButton.barWindow
+        barWindow:  bluetoothButton.barWindow
+        anchorItem: bluetoothButton
+        isOpen:     bluetoothButton.menuOpen
+        onRequestClose: bluetoothButton.menuOpen = false
     }
 }

@@ -1,63 +1,33 @@
 // Wayland layer-shell dropdown menu for Bluetooth management,
 // positioned directly below the Bar's Bluetooth button.
 
-import Quickshell
-import Quickshell.Io
 import Quickshell.Bluetooth
-import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import qs.bluetooth
+import qs.components
 import qs.theme
 
-PanelWindow {
+OverlayPopup {
     id: root
 
-    property var barWindow
-    property bool isOpen: false
+    property Item anchorItem
     property int targetX: 0
     property int targetY: 0
 
-    function toggleMenu(buttonItem) {
-        if (isOpen) {
-            isOpen = false
-        } else {
-            var pos = buttonItem.mapToItem(null, 0, 0)
-            var marginTop = (barWindow && barWindow.margins) ? barWindow.margins.top : 0
-            var screenWidth = barWindow ? barWindow.width : 1920
-
-            var globalX = pos.x
-            var globalY = pos.y + marginTop
-
-            var menuWidth = 340
-            var xCoord = globalX + (buttonItem.width / 2) - (menuWidth / 2)
-
-            if (xCoord < 10) xCoord = 10
-            if (xCoord + menuWidth > screenWidth - 10) xCoord = screenWidth - menuWidth - 10
-
-            targetX = xCoord
-            targetY = globalY + buttonItem.height + 6
-
-            isOpen = true
-        }
-    }
-
-    screen: barWindow ? barWindow.screen : null
-    visible: false
-
-    anchors {
-        top: true
-        bottom: true
-        left: true
-        right: true
-    }
-
-    WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: root.isOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
-    exclusionMode: ExclusionMode.Ignore
-
     readonly property BluetoothAdapter adapter: Bluetooth.defaultAdapter
+    property var airpodsBattery: null
+
+    onIsOpenChanged: {
+        if (!isOpen || !anchorItem) return
+        const pos = anchorItem.mapToItem(null, 0, anchorItem.height)
+        const marginTop = barWindow && barWindow.margins ? barWindow.margins.top : 0
+        const screenW = barWindow && barWindow.width > 0 ? barWindow.width : 1920
+        targetY = marginTop + barWindow.height + 6
+        targetX = Math.max(10, Math.min(Math.round(pos.x + (anchorItem.width / 2) - (panel.width / 2)),
+                                        screenW - panel.width - 10))
+    }
 
     Timer {
         id: scanTimer
@@ -67,20 +37,10 @@ PanelWindow {
         }
     }
 
-    property var airpodsBattery: null
-
-    color: "transparent"
-
-    MouseArea {
-        anchors.fill: parent
-        onClicked: root.isOpen = false
-        z: -1
-    }
-
     Rectangle {
         id: panel
-        x: targetX
-        y: targetY
+        x: root.targetX
+        y: root.targetY
         width: 340
         height: contentCol.implicitHeight + 24
         color: Theme.popupBg
@@ -88,18 +48,11 @@ PanelWindow {
         border.color: Theme.popupBorder
         border.width: 1
 
-        Keys.onPressed: event => {
-            if (event.key === Qt.Key_Escape) {
-                root.isOpen = false
-                event.accepted = true
-            }
-        }
-
         Shortcut {
             sequence: "Escape"
-            onActivated: root.isOpen = false
+            enabled: root.isOpen
+            onActivated: root.requestClose()
         }
-
 
         Rectangle {
             anchors.fill: parent
@@ -111,6 +64,7 @@ PanelWindow {
             z: -1
         }
 
+        // Swallow clicks so they don't reach the backdrop and close the popup.
         MouseArea {
             anchors.fill: parent
         }
