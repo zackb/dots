@@ -211,6 +211,9 @@ hl.bind(mainMod .. " + CTRL + SHIFT + 3", hl.dsp.exec_cmd("hyprshot -m output --
 hl.bind(mainMod .. " + CTRL + SHIFT + 4", hl.dsp.exec_cmd("hyprshot -m region --clipboard-only"))
 hl.bind(mainMod .. " + CTRL + SHIFT + W", hl.dsp.exec_cmd("hyprshot -m window --clipboard-only"))
 
+-- show clipboard histroy
+hl.bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("qs ipc call launcher clipboard"))
+
 -- Example special workspace (scratchpad)
 hl.bind(mainMod .. " + S", hl.dsp.workspace.toggle_special("magic"))
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }))
