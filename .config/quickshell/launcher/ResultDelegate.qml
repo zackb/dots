@@ -16,16 +16,38 @@ Item {
     required property int index
 
     readonly property bool isApp: modelData.kind === "app"
+    readonly property bool isClip: modelData.kind === "clip"
     readonly property var app: modelData.app
     readonly property var contact: modelData.contact
+    readonly property var entry: modelData.kind === "clip" ? modelData.entry : null
 
     property bool isSelected: ListView.isCurrentItem
     property bool isHovered: itemMouseArea.containsMouse
 
-    readonly property string titleText: isApp ? (app.name || "") : (contact.name || "")
+    readonly property string titleText: isApp ? (app.name || "")
+        : isClip ? (entry.isImage ? "[image]" : (entry.preview || ""))
+        : (contact.name || "")
     readonly property string descriptionText: isApp
         ? (app.genericName ? app.genericName : (app.comment ? app.comment : ""))
+        : isClip ? delegateRoot.clipSubtitle()
         : delegateRoot.contactSubtitle()
+
+    function clipSubtitle() {
+        if (!entry)
+            return "";
+        return entry.isImage
+            ? delegateRoot.humanSize(entry.size) + " image"
+            : delegateRoot.humanSize(entry.size);
+    }
+
+    function humanSize(n) {
+        n = n || 0;
+        if (n < 1024)
+            return n + " B";
+        if (n < 1048576)
+            return (n / 1024).toFixed(1) + " KB";
+        return (n / 1048576).toFixed(1) + " MB";
+    }
 
     function contactSubtitle() {
         if (contact.emails && contact.emails.length > 0)
@@ -38,7 +60,7 @@ Item {
     }
 
     function initials() {
-        const parts = (contact.name || "").trim().split(/\s+/);
+        const parts = ((contact && contact.name) || "").trim().split(/\s+/);
         if (parts.length === 0 || parts[0] === "")
             return "?";
         if (parts.length === 1)
@@ -50,6 +72,8 @@ Item {
     function launch() {
         if (isApp)
             ctrl.launchApp(app);
+        else if (isClip)
+            ctrl.copyClip(entry.id);
         else
             launcherWindow.openContact(contact);
     }
@@ -125,10 +149,29 @@ Item {
             }
         }
 
+        // Clipboard glyph (paste, or image for binary entries)
+        Text {
+            id: clipIcon
+            visible: delegateRoot.isClip
+            width: 42
+            height: 42
+            anchors.left: parent.left
+            anchors.leftMargin: 20
+            anchors.verticalCenter: parent.verticalCenter
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            text: (delegateRoot.entry && delegateRoot.entry.isImage) ? "image" : "content_paste"
+            color: delegateRoot.isSelected ? Theme.on_secondary_container : Theme.on_surface_variant
+            font {
+                family: Theme.ligatureFont
+                pixelSize: 30
+            }
+        }
+
         // Contact avatar (initials)
         Rectangle {
             id: avatar
-            visible: !delegateRoot.isApp
+            visible: !delegateRoot.isApp && !delegateRoot.isClip
             width: 42
             height: 42
             radius: 21
@@ -217,7 +260,7 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     topPadding: 2
                     verticalAlignment: Text.AlignVCenter
-                    text: delegateRoot.isApp ? "Launch" : "Open"
+                    text: delegateRoot.isApp ? "Launch" : (delegateRoot.isClip ? "Copy" : "Open")
                     color: Theme.on_primary
                     font {
                         family: "Google Sans Medium"
@@ -229,7 +272,7 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     topPadding: 2
                     verticalAlignment: Text.AlignVCenter
-                    text: delegateRoot.isApp ? "keyboard_return" : "person"
+                    text: delegateRoot.isApp ? "keyboard_return" : (delegateRoot.isClip ? "content_copy" : "person")
                     color: Theme.on_primary
                     font {
                         family: Theme.ligatureFont

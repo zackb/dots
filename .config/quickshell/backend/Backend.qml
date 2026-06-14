@@ -33,6 +33,9 @@ Singleton {
     // address book (vdirsyncer .vcf store); launcher filters this list
     property var contacts: []
 
+    // clipboard history (fenrizd captures via wl-paste, restores via wl-copy)
+    property var clipboard: ({ entries: [] })
+
     // cpu / memory / disk / temperature
     property var sysinfo: ({
         cpuModel: "", overallCpu: 0, memPercent: 0, diskPercent: 0, tempC: 0,
@@ -46,10 +49,17 @@ Singleton {
     // true while the daemon process is up
     readonly property bool running: daemon.running
 
+    // Send a command down the daemon's stdin (NDJSON). The inbound half of the
+    // protocol; routed to a service's Commander (e.g. clipboard copy/delete/wipe).
+    function command(svc, verb, args) {
+        daemon.write(JSON.stringify({ service: svc, command: verb, args: args || ({}) }) + "\n")
+    }
+
     Process {
         id: daemon
         running: true
         command: [Quickshell.shellPath("backend/fenrizd")]
+        stdinEnabled: true
 
         stdout: SplitParser {
             onRead: line => {
@@ -71,6 +81,8 @@ Singleton {
                     root.calendarState = msg.data
                 else if (msg.service === "contacts")
                     root.contacts = msg.data
+                else if (msg.service === "clipboard")
+                    root.clipboard = msg.data
                 root.serviceEvent(msg.service, msg.data)
             }
         }
@@ -83,6 +95,7 @@ Singleton {
             root.networkState = ({ type: "none", ssid: "", signal: 0, iface: "" })
             root.calendarState = ({ upcoming: [] })
             root.contacts = []
+            root.clipboard = ({ entries: [] })
             relaunch.start()
         }
     }

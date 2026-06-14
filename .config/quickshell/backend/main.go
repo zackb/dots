@@ -18,6 +18,7 @@ import (
 
 	"fenriz/internal/backlight"
 	"fenriz/internal/calendar"
+	"fenriz/internal/clipboard"
 	"fenriz/internal/contacts"
 	"fenriz/internal/log"
 	"fenriz/internal/mlb"
@@ -29,6 +30,16 @@ import (
 )
 
 func main() {
+	// Re-exec path: `wl-paste --watch` invokes us as the per-copy store routine.
+	// Handle it before any daemon setup and exit.
+	if len(os.Args) > 1 && os.Args[1] == clipboard.ClipStoreFlag {
+		if err := clipboard.RunStore(); err != nil {
+			log.Warnf("clip-store: %v", err)
+			os.Exit(1)
+		}
+		return
+	}
+
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
@@ -49,6 +60,7 @@ func main() {
 		backlight.New(),
 		calendar.New(),
 		contacts.New(),
+		clipboard.New(),
 	}
 
 	commanders := map[string]service.Commander{}

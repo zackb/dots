@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.store
+import qs.backend
 
 Item {
     id: backend
@@ -9,6 +10,8 @@ Item {
     // UI Orchestration Signals
     signal openMenuRequested
     signal closeMenuRequested
+    // Open straight into clipboard-history mode (Super+V / IPC).
+    signal openClipboardRequested
 
     property string searchText: ""
 
@@ -100,6 +103,35 @@ Item {
         backend.closeMenuRequested();
     }
 
+    // Clipboard history: leading ";" forces clipboard-only search. Returns the
+    // query after ";", or "" when not in clipboard mode.
+    function clipboardQueryOf(text) {
+        const t = text.trim();
+        if (t.startsWith(";"))
+            return t.slice(1).trim();
+        return "";
+    }
+    function clipboardMode(text) {
+        return text.trim().startsWith(";");
+    }
+
+    // Restore/delete/wipe go through the daemon (binary/images can't round-trip
+    // as a wl-copy arg), which owns the history and re-serves the bytes.
+    function copyClip(id) {
+        if (!id)
+            return;
+        Backend.command("clipboard", "copy", { id: id });
+        backend.closeMenuRequested();
+    }
+    function deleteClip(id) {
+        if (!id)
+            return;
+        Backend.command("clipboard", "delete", { id: id });
+    }
+    function wipeClip() {
+        Backend.command("clipboard", "wipe", {});
+    }
+
     // Per-desktop-entry usage for frecency ranking.
     // { "<DesktopEntry.id>": { count: N, last: <epochMs> } }
     property var usage: ({})
@@ -159,6 +191,9 @@ Item {
         target: "launcher"
         function toggle() {
             backend.openMenuRequested();
+        }
+        function clipboard() {
+            backend.openClipboardRequested();
         }
     }
 }

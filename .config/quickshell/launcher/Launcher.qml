@@ -13,6 +13,9 @@ PanelWindow {
     // Add any apps you want to hide to this list
     property var hiddenKeywords: ["avahi", "uuctl", "bssh", "bvnc", "xfce"]
 
+    // Set by the clipboard IPC so the next open seeds the ";" prefix.
+    property bool pendingClip: false
+
     // Contact whose detail view is open (null = showing the result list).
     property var activeContact: null
     function openContact(c) {
@@ -216,11 +219,37 @@ PanelWindow {
         return out;
     }
 
-    // Unified result list. Each item is { kind: "app", app } or
-    // { kind: "contact", contact }. "@" forces contacts-only; otherwise contacts
-    // blend in capped at 2, always after the apps so they never outrank one.
+    // Filter clipboard history by preview text. The daemon already returns it
+    // most-recent-first; an empty query keeps that order.
+    function buildClipboardList(query) {
+        var all = (Backend.clipboard && Backend.clipboard.entries) ? Backend.clipboard.entries : [];
+        if (query === "")
+            return all;
+        var scored = [];
+        for (var i = 0; i < all.length; i++) {
+            var e = all[i];
+            var best = scoreMatch(e.preview, query);
+            if (best >= 0)
+                scored.push({ e: e, score: best });
+        }
+        scored.sort(function (a, b) {
+            if (b.score !== a.score)
+                return b.score - a.score;
+            return (b.e.ts || 0) - (a.e.ts || 0);
+        });
+        return scored.map(function (s) { return s.e; });
+    }
+
+    // Unified result list. Each item is { kind: "app", app }, { kind: "contact",
+    // contact } or { kind: "clip", entry }. ";" forces clipboard-only and "@"
+    // contacts-only; otherwise contacts blend in capped at 2, after the apps.
     function buildResults() {
         var q = ctrl.searchText.trim();
+        if (ctrl.clipboardMode(q)) {
+            return buildClipboardList(ctrl.clipboardQueryOf(q)).map(function (e) {
+                return { kind: "clip", entry: e };
+            });
+        }
         if (ctrl.contactsMode(q)) {
             return buildContactsList(ctrl.contactsQueryOf(q), -1).map(function (c) {
                 return { kind: "contact", contact: c };
@@ -292,7 +321,8 @@ PanelWindow {
                     target: launcherWindow
                     function onVisibleChanged() {
                         if (launcherWindow.visible) {
-                            searchField.text = "";
+                            searchField.text = launcherWindow.pendingClip ? ";" : "";
+                            launcherWindow.pendingClip = false;
                             launcherWindow.activeContact = null;
                             Qt.callLater(() => {
                                 focusGrab.active = true;
@@ -300,6 +330,22 @@ PanelWindow {
                             });
                         } else {
                             focusGrab.active = false;
+                        }
+                    }
+                }
+
+                // Super+V / IPC: open straight into clipboard mode (or switch to
+                // it in place if the launcher is already showing).
+                Connections {
+                    target: ctrl
+                    function onOpenClipboardRequested() {
+                        if (launcherWindow.visible) {
+                            searchField.text = ";";
+                            launcherWindow.activeContact = null;
+                            Qt.callLater(() => searchField.forceActiveFocus());
+                        } else {
+                            launcherWindow.pendingClip = true;
+                            launcherWindow.visible = true;
                         }
                     }
                 }
@@ -435,6 +481,10 @@ PanelWindow {
                             else if (listView.currentItem)
                                 listView.currentItem.launch();
                             event.accepted = true;
+                        } else if (event.key === Qt.Key_Delete && (event.modifiers & Qt.ShiftModifier)) {
+                            if (listView.currentItem && listView.currentItem.entry)
+                                ctrl.deleteClip(listView.currentItem.entry.id);
+                            event.accepted = true;
                         }
                     }
 
@@ -534,6 +584,10 @@ PanelWindow {
                                     } else {
                                         listView.decrementCurrentIndex();
                                     }
+                                    event.accepted = true;
+                                } else if (event.key === Qt.Key_Delete && (event.modifiers & Qt.ShiftModifier)) {
+                                    if (listView.currentItem && listView.currentItem.entry)
+                                        ctrl.deleteClip(listView.currentItem.entry.id);
                                     event.accepted = true;
                                 }
                             }
@@ -706,7 +760,9 @@ PanelWindow {
                     Text {
                         id: emptyMessage
                         anchors.centerIn: listContainer
-                        text: ctrl.contactsMode(ctrl.searchText) ? "No matching contacts" : "No matching applications"
+                        text: ctrl.clipboardMode(ctrl.searchText)
+                            ? "No clipboard history"
+                            : (ctrl.contactsMode(ctrl.searchText) ? "No matching contacts" : "No matching applications")
                         visible: listView.count === 0 && launcherWindow.activeContact === null
                         color: Theme.on_surface_variant
                         font {
