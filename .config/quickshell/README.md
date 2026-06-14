@@ -10,6 +10,7 @@ The goal of this quickshell was to replace:
   - hyprlock
   - hyprpolkitagent
   - bluetui / blueman
+  - cliphist
 
 I love these tools and think basically everyone should use them. Don't be like me.
 But I was willing to put in the work and more importantly, maintenance to unify my
@@ -55,6 +56,20 @@ Files:
 - Config (timeouts, dim level, PAM service names, backlight device) lives in
   `Theme.qml` under the `--- idle / lock ---` block.
 
+## Launcher
+
+The `rofi`/`wofi` replacement (`launcher/`). Fuzzy app search with frecency
+ranking, plus prefixed modes: `=` for an inline `qalc` calculator (auto-detected
+for bare arithmetic too), `@` for the local address book, and `;` for clipboard
+history. Open it with `qs ipc call launcher toggle`; `qs ipc call launcher
+clipboard` jumps straight into clipboard mode (bind it to Super+V).
+
+Clipboard history is owned by the `fenrizd` daemon — it captures every selection
+via `wl-paste --watch`, dedupes into an on-disk store, and restores entries with
+`wl-copy` (so it replaces `cliphist`; no separate daemon to autostart). In the
+picker, Enter copies the entry, Shift+Delete removes it. Images show a copyable
+`[image]` placeholder. See [`PROTOCOL.md`](PROTOCOL.md) (`clipboard` service).
+
 ## Dependencies
 
 ### Required
@@ -69,6 +84,7 @@ Runtime:
 - **BlueZ** (`bluez`, `bluez-utils`) — bluetooth (`Quickshell.Bluetooth`)
 - **PAM** + **fprintd** — lock-screen password and fingerprint auth (see PAM setup below)
 - **brightnessctl** — backlight dim/restore and the brightness OSD
+- **wl-clipboard** (`wl-copy`/`wl-paste`) — launcher copy actions and clipboard history
 - **systemd / logind** — `loginctl` lock-session and `PrepareForSleep` suspend handling
 - a **terminal** — `ghostty` by default, for launching `runInTerminal` desktop entries
   (override `myTerminal` in `launcher/LauncherBackend.qml`)

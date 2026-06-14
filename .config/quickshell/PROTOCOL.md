@@ -60,10 +60,11 @@ shell always holds the latest complete state for each service.
 | `args`    | object | optional; omitted when empty                      |
 
 Inbound commands are routed to the service if it implements the optional
-`Commander` interface (`Command(name string, args json.RawMessage)`). **No
-service currently registers as a Commander** — the inbound path exists in the
-protocol and daemon, but today the stream is effectively one-way (daemon →
-shell). Adding a command means implementing `Commander` on a service.
+`Commander` interface (`Command(name string, args json.RawMessage)`). The
+`clipboard` service is the only Commander today (`copy`/`delete`/`wipe`); every
+other service is emit-only, so the stream is mostly one-way (daemon → shell). The
+shell sends commands via `Backend.command(service, verb, args)`, which writes one
+JSON line to the daemon's stdin (the daemon `Process` sets `stdinEnabled: true`).
 
 ## Lifecycle
 
@@ -217,6 +218,32 @@ this list). Note this service's `data` is a **bare array**, not an object.
 | `org`      | string | organization                                   |
 | `emails[]` | array  | `{type, value}`; `type` e.g. Cell/Home/Work/"" |
 | `phones[]` | array  | `{type, value}`                                |
+
+### `clipboard`
+
+Clipboard history. Captures every selection via two `wl-paste --watch`
+subprocesses (text + image) that re-exec the daemon as `-clip-store`, dedupes by
+content hash into an on-disk store (`~/.local/state/fenriz/clipboard/`), and
+restores an entry with `wl-copy`. The launcher's `;` mode reads this list.
+→ `Backend.clipboard`
+
+```json
+{"entries":[{"id":"<sha256>","mime":"text/plain;charset=utf-8",
+  "preview":"git status","isImage":false,"size":10,"ts":1781422115400}]}
+```
+
+| Field       | Type   | Notes                                              |
+|-------------|--------|----------------------------------------------------|
+| `entries[]` | array  | most-recent-first                                  |
+| ↳ `id`      | string | content sha256 (also the blob filename)            |
+| ↳ `mime`    | string | MIME type; `image/*` for binary entries            |
+| ↳ `preview` | string | single-line text preview; `""` for images          |
+| ↳ `isImage` | bool   | true for binary/image entries                      |
+| ↳ `size`    | int    | byte size of the value                             |
+| ↳ `ts`      | int64  | unix millis, last seen/copied                      |
+
+Commands (this service is a `Commander`): `copy` / `delete` take `{"id":"…"}`;
+`wipe` clears all. `copy` restores the entry to the clipboard via `wl-copy`.
 
 ## Adding a service
 
