@@ -74,6 +74,9 @@ func (s *Service) Start(ctx context.Context, emit service.Emitter) error {
 	if err := os.MkdirAll(s.st.blobsDir(), 0o700); err != nil {
 		return err
 	}
+	if err := s.st.gc(); err != nil {
+		log.Warnf("clipboard: gc: %v", err)
+	}
 	self, err := os.Executable()
 	if err != nil {
 		return err
@@ -337,6 +340,29 @@ func (s *store) wipe() error {
 			return err
 		}
 		return s.save([]Entry{})
+	})
+}
+
+// gc removes blob files no longer referenced by the index: orphans from a crash
+// between blob-write and index-save, a corrupted/reset index, or a lowered cap.
+// Held under the lock so a concurrent -clip-store can't have its just-written
+// blob swept before its index save lands.
+func (s *store) gc() error {
+	return s.withLock(func() error {
+		valid := make(map[string]bool)
+		for _, e := range s.load() {
+			valid[e.ID] = true
+		}
+		files, err := os.ReadDir(s.blobsDir())
+		if err != nil {
+			return err
+		}
+		for _, f := range files {
+			if !f.IsDir() && !valid[f.Name()] {
+				os.Remove(s.blobPath(f.Name()))
+			}
+		}
+		return nil
 	})
 }
 
