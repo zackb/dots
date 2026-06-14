@@ -27,6 +27,12 @@ Singleton {
     // screen brightness (sysfs backlight)
     property var backlight: ({ brightness: 0, max: 1 })
 
+    // upcoming calendar events (vdirsyncer .ics store), soonest first
+    property var calendarState: ({ upcoming: [] })
+
+    // address book (vdirsyncer .vcf store); launcher filters this list
+    property var contacts: []
+
     // cpu / memory / disk / temperature
     property var sysinfo: ({
         cpuModel: "", overallCpu: 0, memPercent: 0, diskPercent: 0, tempC: 0,
@@ -61,6 +67,10 @@ Singleton {
                     root.sysinfo = msg.data
                 else if (msg.service === "backlight")
                     root.backlight = msg.data
+                else if (msg.service === "calendar")
+                    root.calendarState = msg.data
+                else if (msg.service === "contacts")
+                    root.contacts = msg.data
                 root.serviceEvent(msg.service, msg.data)
             }
         }
@@ -71,6 +81,8 @@ Singleton {
             root._screensaver = ({ inhibited: false, count: 0, inhibitors: [] })
             root.mlbState = ({ active: false, class: "mlb-idle" })
             root.networkState = ({ type: "none", ssid: "", signal: 0, iface: "" })
+            root.calendarState = ({ upcoming: [] })
+            root.contacts = []
             relaunch.start()
         }
     }

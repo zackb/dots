@@ -70,6 +70,36 @@ Item {
         backend.closeMenuRequested();
     }
 
+    // Contacts: leading "@" forces contacts-only search; otherwise contacts blend
+    // (capped, below apps) into normal results. Returns the query after "@", or
+    // "" when not in contacts mode.
+    function contactsQueryOf(text) {
+        const t = text.trim();
+        if (t.startsWith("@"))
+            return t.slice(1).trim();
+        return "";
+    }
+    function contactsMode(text) {
+        return text.trim().startsWith("@");
+    }
+
+    // Compose an email to a contact via the system mailto: handler.
+    function emailContact(email, uid) {
+        if (!email)
+            return;
+        if (uid)
+            recordUse(uid);
+        Quickshell.execDetached(["xdg-open", "mailto:" + email]);
+        backend.closeMenuRequested();
+    }
+
+    function copyValue(v) {
+        if (!v)
+            return;
+        Quickshell.execDetached(["wl-copy", "--", v]);
+        backend.closeMenuRequested();
+    }
+
     // Per-desktop-entry usage for frecency ranking.
     // { "<DesktopEntry.id>": { count: N, last: <epochMs> } }
     property var usage: ({})

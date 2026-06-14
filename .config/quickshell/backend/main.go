@@ -17,6 +17,8 @@ import (
 	"time"
 
 	"fenriz/internal/backlight"
+	"fenriz/internal/calendar"
+	"fenriz/internal/contacts"
 	"fenriz/internal/log"
 	"fenriz/internal/mlb"
 	"fenriz/internal/network"
@@ -45,6 +47,8 @@ func main() {
 		network.New(),
 		sysinfo.New(),
 		backlight.New(),
+		calendar.New(),
+		contacts.New(),
 	}
 
 	commanders := map[string]service.Commander{}

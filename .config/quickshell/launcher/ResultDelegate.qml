@@ -2,18 +2,56 @@ import QtQuick
 import Quickshell.Widgets
 import qs.theme
 
+// One launcher result row. modelData is a wrapper: { kind: "app", app } or
+// { kind: "contact", contact }. App rows keep the original LauncherDelegate look;
+// contact rows show an initials avatar and open the contact detail view.
 Item {
     id: delegateRoot
-    width: ListView.view.width
+    width: ListView.view ? ListView.view.width : 0
     height: 72
+
+    required property var modelData
+    // declaring modelData required puts the delegate in required-properties mode,
+    // so the view's index must be declared explicitly too.
+    required property int index
+
+    readonly property bool isApp: modelData.kind === "app"
+    readonly property var app: modelData.app
+    readonly property var contact: modelData.contact
 
     property bool isSelected: ListView.isCurrentItem
     property bool isHovered: itemMouseArea.containsMouse
 
-    property string descriptionText: modelData.genericName ? modelData.genericName : (modelData.comment ? modelData.comment : "")
+    readonly property string titleText: isApp ? (app.name || "") : (contact.name || "")
+    readonly property string descriptionText: isApp
+        ? (app.genericName ? app.genericName : (app.comment ? app.comment : ""))
+        : delegateRoot.contactSubtitle()
 
+    function contactSubtitle() {
+        if (contact.emails && contact.emails.length > 0)
+            return contact.emails[0].value;
+        if (contact.org)
+            return contact.org;
+        if (contact.phones && contact.phones.length > 0)
+            return contact.phones[0].value;
+        return "";
+    }
+
+    function initials() {
+        const parts = (contact.name || "").trim().split(/\s+/);
+        if (parts.length === 0 || parts[0] === "")
+            return "?";
+        if (parts.length === 1)
+            return parts[0].charAt(0).toUpperCase();
+        return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+    }
+
+    // Keyboard/click activation. Name kept as launch() for the ListView keynav.
     function launch() {
-        ctrl.launchApp(modelData);
+        if (isApp)
+            ctrl.launchApp(app);
+        else
+            launcherWindow.openContact(contact);
     }
 
     Rectangle {
@@ -61,8 +99,10 @@ Item {
             }
         }
 
+        // App icon
         IconImage {
             id: appIcon
+            visible: delegateRoot.isApp
             width: 42
             height: 42
             anchors.left: parent.left
@@ -70,18 +110,43 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
 
             source: {
-                if (!modelData.icon || modelData.icon === "") {
+                if (!delegateRoot.isApp)
+                    return "";
+                if (!delegateRoot.app.icon || delegateRoot.app.icon === "")
                     return "image://icon/application-x-executable";
-                }
-                if (modelData.icon.startsWith("/")) {
-                    return "file://" + modelData.icon;
-                }
-                return "image://icon/" + modelData.icon;
+                if (delegateRoot.app.icon.startsWith("/"))
+                    return "file://" + delegateRoot.app.icon;
+                return "image://icon/" + delegateRoot.app.icon;
             }
 
             onStatusChanged: {
-                if (status === Image.Error) {
+                if (status === Image.Error)
                     source = "image://icon/application-x-executable";
+            }
+        }
+
+        // Contact avatar (initials)
+        Rectangle {
+            id: avatar
+            visible: !delegateRoot.isApp
+            width: 42
+            height: 42
+            radius: 21
+            anchors.left: parent.left
+            anchors.leftMargin: 20
+            anchors.verticalCenter: parent.verticalCenter
+            color: Qt.alpha(Theme.primary, 0.18)
+            border.width: 1
+            border.color: Qt.alpha(Theme.primary, 0.4)
+
+            Text {
+                anchors.centerIn: parent
+                text: delegateRoot.isApp ? "" : delegateRoot.initials()
+                color: Theme.primary
+                font {
+                    family: Theme.font
+                    pixelSize: 16
+                    weight: Font.DemiBold
                 }
             }
         }
@@ -96,7 +161,7 @@ Item {
 
             Text {
                 width: parent.width
-                text: modelData.name
+                text: delegateRoot.titleText
                 color: delegateRoot.isSelected ? Theme.on_secondary_container : Theme.on_surface
                 elide: Text.ElideRight
                 font {
@@ -152,7 +217,7 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     topPadding: 2
                     verticalAlignment: Text.AlignVCenter
-                    text: "Launch"
+                    text: delegateRoot.isApp ? "Launch" : "Open"
                     color: Theme.on_primary
                     font {
                         family: "Google Sans Medium"
@@ -164,7 +229,7 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     topPadding: 2
                     verticalAlignment: Text.AlignVCenter
-                    text: "keyboard_return"
+                    text: delegateRoot.isApp ? "keyboard_return" : "person"
                     color: Theme.on_primary
                     font {
                         family: Theme.ligatureFont

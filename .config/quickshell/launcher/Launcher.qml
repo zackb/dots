@@ -5,12 +5,22 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Effects
 import qs.theme
+import qs.backend
 
 PanelWindow {
     id: launcherWindow
 
     // Add any apps you want to hide to this list
     property var hiddenKeywords: ["avahi", "uuctl", "bssh", "bvnc", "xfce"]
+
+    // Contact whose detail view is open (null = showing the result list).
+    property var activeContact: null
+    function openContact(c) {
+        launcherWindow.activeContact = c;
+    }
+    function closeContact() {
+        launcherWindow.activeContact = null;
+    }
 
     implicitWidth: 800
     implicitHeight: 739
@@ -145,6 +155,88 @@ PanelWindow {
         return scored.map(s => s.entry);
     }
 
+    function _digits(s) {
+        return (s || "").replace(/[^0-9]/g, "");
+    }
+
+    // Filter/score the address book. limit < 0 means no cap.
+    function buildContactsList(query, limit) {
+        var all = Backend.contacts || [];
+        var out;
+        if (query === "") {
+            // most-frecent first, then alphabetical
+            out = all.slice().sort(function (a, b) {
+                var fb = ctrl.frecency(b.uid), fa = ctrl.frecency(a.uid);
+                if (fb !== fa)
+                    return fb - fa;
+                return (a.name || "").localeCompare(b.name || "");
+            });
+        } else {
+            var qDigits = launcherWindow._digits(query);
+            var scored = [];
+            for (var i = 0; i < all.length; i++) {
+                var c = all[i];
+                var best = scoreMatch(c.name, query);
+                if (c.org) {
+                    var so = scoreMatch(c.org, query);
+                    if (so >= 200)
+                        best = Math.max(best, so - 60);
+                }
+                var em = c.emails || [];
+                for (var e = 0; e < em.length; e++) {
+                    var se = scoreMatch(em[e].value, query);
+                    if (se >= 200)
+                        best = Math.max(best, se - 20);
+                }
+                // numeric query: match against normalized phone digits
+                if (qDigits.length >= 3) {
+                    var ph = c.phones || [];
+                    for (var p = 0; p < ph.length; p++) {
+                        if (launcherWindow._digits(ph[p].value).indexOf(qDigits) !== -1) {
+                            best = Math.max(best, 300);
+                            break;
+                        }
+                    }
+                }
+                if (best >= 0)
+                    scored.push({ c: c, score: best });
+            }
+            scored.sort(function (a, b) {
+                if (b.score !== a.score)
+                    return b.score - a.score;
+                var fb = ctrl.frecency(b.c.uid), fa = ctrl.frecency(a.c.uid);
+                if (fb !== fa)
+                    return fb - fa;
+                return (a.c.name || "").localeCompare(b.c.name || "");
+            });
+            out = scored.map(function (s) { return s.c; });
+        }
+        if (limit >= 0 && out.length > limit)
+            out = out.slice(0, limit);
+        return out;
+    }
+
+    // Unified result list. Each item is { kind: "app", app } or
+    // { kind: "contact", contact }. "@" forces contacts-only; otherwise contacts
+    // blend in capped at 2, always after the apps so they never outrank one.
+    function buildResults() {
+        var q = ctrl.searchText.trim();
+        if (ctrl.contactsMode(q)) {
+            return buildContactsList(ctrl.contactsQueryOf(q), -1).map(function (c) {
+                return { kind: "contact", contact: c };
+            });
+        }
+        var apps = buildFilteredList().map(function (a) {
+            return { kind: "app", app: a };
+        });
+        if (q === "")
+            return apps;
+        var contacts = buildContactsList(q, 2).map(function (c) {
+            return { kind: "contact", contact: c };
+        });
+        return apps.concat(contacts);
+    }
+
     LauncherBackend {
         id: ctrl
 
@@ -201,6 +293,7 @@ PanelWindow {
                     function onVisibleChanged() {
                         if (launcherWindow.visible) {
                             searchField.text = "";
+                            launcherWindow.activeContact = null;
                             Qt.callLater(() => {
                                 focusGrab.active = true;
                                 searchField.forceActiveFocus();
@@ -388,7 +481,7 @@ PanelWindow {
                             selectionColor: Theme.primary_container
                             selectedTextColor: Theme.on_primary_container
 
-                            placeholderText: "Search apps..."
+                            placeholderText: "Search..."
                             placeholderTextColor: Theme.on_surface_variant
 
                             background: Item {
@@ -583,10 +676,10 @@ PanelWindow {
 
                             highlightMoveDuration: 120
                             highlightFollowsCurrentItem: true
-                            delegate: LauncherDelegate {}
+                            delegate: ResultDelegate {}
 
                             model: ScriptModel {
-                                values: launcherWindow.buildFilteredList()
+                                values: launcherWindow.buildResults()
                             }
                         }
 
@@ -613,13 +706,22 @@ PanelWindow {
                     Text {
                         id: emptyMessage
                         anchors.centerIn: listContainer
-                        text: "No matching applications"
-                        visible: listView.count === 0
+                        text: ctrl.contactsMode(ctrl.searchText) ? "No matching contacts" : "No matching applications"
+                        visible: listView.count === 0 && launcherWindow.activeContact === null
                         color: Theme.on_surface_variant
                         font {
                             family: "Google Sans Medium"
                             pixelSize: 18
                         }
+                    }
+
+                    // Contact detail view, shown over the list when a contact is opened.
+                    ContactDetail {
+                        anchors.top: searchArea.bottom
+                        anchors.topMargin: 16
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
                     }
 
                     Item {

@@ -8,6 +8,7 @@ import qs.dock
 import qs.notification
 import qs.bluetooth
 import qs.mlb
+import qs.calendar
 import qs.osd
 import qs.wallpaper
 import qs.lock
@@ -55,6 +56,9 @@ ShellRoot {
     Launcher {}
     Dock {}
     ScoreWidget {
+        active: shellVisible
+    }
+    EventsWidget {
         active: shellVisible
     }
 
