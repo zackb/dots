@@ -24,8 +24,13 @@ Singleton {
     // icon when the app's own icon is ugly.
     property var pinnedApps: [
         { id: "zen-browser", icon: "zen-browser" },
+        "eu.betterbird.Betterbird",
+        "signal",
+        "tether-gtk",
         "com.mitchellh.ghostty",
+        "nvim",
         "thunar",
+        "en-croissant",
         "gimp",
         "cider",
     ]
