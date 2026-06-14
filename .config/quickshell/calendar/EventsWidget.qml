@@ -18,13 +18,10 @@ PanelWindow {
 
     anchors {
         top: true
-        right: true
+        left: true
     }
-    // Stack under the score capsule (top-right, 36px tall) when a game is live;
-    // otherwise sit at the top. Keeps the two desktop widgets from overlapping.
-    readonly property bool scoreShowing: active && (Backend.mlbState.active === true)
-    WlrLayershell.margins.top: 12 + (scoreShowing ? 46 : 0)
-    WlrLayershell.margins.right: 12
+    WlrLayershell.margins.top: 12
+    WlrLayershell.margins.left: 12
 
     exclusionMode: ExclusionMode.Normal
     WlrLayershell.layer: WlrLayer.Bottom
