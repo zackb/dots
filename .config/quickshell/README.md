@@ -50,9 +50,38 @@ Files:
 - `backend/` — the Go backend daemon (`fenrizd`) and the `Backend` singleton
   that fronts it. Generic, service-based; currently hosts the ScreenSaver
   idle-inhibit broker. Built by the top-level `make` (needs the Go toolchain);
-  the shell launches the binary and it exits with the shell.
+  the shell launches the binary and it exits with the shell. The wire protocol
+  between the daemon and the shell is documented in [`PROTOCOL.md`](PROTOCOL.md).
 - Config (timeouts, dim level, PAM service names, backlight device) lives in
   `Theme.qml` under the `--- idle / lock ---` block.
+
+## Dependencies
+
+### Required
+
+Runtime:
+- **quickshell** — the shell host itself
+- **Hyprland** — compositor; `hyprctl` drives DPMS, lock keybind, and app launching
+- **polkit** — native agent (`Quickshell.Services.Polkit`, replaces hyprpolkitagent)
+- **PipeWire** — audio sink/source control (`Quickshell.Services.Pipewire`)
+- **NetworkManager** — network state, over D-Bus via `fenrizd`
+- **UPower** — battery widget (`Quickshell.Services.UPower`)
+- **BlueZ** (`bluez`, `bluez-utils`) — bluetooth (`Quickshell.Bluetooth`)
+- **PAM** + **fprintd** — lock-screen password and fingerprint auth (see PAM setup below)
+- **brightnessctl** — backlight dim/restore and the brightness OSD
+- **systemd / logind** — `loginctl` lock-session and `PrepareForSleep` suspend handling
+- a **terminal** — `ghostty` by default, for launching `runInTerminal` desktop entries
+  (override `myTerminal` in `launcher/LauncherBackend.qml`)
+
+Build:
+- **Go toolchain** — builds the backend daemon (`backend/fenrizd`)
+- **qsb** — compiles the wallpaper shaders (`make shaders`)
+
+### Optional
+
+- **qalc** (the `libqalculate` CLI) — inline calculator in the launcher; without
+  it, arithmetic queries simply return no result
+- **pamtester** — verifying the PAM services during setup (recommended, not required)
 
 ## Required setup
 
