@@ -61,10 +61,10 @@ shell always holds the latest complete state for each service.
 
 Inbound commands are routed to the service if it implements the optional
 `Commander` interface (`Command(name string, args json.RawMessage)`). The
-`clipboard` service is the only Commander today (`copy`/`delete`/`wipe`); every
-other service is emit-only, so the stream is mostly one-way (daemon → shell). The
-shell sends commands via `Backend.command(service, verb, args)`, which writes one
-JSON line to the daemon's stdin (the daemon `Process` sets `stdinEnabled: true`).
+`clipboard` and `wifi` services are Commanders today; every other service is
+emit-only, so the stream is mostly one-way (daemon → shell). The shell sends
+commands via `Backend.command(service, verb, args)`, which writes one JSON line
+to the daemon's stdin (the daemon `Process` sets `stdinEnabled: true`).
 
 ## Lifecycle
 
@@ -120,6 +120,35 @@ Primary NetworkManager connection. → `Backend.networkState`
 | `ssid`   | string | active connection profile name              |
 | `signal` | int    | 0–100; 100 for ethernet, 0 when down        |
 | `iface`  | string | interface name                              |
+
+### `wifi`
+
+Wi-Fi scanning and management via `nmcli` (which brokers the WPA secret agent, so
+passwords need no extra plumbing). Command-driven: it emits in response to a
+command or the shell's open-popup poll, not on a D-Bus watch — the passive
+indicator lives in `network`. → `Backend.wifiState`
+
+```json
+{"enabled":true,"connecting":false,"error":"",
+ "networks":[{"ssid":"home-5g","signal":72,"secured":true,"active":true,"saved":true}]}
+```
+
+| Field        | Type   | Notes                                                  |
+|--------------|--------|--------------------------------------------------------|
+| `enabled`    | bool   | Wi-Fi radio on                                         |
+| `connecting` | bool   | true while a connect is in flight                      |
+| `error`      | string | last connect failure (nmcli message); `""` on success |
+| `networks[]` | array  | visible APs, deduped by SSID, active-then-signal order |
+| ↳ `ssid`     | string | network SSID                                           |
+| ↳ `signal`   | int    | 0–100                                                  |
+| ↳ `secured`  | bool   | has security (a password is required)                  |
+| ↳ `active`   | bool   | currently connected                                    |
+| ↳ `saved`    | bool   | a saved connection profile exists                      |
+
+Commands (this service is a `Commander`): `scan` (rescan + re-list), `list`
+(re-list only), `connect` `{"ssid":"…","password":"…"}` (password omitted for
+open/saved networks), `forget` `{"ssid":"…"}` (deletes the saved profile), and
+`radio` `{"on":true|false}` (toggle the Wi-Fi radio).
 
 ### `sysinfo`
 

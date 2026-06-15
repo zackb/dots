@@ -6,6 +6,9 @@ import qs.theme
 Capsule {
     id: root
 
+    property var barWindow
+    property bool menuOpen: false
+
     readonly property var net: Backend.networkState
     property string iface:    net.iface || ""
     property string ssid:     net.ssid || ""
@@ -50,10 +53,17 @@ Capsule {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         onTapped: (eventPoint, button) => {
             if (button === Qt.RightButton) {
-                Quickshell.execDetached(["hyprwat", "--wifi"])
+                root.menuOpen = !root.menuOpen
             } else {
                 root.clicked = !root.clicked
             }
         }
+    }
+
+    WifiMenu {
+        barWindow:  root.barWindow
+        anchorItem: root
+        isOpen:     root.menuOpen
+        onRequestClose: root.menuOpen = false
     }
 }

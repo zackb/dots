@@ -27,6 +27,7 @@ import (
 	"fenriz/internal/screensaver"
 	"fenriz/internal/service"
 	"fenriz/internal/sysinfo"
+	"fenriz/internal/wifi"
 )
 
 func main() {
@@ -56,6 +57,7 @@ func main() {
 		screensaver.New(),
 		mlb.New(),
 		network.New(),
+		wifi.New(),
 		sysinfo.New(),
 		backlight.New(),
 		calendar.New(),

@@ -9,6 +9,7 @@ The goal of this quickshell was to replace:
   - hypridle
   - hyprlock
   - hyprpolkitagent
+  - hyprwat
   - bluetui / blueman
   - cliphist
 
@@ -79,7 +80,8 @@ Runtime:
 - **Hyprland** — compositor; `hyprctl` drives DPMS, lock keybind, and app launching
 - **polkit** — native agent (`Quickshell.Services.Polkit`, replaces hyprpolkitagent)
 - **PipeWire** — audio sink/source control (`Quickshell.Services.Pipewire`)
-- **NetworkManager** — network state, over D-Bus via `fenrizd`
+- **NetworkManager** (`nmcli`) — network state over D-Bus, plus Wi-Fi
+  scan/connect/forget/radio (`nmcli`), both through `fenrizd`
 - **UPower** — battery widget (`Quickshell.Services.UPower`)
 - **BlueZ** (`bluez`, `bluez-utils`) — bluetooth (`Quickshell.Bluetooth`)
 - **PAM** + **fprintd** — lock-screen password and fingerprint auth (see PAM setup below)

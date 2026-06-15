@@ -24,6 +24,9 @@ Singleton {
     // primary network connection (NetworkManager)
     property var networkState: ({ type: "none", ssid: "", signal: 0, iface: "" })
 
+    // wifi scan results + radio state (nmcli via fenrizd); driven by the popup
+    property var wifiState: ({ enabled: true, connecting: false, error: "", networks: [] })
+
     // screen brightness (sysfs backlight)
     property var backlight: ({ brightness: 0, max: 1 })
 
@@ -73,6 +76,8 @@ Singleton {
                     root.mlbState = msg.data
                 else if (msg.service === "network")
                     root.networkState = msg.data
+                else if (msg.service === "wifi")
+                    root.wifiState = msg.data
                 else if (msg.service === "sysinfo")
                     root.sysinfo = msg.data
                 else if (msg.service === "backlight")
@@ -93,6 +98,7 @@ Singleton {
             root._screensaver = ({ inhibited: false, count: 0, inhibitors: [] })
             root.mlbState = ({ active: false, class: "mlb-idle" })
             root.networkState = ({ type: "none", ssid: "", signal: 0, iface: "" })
+            root.wifiState = ({ enabled: true, connecting: false, error: "", networks: [] })
             root.calendarState = ({ upcoming: [] })
             root.contacts = []
             root.clipboard = ({ entries: [] })

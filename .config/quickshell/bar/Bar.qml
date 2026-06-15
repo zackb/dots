@@ -119,7 +119,7 @@ PanelWindow {
                 barWindow: root
             }
             Backlight {}
-            Network {}
+            Network { barWindow: root }
             Battery { barWindow: root }
             SysInfo {
                 barWindow: root
