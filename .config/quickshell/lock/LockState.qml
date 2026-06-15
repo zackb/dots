@@ -149,6 +149,16 @@ Singleton {
         onTriggered: if (!root._unlocking && root.locked) fingerprintCtx.start()
     }
 
+    // Drop a possibly-stale fprintd claim and re-arm a fresh verify. Used on
+    // resume from suspend, where the in-flight verify is torn down without a
+    // clean completion and the device is left wedged ("already in use").
+    function _restartFingerprint() {
+        if (root._unlocking || !root.locked) return
+        fpRestart.stop()
+        fingerprintCtx.abort()      // release the stale claim
+        fpRestart.restart()         // 500ms later: start() a fresh verify
+    }
+
     // called by LockSurface when the user submits the password field
     function submitPassword(pw) {
         if (root.busy || root._unlocking) return
@@ -287,7 +297,16 @@ Singleton {
                     // after_sleep_cmd) and, if still locked, restart the blank
                     // countdown rather than leaving them off.
                     root._dpmsForceOn()
-                    if (root.locked) dpmsTimer.restart()
+                    if (root.locked) {
+                        dpmsTimer.restart()
+                        // The fprintd verify that was live before suspend gets torn
+                        // down across the sleep without a clean onCompleted/onError,
+                        // leaving the device claimed but not listening. Both our own
+                        // context and other PAM clients (sudo/hyprlock) then see
+                        // "device already in use". Re-arm a fresh verify so the claim
+                        // is valid again (and releases cleanly on unlock).
+                        root._restartFingerprint()
+                    }
                 }
             }
         }
