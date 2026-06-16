@@ -4,6 +4,7 @@ import QtQuick
 import qs.theme
 
 Text {
+    id: root
     property bool inhibiting: false
 
     text:           inhibiting ? "" : ""
@@ -13,6 +14,8 @@ Text {
     font.family:    Theme.nerdFont
 
     IdleInhibitor {
+        // window must be non-null or the inhibitor is never created
+        window:  root.QsWindow.window
         enabled: inhibiting
     }
 
