@@ -39,6 +39,9 @@ Singleton {
     // clipboard history (fenrizd captures via wl-paste, restores via wl-copy)
     property var clipboard: ({ entries: [] })
 
+    // AirPods battery (Apple BLE proximity beacons via fenrizd); -1 = hidden
+    property var airpods: ({ connected: false, address: "", left: -1, right: -1, case: -1 })
+
     // cpu / memory / disk / temperature
     property var sysinfo: ({
         cpuModel: "", overallCpu: 0, memPercent: 0, diskPercent: 0, tempC: 0,
@@ -88,6 +91,8 @@ Singleton {
                     root.contacts = msg.data
                 else if (msg.service === "clipboard")
                     root.clipboard = msg.data
+                else if (msg.service === "airpods")
+                    root.airpods = msg.data
                 root.serviceEvent(msg.service, msg.data)
             }
         }
@@ -102,6 +107,7 @@ Singleton {
             root.calendarState = ({ upcoming: [] })
             root.contacts = []
             root.clipboard = ({ entries: [] })
+            root.airpods = ({ connected: false, address: "", left: -1, right: -1, case: -1 })
             relaunch.start()
         }
     }

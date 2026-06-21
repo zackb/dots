@@ -16,6 +16,7 @@ import (
 	"syscall"
 	"time"
 
+	"fenriz/internal/airpods"
 	"fenriz/internal/backlight"
 	"fenriz/internal/calendar"
 	"fenriz/internal/clipboard"
@@ -64,6 +65,7 @@ func main() {
 		calendar.New(),
 		contacts.New(),
 		clipboard.New(),
+		airpods.New(),
 	}
 
 	commanders := map[string]service.Commander{}

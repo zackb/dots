@@ -5,6 +5,7 @@ import Quickshell.Bluetooth
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import qs.backend
 import qs.bluetooth
 import qs.components
 import qs.theme
@@ -17,7 +18,7 @@ OverlayPopup {
     property int targetY: 0
 
     readonly property BluetoothAdapter adapter: Bluetooth.defaultAdapter
-    property var airpodsBattery: null
+    readonly property var airpodsBattery: Backend.airpods
 
     onIsOpenChanged: {
         if (!isOpen || !anchorItem) return
