@@ -31,3 +31,11 @@ type Service interface {
 type Commander interface {
 	Command(name string, args json.RawMessage)
 }
+
+// Resumer is an optional interface for services that need to react to the system
+// resuming from suspend -- e.g. to refresh data whose poll timer was frozen
+// while asleep. OnResume runs on a single shared watcher goroutine, so it must
+// return quickly and not block; do real work in the service's own goroutine.
+type Resumer interface {
+	OnResume()
+}

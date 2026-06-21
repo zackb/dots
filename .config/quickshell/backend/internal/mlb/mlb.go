@@ -65,7 +65,8 @@ type Service struct {
 	logoDir string
 	client  *http.Client
 	emit    service.Emitter
-	last    State // last good (active) state, replayed across transient outages
+	last    State         // last good (active) state, replayed across transient outages
+	resume  chan struct{} // poked by OnResume to force a re-poll after suspend
 }
 
 func New() *Service {
@@ -81,6 +82,7 @@ func New() *Service {
 		team:    team,
 		logoDir: dir,
 		client:  &http.Client{Timeout: 8 * time.Second},
+		resume:  make(chan struct{}, 1),
 	}
 }
 
@@ -90,6 +92,17 @@ func (s *Service) Start(ctx context.Context, emit service.Emitter) error {
 	s.emit = emit
 	go s.run(ctx)
 	return nil
+}
+
+// OnResume nudges the poll loop to refresh after a resume from suspend, where
+// its monotonic-clock sleep was frozen and the score is likely stale. Must not
+// block (it runs on the shared power watcher goroutine), so the send is
+// non-blocking -- a coalesced wake is all the loop needs.
+func (s *Service) OnResume() {
+	select {
+	case s.resume <- struct{}{}:
+	default:
+	}
 }
 
 // run polls, emits, then sleeps for a state-dependent interval until ctx ends.
@@ -121,6 +134,8 @@ func (s *Service) run(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-time.After(next):
+		case <-s.resume:
+			fails = 0 // re-poll now; if it fails, retry from errRetryMin not a long backoff
 		}
 	}
 }

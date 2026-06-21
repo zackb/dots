@@ -23,6 +23,7 @@ import (
 	"fenriz/internal/log"
 	"fenriz/internal/mlb"
 	"fenriz/internal/network"
+	"fenriz/internal/power"
 	"fenriz/internal/proto"
 	"fenriz/internal/screensaver"
 	"fenriz/internal/service"
@@ -66,6 +67,7 @@ func main() {
 	}
 
 	commanders := map[string]service.Commander{}
+	var resumers []service.Resumer
 	for _, svc := range services {
 		name := svc.Name()
 		emit := func(data any) { writer.Emit(name, data) }
@@ -76,7 +78,22 @@ func main() {
 		if c, ok := svc.(service.Commander); ok {
 			commanders[name] = c
 		}
+		if r, ok := svc.(service.Resumer); ok {
+			resumers = append(resumers, r)
+		}
 		log.Infof("service %q started", name)
+	}
+
+	// One shared logind watcher fans resume-from-suspend out to the services
+	// that care. Best-effort: a missing system bus just means no resume nudge.
+	if len(resumers) > 0 {
+		if err := power.Watch(ctx, func() {
+			for _, r := range resumers {
+				r.OnResume()
+			}
+		}); err != nil {
+			log.Warnf("power: resume watch unavailable: %v", err)
+		}
 	}
 
 	// Read stdin for commands and for EOF: when the shell exits it closes our
