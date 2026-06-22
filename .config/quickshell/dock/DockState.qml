@@ -35,6 +35,20 @@ Singleton {
         "cider",
     ]
 
+    // reveal state (runtime, shared by the dock and the corner tray so hovering
+    // either one keeps both visible)
+
+    property bool revealed: false
+
+    Timer {
+        id: _hideTimer
+        interval: 400
+        onTriggered: root.revealed = false
+    }
+
+    function reveal()       { _hideTimer.stop(); root.revealed = true }
+    function scheduleHide() { _hideTimer.restart() }
+
     // launching
 
     function launch(id) {

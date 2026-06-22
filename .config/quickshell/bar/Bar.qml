@@ -112,7 +112,6 @@ PanelWindow {
             }
             spacing: 6
 
-            // Tray { barWindow: root }
             Updates {}
             Audio { barWindow: root }
             Bluetooth {

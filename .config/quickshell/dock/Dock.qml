@@ -37,13 +37,7 @@ PanelWindow {
         return out
     }
 
-    // reveal state
-    property bool revealed: false
-    Timer {
-        id: hideTimer
-        interval: 400
-        onTriggered: root.revealed = false
-    }
+    // reveal state lives in DockState so the corner tray shares it
 
     // window
 
@@ -99,11 +93,11 @@ PanelWindow {
             root.position === "bottom" ? root.height - root.gap - implicitHeight
           : (root.height - implicitHeight) / 2
 
-        x: restX + (root.revealed ? 0
+        x: restX + (DockState.revealed ? 0
               : root.position === "left"  ? -hideOffset
               : root.position === "right" ?  hideOffset
               : 0)
-        y: restY + (root.revealed && root.position === "bottom" ? 0
+        y: restY + (DockState.revealed && root.position === "bottom" ? 0
               : root.position === "bottom" ? hideOffset
               : 0)
 
@@ -112,8 +106,8 @@ PanelWindow {
 
         HoverHandler {
             onHoveredChanged: {
-                if (hovered) { hideTimer.stop(); root.revealed = true }
-                else hideTimer.restart()
+                if (hovered) DockState.reveal()
+                else DockState.scheduleHide()
             }
         }
 

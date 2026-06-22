@@ -12,21 +12,29 @@ PanelWindow {
     property var  trayItem
     property bool isOpen: false
     property int  targetX: 0
-    property int  targetY: 0
+    property int  itemTop: 0   // global y of the anchoring item's top edge
 
     readonly property int menuWidth: 240
 
-    function openAt(item) {
-        var pos       = item.mapToItem(null, 0, 0)
-        var marginTop = (barWindow && barWindow.margins) ? barWindow.margins.top : 0
-        var screenW   = barWindow ? barWindow.width : 1920
+    // Menu opens upward: its bottom sits just above the tray item.
+    readonly property real openY: itemTop - panel.height - 6
 
-        var x = pos.x + (item.width / 2) - (menuWidth / 2)
+    function openAt(item) {
+        // pos is relative to the host (TrayDock) window; translate to screen
+        // space using the host's anchored offset (bottom-right corner).
+        var pos     = item.mapToItem(null, 0, 0)
+        var scr     = barWindow ? barWindow.screen : null
+        var screenW = scr ? scr.width : 1920
+        var ox      = scr ? scr.width  - barWindow.width  : 0
+        var oy      = scr ? scr.height - barWindow.height : 0
+
+        var gx = pos.x + ox
+        var x  = gx + (item.width / 2) - (menuWidth / 2)
         if (x < 10) x = 10
         if (x + menuWidth > screenW - 10) x = screenW - menuWidth - 10
 
         targetX = x
-        targetY = pos.y + marginTop + item.height + 6
+        itemTop = pos.y + oy
         isOpen  = true
     }
 
@@ -55,7 +63,7 @@ PanelWindow {
     Rectangle {
         id: panel
         x: root.targetX
-        y: root.targetY
+        y: root.openY
         width:  root.menuWidth
         height: col.implicitHeight + 12
         color:  Theme.popupBg
@@ -95,11 +103,11 @@ PanelWindow {
         states: [
             State {
                 name: "open"; when: root.isOpen
-                PropertyChanges { target: panel; opacity: 1.0; y: root.targetY }
+                PropertyChanges { target: panel; opacity: 1.0; y: root.openY }
             },
             State {
                 name: "closed"; when: !root.isOpen
-                PropertyChanges { target: panel; opacity: 0.0; y: root.targetY - 10 }
+                PropertyChanges { target: panel; opacity: 0.0; y: root.openY + 10 }
             }
         ]
         transitions: [

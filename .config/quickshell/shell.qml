@@ -5,6 +5,7 @@ import qs.bar
 import qs.bar.controlcenter
 import qs.launcher
 import qs.dock
+import qs.tray
 import qs.notification
 import qs.bluetooth
 import qs.mlb
@@ -55,6 +56,7 @@ ShellRoot {
 
     Launcher {}
     Dock {}
+    TrayDock {}
     ScoreWidget {
         active: shellVisible
     }
