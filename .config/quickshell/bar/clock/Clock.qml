@@ -43,6 +43,6 @@ Item {
         let h = now.getHours()
         const m = String(now.getMinutes()).padStart(2, "0")
         h = h % 12 || 12
-        return `${days[now.getDay()]} ${now.getDate()} | ${h}:${m}`
+        return `${days[now.getDay()]} ${now.getDate()}  |  ${h}:${m}`
     }
 }

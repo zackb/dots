@@ -12,11 +12,17 @@ Rectangle {
     signal pair()
     signal forget()
 
+    // True once the backend has at least one real battery reading; until then we
+    // don't reserve the battery area (AirPods in case / mid-reconnect report -1).
+    readonly property bool hasBattery: airpodsBattery
+        && (airpodsBattery.left >= 0 || airpodsBattery.right >= 0 || airpodsBattery.case >= 0)
+
     // Only the connected AirPods row shows battery bars, matched by the
     // connection MAC the backend reports (the device's name may be customised).
     readonly property bool showBattery: device && device.connected
         && airpodsBattery && airpodsBattery.connected && airpodsBattery.address
         && (device.address || "").toUpperCase() === airpodsBattery.address.toUpperCase()
+        && hasBattery
 
     Layout.fillWidth: true
     implicitHeight: Math.max(52, content.implicitHeight + 16)
@@ -28,11 +34,16 @@ Rectangle {
 
     ColumnLayout {
         id: content
-        anchors.fill: parent
+        anchors.left: parent.left
+        anchors.right: parent.right
         anchors.leftMargin: 16
         anchors.rightMargin: 16
+        // With battery bars, fill top-to-bottom; without them, center the lone title.
+        anchors.top: row.showBattery ? parent.top : undefined
+        anchors.bottom: row.showBattery ? parent.bottom : undefined
         anchors.topMargin: 8
         anchors.bottomMargin: 8
+        anchors.verticalCenter: row.showBattery ? undefined : parent.verticalCenter
         spacing: 6
 
         RowLayout {

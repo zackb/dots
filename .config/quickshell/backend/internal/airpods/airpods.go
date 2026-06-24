@@ -254,6 +254,12 @@ func (s *Service) publish() {
 	}
 }
 
+// attemptTimeout bounds a single L2CAP attempt until it delivers its first
+// battery packet. unix.Connect (and a silently-dead established channel) can
+// block forever with no error, which would otherwise wedge the reader on attempt
+// #1 and never reach the backoff/reconnect loop.
+const attemptTimeout = 8 * time.Second
+
 // runReader keeps an AAP session alive while ctx is live, reconnecting with
 // backoff (AirPods occasionally drop the channel).
 func runReader(ctx context.Context, addr [6]byte, out chan<- batteryUpdate) {
@@ -262,9 +268,32 @@ func runReader(ctx context.Context, addr [6]byte, out chan<- batteryUpdate) {
 		if ctx.Err() != nil {
 			return
 		}
-		if err := session(ctx, addr, out); err != nil && ctx.Err() == nil {
+
+		// Per-attempt watchdog: force the attempt to abort if it hasn't produced
+		// a battery packet within attemptTimeout. Once data flows the watchdog
+		// stops, so a healthy stream stays open indefinitely.
+		attemptCtx, cancel := context.WithCancel(ctx)
+		firstPacket := make(chan struct{}, 1)
+		go func() {
+			t := time.NewTimer(attemptTimeout)
+			defer t.Stop()
+			select {
+			case <-firstPacket:
+			case <-t.C:
+				cancel() // closes the fd via session's ctx watcher
+			case <-attemptCtx.Done():
+			}
+		}()
+
+		established, err := session(attemptCtx, addr, out, firstPacket)
+		cancel()
+		if err != nil && ctx.Err() == nil {
 			log.Warnf("airpods: l2cap session: %v", err)
 		}
+		if established {
+			backoff = 500 * time.Millisecond // a working stream resets backoff
+		}
+
 		select {
 		case <-ctx.Done():
 			return
@@ -277,11 +306,14 @@ func runReader(ctx context.Context, addr [6]byte, out chan<- batteryUpdate) {
 }
 
 // session opens one L2CAP connection, performs the AAP handshake, and reads
-// battery notifications until the socket errors or ctx is cancelled.
-func session(ctx context.Context, addr [6]byte, out chan<- batteryUpdate) error {
+// battery notifications until the socket errors or ctx is cancelled. It signals
+// firstPacket once on the first decoded battery packet and reports whether the
+// session ever became established (got data), so runReader can manage its
+// watchdog and backoff.
+func session(ctx context.Context, addr [6]byte, out chan<- batteryUpdate, firstPacket chan<- struct{}) (bool, error) {
 	fd, err := unix.Socket(unix.AF_BLUETOOTH, unix.SOCK_SEQPACKET, unix.BTPROTO_L2CAP)
 	if err != nil {
-		return err
+		return false, err
 	}
 	closed := make(chan struct{})
 	go func() {
@@ -301,26 +333,34 @@ func session(ctx context.Context, addr [6]byte, out chan<- batteryUpdate) error 
 			err = unix.Connect(fd, sa)
 		}
 		if err != nil {
-			return err
+			return false, err
 		}
 	}
 	for _, pkt := range [][]byte{pktHandshake, pktFeatures, pktNotify} {
 		if _, err := unix.Write(fd, pkt); err != nil {
-			return err
+			return false, err
 		}
 	}
 
+	established := false
 	buf := make([]byte, 1024)
 	for {
 		n, err := unix.Read(fd, buf)
 		if err != nil {
-			return err
+			return established, err
 		}
 		if u, ok := parseBattery(buf[:n]); ok {
+			if !established {
+				established = true
+				select {
+				case firstPacket <- struct{}{}:
+				default:
+				}
+			}
 			select {
 			case out <- u:
 			case <-ctx.Done():
-				return nil
+				return established, nil
 			}
 		}
 	}
