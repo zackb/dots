@@ -50,117 +50,137 @@ Item {
     Variants {
         model: Quickshell.screens
 
-        delegate: PanelWindow {
-            id: win
+        // Scope pairs the per-screen wallpaper window with its own right-click
+        // menu window (the menu must live on the Overlay layer, above the bar).
+        delegate: Scope {
+            id: scopeRoot
             required property var modelData
-            screen: modelData
 
-            WlrLayershell.layer:         WlrLayer.Background
-            WlrLayershell.exclusionMode: ExclusionMode.Ignore
-            WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+            DesktopMenu {
+                id: desktopMenu
+                screen: scopeRoot.modelData
+            }
 
-            anchors { top: true; bottom: true; left: true; right: true }
-            color: "black"
+            PanelWindow {
+                id: win
+                screen: scopeRoot.modelData
 
-            readonly property string source: Theme.wallpaper ? "file://" + Theme.wallpaper : ""
+                WlrLayershell.layer:         WlrLayer.Background
+                WlrLayershell.exclusionMode: ExclusionMode.Ignore
+                WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 
-            // ping-pong buffers: one image holds the wallpaper currently shown,
-            // the other loads the incoming one. A shader blends from the shown
-            // image to the incoming
-            property bool aActive:   true   // which image is currently shown
-            property bool animating: false  // true only while a swap is in flight
-            property real progress:  0
-            property string effect:  "fade"
+                anchors { top: true; bottom: true; left: true; right: true }
+                color: "black"
 
-            readonly property var effects: ["fade", "wipe", "circle", "dissolve",
-                                            "pixelate", "push", "blinds", "clock", "ripple"]
+                readonly property string source: Theme.wallpaper ? "file://" + Theme.wallpaper : ""
 
-            function pickEffect() {
-                var e = Theme.wallpaperTransition
-                if (e === "random")
+                // ping-pong buffers: one image holds the wallpaper currently shown,
+                // the other loads the incoming one. A shader blends from the shown
+                // image to the incoming
+                property bool aActive:   true   // which image is currently shown
+                property bool animating: false  // true only while a swap is in flight
+                property real progress:  0
+                property string effect:  "fade"
+
+                readonly property var effects: ["fade", "wipe", "circle", "dissolve",
+                "pixelate", "push", "blinds", "clock", "ripple"]
+
+                function pickEffect() {
+                    var e = Theme.wallpaperTransition
+                    if (e === "random")
                     e = effects[Math.floor(Math.random() * effects.length)]
-                if (effects.indexOf(e) < 0)
+                    if (effects.indexOf(e) < 0)
                     e = "fade"
-                effect = e
-            }
+                    effect = e
+                }
 
-            // Load `src` into the hidden buffer; the animation kicks off once
-            // that image reports Ready (see WallImage.onStatusChanged).
-            function swap(src) {
-                var incoming = aActive ? bImg : aImg
-                if (incoming.source == src)
+                // Load `src` into the hidden buffer; the animation kicks off once
+                // that image reports Ready (see WallImage.onStatusChanged).
+                function swap(src) {
+                    var incoming = aActive ? bImg : aImg
+                    if (incoming.source == src)
                     return
-                pickEffect()
-                animating = true            // wake the ShaderEffectSources
-                incoming.source = src
-            }
+                    pickEffect()
+                    animating = true            // wake the ShaderEffectSources
+                    incoming.source = src
+                }
 
-            function beginAnim() {
-                progress = 0
-                anim.restart()
-            }
+                function beginAnim() {
+                    progress = 0
+                    anim.restart()
+                }
 
-            function endAnim() {
-                aActive = !aActive          // incoming buffer is now the shown one
-                progress = 0
-                animating = false
-            }
+                function endAnim() {
+                    aActive = !aActive          // incoming buffer is now the shown one
+                    progress = 0
+                    animating = false
+                }
 
-            onSourceChanged: swap(source)
-            Component.onCompleted: swap(source)
+                onSourceChanged: swap(source)
+                Component.onCompleted: swap(source)
 
-            NumberAnimation {
-                id: anim
-                target: win
-                property: "progress"
-                from: 0; to: 1
-                duration: Theme.wallpaperTransitionDuration
-                easing.type: Easing.InOutQuad
-                onFinished: win.endAnim()
-            }
+                NumberAnimation {
+                    id: anim
+                    target: win
+                    property: "progress"
+                    from: 0; to: 1
+                    duration: Theme.wallpaperTransitionDuration
+                    easing.type: Easing.InOutQuad
+                    onFinished: win.endAnim()
+                }
 
-            component WallImage: Image {
-                anchors.fill:  parent
-                visible:       false        // only the ShaderEffect is drawn
-                fillMode:      Image.PreserveAspectCrop
-                asynchronous:  true
-                cache:         false
-                smooth:        true
-            }
+                component WallImage: Image {
+                    anchors.fill:  parent
+                    visible:       false        // only the ShaderEffect is drawn
+                    fillMode:      Image.PreserveAspectCrop
+                    asynchronous:  true
+                    cache:         false
+                    smooth:        true
+                }
 
-            WallImage {
-                id: aImg
-                onStatusChanged: if (status === Image.Ready && !win.aActive && win.animating) win.beginAnim()
-            }
-            WallImage {
-                id: bImg
-                onStatusChanged: if (status === Image.Ready && win.aActive && win.animating) win.beginAnim()
-            }
+                WallImage {
+                    id: aImg
+                    onStatusChanged: if (status === Image.Ready && !win.aActive && win.animating) win.beginAnim()
+                }
+                WallImage {
+                    id: bImg
+                    onStatusChanged: if (status === Image.Ready && win.aActive && win.animating) win.beginAnim()
+                }
 
-            ShaderEffectSource {
-                id: aSrc
-                anchors.fill: parent
-                sourceItem:   aImg
-                hideSource:   true
-                live:         win.animating
-                visible:      false
-            }
-            ShaderEffectSource {
-                id: bSrc
-                anchors.fill: parent
-                sourceItem:   bImg
-                hideSource:   true
-                live:         win.animating
-                visible:      false
-            }
+                ShaderEffectSource {
+                    id: aSrc
+                    anchors.fill: parent
+                    sourceItem:   aImg
+                    hideSource:   true
+                    live:         win.animating
+                    visible:      false
+                }
+                ShaderEffectSource {
+                    id: bSrc
+                    anchors.fill: parent
+                    sourceItem:   bImg
+                    hideSource:   true
+                    live:         win.animating
+                    visible:      false
+                }
 
-            ShaderEffect {
-                anchors.fill:   parent
-                fragmentShader: Qt.resolvedUrl("shaders/" + win.effect + ".frag.qsb")
-                property real     progress: win.progress
-                property real     aspect:   width / height
-                property variant  fromTex:  win.aActive ? aSrc : bSrc
-                property variant  toTex:    win.aActive ? bSrc : aSrc
+                ShaderEffect {
+                    anchors.fill:   parent
+                    fragmentShader: Qt.resolvedUrl("shaders/" + win.effect + ".frag.qsb")
+                    property real     progress: win.progress
+                    property real     aspect:   width / height
+                    property variant  fromTex:  win.aActive ? aSrc : bSrc
+                    property variant  toTex:    win.aActive ? bSrc : aSrc
+                }
+
+                // Right-click the desktop -> menu.
+                // Gives the background surface an input region; left clicks are
+                // ignored so they pass through. m.x/m.y are screen coords
+                MouseArea {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.RightButton
+                    onClicked: (m) => desktopMenu.openAt(m.x, m.y)
+                }
             }
         }
     }
