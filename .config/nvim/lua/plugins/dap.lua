@@ -10,7 +10,7 @@ return {
         },
         keys = {
             {
-                "<leader>d",
+                "<leader>dc",
                 function()
                     require("dap").continue()
                 end,
@@ -52,11 +52,11 @@ return {
                 desc = "Debug: Set Breakpoint",
             },
             {
-                "<leader>dap",
+                "<leader>du",
                 function()
                     require("dapui").toggle()
                 end,
-                desc = "Debug: See last session result.",
+                desc = "Debug: Toggle UI / last session result",
             },
         },
         config = function()

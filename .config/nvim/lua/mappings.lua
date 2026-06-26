@@ -12,9 +12,11 @@ end, { desc = "Reveal current file" })
 
 vim.keymap.set("n", "<leader>q", "<cmd>Telescope diagnostics bufnr=0<cr>", { desc = "Show diagnostics for buffer" })
 
--- yank to system clipboard
+-- yank to system clipboard (deletes deliberately stay on internal registers)
 vim.keymap.set("n", "y", '"+y')
 vim.keymap.set("v", "y", '"+y')
+vim.keymap.set("n", "Y", '"+y$')
+vim.keymap.set("x", "Y", '"+Y')
 --
 -- clear highlights on search when pressing <Esc> in normal mode
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")

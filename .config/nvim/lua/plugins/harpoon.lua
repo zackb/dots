@@ -8,13 +8,13 @@ return {
             harpoon:setup()
             local list = harpoon:list()
 
-            vim.keymap.set("n", "<leader>ha", function()
+            vim.keymap.set("n", "<leader>ma", function()
                 list:add()
             end, { desc = "Harpoon add file" })
-            vim.keymap.set("n", "<leader>hr", function()
+            vim.keymap.set("n", "<leader>md", function()
                 list:remove()
             end, { desc = "Harpoon remove file" })
-            vim.keymap.set("n", "<leader>h", function()
+            vim.keymap.set("n", "<leader>mm", function()
                 harpoon.ui:toggle_quick_menu(list)
             end, { desc = "Harpoon quick menu" })
 
