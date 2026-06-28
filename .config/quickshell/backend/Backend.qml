@@ -46,7 +46,7 @@ Singleton {
     property var sysinfo: ({
         cpuModel: "", overallCpu: 0, memPercent: 0, diskPercent: 0, tempC: 0,
         cpuCores: [], memUsedMB: 0, memTotalMB: 1, memBuffMB: 0, memAvailMB: 0,
-        diskUsedMB: 0, diskTotalMB: 1, diskAvailMB: 0
+        diskUsedMB: 0, diskTotalMB: 1, diskAvailMB: 0, acOnline: false
     })
 
     // generic hook for event-driven consumers

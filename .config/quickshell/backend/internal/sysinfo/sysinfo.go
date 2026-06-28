@@ -42,6 +42,7 @@ type State struct {
 	DiskUsedMB  int    `json:"diskUsedMB"`
 	DiskTotalMB int    `json:"diskTotalMB"`
 	DiskAvailMB int    `json:"diskAvailMB"`
+	AcOnline    bool   `json:"acOnline"`
 }
 
 // cpuTimes is one /proc/stat cpu line: idle (idle+iowait) and total of all fields.
@@ -92,7 +93,26 @@ func (s *Service) sample() State {
 	}
 	st.MemPercent, st.MemUsedMB, st.MemTotalMB, st.MemBuffMB, st.MemAvailMB = readMem()
 	st.DiskPercent, st.DiskUsedMB, st.DiskTotalMB, st.DiskAvailMB = readDisk("/")
+	st.AcOnline = readACOnline()
 	return st
+}
+
+// readACOnline reports whether any Mains supply is plugged in, straight from
+// sysfs. UPower's line-power device goes stale on this machine (misses unplug
+// uevents), so we poll the kernel's ground truth instead.
+func readACOnline() bool {
+	supplies, _ := filepath.Glob("/sys/class/power_supply/*")
+	for _, p := range supplies {
+		t, err := os.ReadFile(filepath.Join(p, "type"))
+		if err != nil || strings.TrimSpace(string(t)) != "Mains" {
+			continue
+		}
+		if b, err := os.ReadFile(filepath.Join(p, "online")); err == nil &&
+			strings.TrimSpace(string(b)) == "1" {
+			return true
+		}
+	}
+	return false
 }
 
 // CPU

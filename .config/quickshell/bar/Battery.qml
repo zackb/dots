@@ -2,6 +2,7 @@ import Quickshell
 import Quickshell.Services.UPower
 import QtQuick
 import qs.theme
+import qs.backend
 
 Capsule {
     id: root
@@ -29,9 +30,13 @@ Capsule {
         const p = bat.percentage
         return Math.round(p <= 1 ? p * 100 : p)
     }
-    // Charging from UPower's line-power-derived global, NOT the battery's own
-    // state: BAT1 firmware reports "discharging" even while on AC.
-    property bool charging: !UPower.onBattery
+    // Charging from sysfs AC online (via fenrizd poll), NOT UPower: BAT1 state
+    // reports "discharging" on AC, and UPower.onBattery goes stale because the
+    // line-power device misses unplug uevents on this machine.
+    // TODO: figure out why this only works sometimes
+    // property bool charging: !UPower.onBattery
+
+    property bool charging: Backend.sysinfo.acOnline
     property bool clicked: false
 
     function batteryIcon() {
