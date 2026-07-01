@@ -26,6 +26,7 @@ Singleton {
         { id: "zen-browser", icon: "zen-browser" },
         "eu.betterbird.Betterbird",
         "signal",
+        "com.zackbartel.minfin",
         "tether-gtk",
         "com.mitchellh.ghostty",
         "nvim",
