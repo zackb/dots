@@ -79,7 +79,7 @@ Capsule {
 
                 SysInfoChip {
                     id: cpuChip
-                    label: ""
+                    label: "󰻠"
                     value: root.cpu
                     height: innerRow.height
                     width: Math.max(implicitWidth, root.cpuHoverWidth)
@@ -103,7 +103,7 @@ Capsule {
 
                 SysInfoChip {
                     id: memChip
-                    label: ""
+                    label: " 󰍛"
                     value: root.mem
                     height: innerRow.height
 
@@ -125,7 +125,7 @@ Capsule {
 
                 SysInfoChip {
                     id: diskChip
-                    label: "󰋊 "
+                    label: " 󰋊"
                     value: root.disk
                     height: innerRow.height
 
@@ -147,7 +147,7 @@ Capsule {
 
                 SysInfoChip {
                     id: tempChip
-                    label: ""
+                    label: " 󰔏"
                     value: root.temp
                     height: innerRow.height
 
