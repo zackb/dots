@@ -4,6 +4,7 @@ import Quickshell.Wayland
 import QtQuick
 import qs.theme
 import qs.lock
+import qs.compositor
 
 PanelWindow {
     id: root
@@ -39,16 +40,13 @@ PanelWindow {
 
     onIsOpenChanged: if (!isOpen) activeItem = null
 
-    // Launch like dock/DockState.qml: terminal-wrap then dispatch via Hyprland.
+    // Launch like dock/DockState.qml: terminal-wrap then spawn via the compositor.
     function launch(e) {
         if (!e)
             return
         var parts = e.runInTerminal ? ["ghostty", "-e"] : []
         parts = parts.concat(e.command)
-        Quickshell.execDetached({
-            command: ["hyprctl", "dispatch", 'hl.dsp.exec_cmd("' + parts.join(" ") + '")'],
-            workingDirectory: e.workingDirectory
-        })
+        Compositor.spawn(parts, e.workingDirectory)
     }
 
     // Icon source resolution, mirrors launcher/ResultDelegate.qml.

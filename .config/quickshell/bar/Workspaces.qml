@@ -1,19 +1,19 @@
 import Quickshell
-import Quickshell.Hyprland
 import QtQuick
+import qs.compositor
 import qs.theme
 
 Row {
     spacing: 4
 
     Repeater {
-        model: Hyprland.workspaces.values.filter(ws => ws.id > 0)
+        model: Compositor.workspaces
 
         delegate: Rectangle {
-            required property HyprlandWorkspace modelData
+            required property var modelData
 
-            property bool isActive: modelData.id === Hyprland.focusedMonitor?.activeWorkspace?.id
-            property bool isUrgent: modelData.toplevels.values.filter(c => c.urgent && c.workspace?.id === modelData.id).length > 0
+            property bool isActive: modelData.focused
+            property bool isUrgent: modelData.urgent
 
             property bool wsHovered: false
 
@@ -44,7 +44,7 @@ Row {
             }
 
             TapHandler {
-                onTapped: Hyprland.dispatch("hl.dsp.focus({ workspace = \"" + modelData.id + "\" })")
+                onTapped: Compositor.focusWorkspace(modelData.id)
             }
         }
     }

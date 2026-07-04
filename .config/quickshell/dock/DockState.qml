@@ -3,6 +3,7 @@ pragma Singleton
 import Quickshell
 import QtQuick
 import qs.store
+import qs.compositor
 
 // Persistent dock configuration + app-launching.
 // enabled/position survive reloads (dock.json); pinnedApps is source config
@@ -60,10 +61,7 @@ Singleton {
         var parts = e.runInTerminal ? ["ghostty", "-e"] : []
         parts = parts.concat(e.command)
 
-        Quickshell.execDetached({
-            command: ["hyprctl", "dispatch", 'hl.dsp.exec_cmd("' + parts.join(" ") + '")'],
-            workingDirectory: e.workingDirectory
-        })
+        Compositor.spawn(parts, e.workingDirectory)
     }
 
     // persistence (store/Store.qml, like lock/LockState.qml)
