@@ -6,6 +6,7 @@ import Quickshell.Wayland
 import Quickshell.Services.Pam
 import QtQuick
 import qs.backend
+import qs.compositor
 import qs.store
 import qs.theme
 
@@ -216,7 +217,7 @@ Singleton {
         root._persist()
     }
 
-    // DPMS (screen power). No native API
+    // DPMS (screen power), via the compositor's IPC (Compositor.dpms).
     function dpmsOff() {
         // Never blank an unlocked session. The blank timer only exists to power
         // screens off *while locked*; if we are not locked (e.g. a stray timer
@@ -226,12 +227,7 @@ Singleton {
         if (!root.locked) return
         if (root._dpmsBlanked) return
         root._dpmsBlanked = true
-        // Quickshell.execDetached(["hyprctl", "dispatch", "dpms", "off"])
-        Quickshell.execDetached([
-            "hyprctl",
-            "dispatch",
-            "hl.dsp.dpms({ action = \"disable\" })"
-        ])
+        Compositor.dpms(false)
     }
     function dpmsOn() {
         if (!root._dpmsBlanked) return
@@ -244,12 +240,7 @@ Singleton {
     // wrongly short-circuit and leave the session bricked.
     function _dpmsForceOn() {
         root._dpmsBlanked = false
-        // Quickshell.execDetached(["hyprctl", "dispatch", "dpms", "on"])
-        Quickshell.execDetached([
-            "hyprctl",
-            "dispatch",
-            "hl.dsp.dpms({ action = \"enable\" })"
-        ])
+        Compositor.dpms(true)
     }
 
     // blank the screens dpmsAfterLock seconds after the lock engages

@@ -32,6 +32,14 @@ Singleton {
             Hyprland.dispatch("hl.dsp.focus({ workspace = \"" + id + "\" })")
     }
 
+    // Screen power
+    function dpms(on) {
+        if (kind === "fenriz")
+            _sock.write(JSON.stringify({ cmd: "dpms", on: on }) + "\n")
+        else
+            Hyprland.dispatch("hl.dsp.dpms({ action = \"" + (on ? "enable" : "disable") + "\" })")
+    }
+
     // argv is a plain command array. Under Hyprland we hand it to the compositor so
     // the child reparents to it; under fenriz (no exec IPC) we just spawn it.
     function spawn(argv, workingDirectory) {
