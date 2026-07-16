@@ -1,9 +1,9 @@
 import Quickshell
 import Quickshell.Wayland
-import Quickshell.Hyprland
 import QtQuick
 import QtQuick.Effects
 import QtQuick.Shapes
+import qs.compositor
 import qs.theme
 
 Variants {
@@ -99,10 +99,7 @@ Variants {
         Item {
             id: notificationStack
 
-            visible: {
-                const isFocused = Hyprland.focusedMonitor && modelData.name === Hyprland.focusedMonitor.name;
-                return isFocused && surfaceMapped;
-            }
+            visible: modelData.name === Compositor.focusedScreenName && surfaceMapped
 
             width: 350
             height: parent.height
@@ -294,7 +291,7 @@ Variants {
                         }
                     }
 
-                    readonly property bool isOnFocusedScreen: Hyprland.focusedMonitor !== null && modelData.name === Hyprland.focusedMonitor.name
+                    readonly property bool isOnFocusedScreen: modelData.name === Compositor.focusedScreenName
 
                     property bool expireCalled: false
 
@@ -316,8 +313,8 @@ Variants {
                     }
 
                     Connections {
-                        target: Hyprland
-                        function onFocusedMonitorChanged() {
+                        target: Compositor
+                        function onFocusedScreenNameChanged() {
                             cardDelegate.updateExpiryPaused();
                         }
                     }

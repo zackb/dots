@@ -19,6 +19,11 @@ Singleton {
     readonly property var workspaces: kind === "fenriz" ? _fenrizWs : _hyprWs
     // { appId, title } of the focused window, or null.
     readonly property var activeWindow: kind === "fenriz" ? _fenrizWin : _hyprWin
+    // Name of the screen holding focus, "" if unknown.
+    // TODO: fix when fenriz supports multiple monitors
+    readonly property string focusedScreenName: kind === "fenriz"
+        ? (Quickshell.screens[0]?.name ?? "")
+        : (Hyprland.focusedMonitor?.name ?? "")
 
     function focusWorkspace(id) {
         if (kind === "fenriz")
