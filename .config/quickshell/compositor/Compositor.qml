@@ -40,6 +40,15 @@ Singleton {
             Hyprland.dispatch("hl.dsp.dpms({ action = \"" + (on ? "enable" : "disable") + "\" })")
     }
 
+    // Quit the compositor. Under a session manager (greetd) that ends the session,
+    // which is what the shell's "Log out" means.
+    function exit() {
+        if (kind === "fenriz")
+            _sock.write(JSON.stringify({ cmd: "exit" }) + "\n")
+        else
+            Hyprland.dispatch("hl.dsp.exit()")
+    }
+
     // argv is a plain command array. Under Hyprland we hand it to the compositor so
     // the child reparents to it; under fenriz (no exec IPC) we just spawn it.
     function spawn(argv, workingDirectory) {

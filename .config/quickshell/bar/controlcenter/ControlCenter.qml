@@ -5,6 +5,7 @@ import QtQuick
 import QtQuick.Layouts
 import qs.backend
 import qs.components
+import qs.compositor
 import qs.theme
 import qs.dock
 
@@ -227,7 +228,7 @@ OverlayPopup {
                         { icon: "󰤄", label: "Hibernate",
                           cmd: ["systemctl", "hibernate"],           critical: false },
                         { icon: "󰍃", label: "Logout",
-                          cmd: ["hyprctl", "dispatch", "hl.dsp.exit()"], critical: false },
+                          activate: () => Compositor.exit(),         critical: false },
                         { icon: "󰑐", label: "Restart",
                           cmd: ["systemctl", "reboot"],              critical: true  },
                         { icon: "󰐥", label: "Shutdown",
@@ -283,7 +284,11 @@ OverlayPopup {
                         TapHandler {
                             onTapped: {
                                 root.isOpen = false
-                                Qt.callLater(() => Quickshell.execDetached(modelData.cmd))
+                                // Most entries are a plain command; ones the compositor owns
+                                // (Logout) carry an activate function instead.
+                                Qt.callLater(() => modelData.activate
+                                    ? modelData.activate()
+                                    : Quickshell.execDetached(modelData.cmd))
                             }
                         }
                     }

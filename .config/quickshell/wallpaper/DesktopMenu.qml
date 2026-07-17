@@ -134,7 +134,7 @@ PanelWindow {
         model.push({ kind: "submenu", label: "Power", glyph: "power_settings_new", children: [
             { kind: "action", inFlyout: true, label: "Sleep",     glyph: "bedtime",            activate: function() { Quickshell.execDetached(["systemctl", "suspend"]) } },
             { kind: "action", inFlyout: true, label: "Hibernate", glyph: "mode_standby",       activate: function() { Quickshell.execDetached(["systemctl", "hibernate"]) } },
-            { kind: "action", inFlyout: true, label: "Logout",    glyph: "logout",             activate: function() { Quickshell.execDetached(["hyprctl", "dispatch", "hl.dsp.exit()"]) } },
+            { kind: "action", inFlyout: true, label: "Logout",    glyph: "logout",             activate: function() { Compositor.exit() } },
             { kind: "action", inFlyout: true, label: "Restart",   glyph: "restart_alt",        activate: function() { Quickshell.execDetached(["systemctl", "reboot"]) } },
             { kind: "action", inFlyout: true, label: "Shutdown",  glyph: "power_settings_new", activate: function() { Quickshell.execDetached(["systemctl", "poweroff"]) } },
         ] })
