@@ -99,8 +99,9 @@ Singleton {
                 let s
                 try { s = JSON.parse(line) } catch (e) { return }
                 const active = s.workspaces.active
+                const urgent = s.workspaces.urgent || []
                 root._fenrizWs = (s.workspaces.occupied || []).map(id => ({
-                    id: id, focused: id === active, occupied: true, urgent: false
+                    id: id, focused: id === active, occupied: true, urgent: urgent.includes(id)
                 }))
                 root._fenrizWin = s.activeWindow || null
             }
