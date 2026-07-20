@@ -38,6 +38,7 @@ Singleton {
     property bool   _dimmed: false
     property int    _savedBrightness: -1
     property bool   _dpmsBlanked: false
+    property bool   _gazeScanning: false   // true while the bounded face-scan window is open
 
     WlSessionLock {
         id: sessionLock
@@ -63,6 +64,8 @@ Singleton {
         const ok = fingerprintCtx.start()
         console.log("lock engaged; fingerprintCtx.start ->", ok)
 
+        _startGazeWindow()            // open a bounded face-scan window
+
         dpmsTimer.restart()           // blank screens dpmsAfterLock later
         _persist()
     }
@@ -71,6 +74,7 @@ Singleton {
     function _disengageLock() {
         passwordCtx.abort()
         fingerprintCtx.abort()
+        _stopGaze()
         fpRestart.stop()
         dpmsTimer.stop()
         _dpmsForceOn()
@@ -158,6 +162,60 @@ Singleton {
         fpRestart.stop()
         fingerprintCtx.abort()      // release the stale claim
         fpRestart.restart()         // 500ms later: start() a fresh verify
+    }
+
+    // Gaze (face) auth via pam_gaze -> service "quickshell-gaze". Like the
+    // fingerprint context each pam_authenticate is one blocking camera scan that
+    // returns success/failure, so we retry within a bounded window (gazeWindow)
+    // and stop until the next wake -- the camera is not held on the whole lock.
+    PamContext {
+        id: gazeCtx
+        config: Theme.pamGazeConfig
+        onCompleted: result => {
+            console.log("gaze result =", result)
+            if (result === PamResult.Success) {
+                root._authSuccess()
+            } else if (root._gazeScanning && !root._unlocking && root.locked) {
+                gazeRestart.restart()   // another scan within the open window
+            }
+        }
+        onError: err => {
+            console.log("gaze: failed with", err)
+            if (root._gazeScanning && !root._unlocking && root.locked) gazeRestart.restart()
+        }
+    }
+
+    // re-arm a face scan after a failed attempt (small delay so a fast-failing
+    // scan can't tight-loop; a real scan attempt takes ~seconds anyway)
+    Timer {
+        id: gazeRestart
+        interval: 500
+        onTriggered: if (root._gazeScanning && !root._unlocking && root.locked) gazeCtx.start()
+    }
+
+    // closes the scan window: after this fires, no more face scanning until the
+    // next wake re-opens it
+    Timer {
+        id: gazeWindow
+        interval: Theme.gazeScanWindow * 1000
+        onTriggered: root._stopGaze()
+    }
+
+    // Open a bounded face-scan window: start scanning now and arm the closer.
+    // No-op when unlocking or not locked.
+    function _startGazeWindow() {
+        if (root._unlocking || !root.locked) return
+        root._gazeScanning = true
+        gazeCtx.abort()             // drop any stale claim before a fresh scan
+        gazeCtx.start()
+        gazeWindow.restart()
+    }
+
+    function _stopGaze() {
+        root._gazeScanning = false
+        gazeWindow.stop()
+        gazeRestart.stop()
+        gazeCtx.abort()
     }
 
     // called by LockSurface when the user submits the password field
@@ -259,6 +317,7 @@ Singleton {
             if (!isIdle) {
                 root.dpmsOn()
                 dpmsTimer.restart()
+                if (!root._gazeScanning) root._startGazeWindow()  // re-scan on wake
             }
         }
     }
@@ -297,6 +356,7 @@ Singleton {
                         // "device already in use". Re-arm a fresh verify so the claim
                         // is valid again (and releases cleanly on unlock).
                         root._restartFingerprint()
+                        root._startGazeWindow()  // re-arm face scan on resume
                     }
                 }
             }
