@@ -356,7 +356,10 @@ Singleton {
                         // "device already in use". Re-arm a fresh verify so the claim
                         // is valid again (and releases cleanly on unlock).
                         root._restartFingerprint()
-                        root._startGazeWindow()  // re-arm face scan on resume
+                        // don't re-arm gaze here: starting a face scan during
+                        // fprintd's fragile post-resume re-claim wedges the
+                        // reader. The IdleMonitor wake path below re-opens the
+                        // gaze window on the first activity after resume.
                     }
                 }
             }
