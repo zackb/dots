@@ -29,6 +29,7 @@ Singleton {
     // two services so fingerprint + password race concurrently
     readonly property string pamPasswordConfig:    "quickshell-lock"
     readonly property string pamFingerprintConfig: "quickshell-fprint"
+    readonly property bool   gazeEnabled:          true   // face auth on the lock screen; set false to disable
     readonly property string pamGazeConfig:        "quickshell-gaze"
     readonly property int    gazeScanWindow:       20     // seconds of face scanning after lock/wake
     // hardware backlight device used for idle dimming

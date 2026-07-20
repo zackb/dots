@@ -204,7 +204,7 @@ Singleton {
     // Open a bounded face-scan window: start scanning now and arm the closer.
     // No-op when unlocking or not locked.
     function _startGazeWindow() {
-        if (root._unlocking || !root.locked) return
+        if (!Theme.gazeEnabled || root._unlocking || !root.locked) return
         root._gazeScanning = true
         gazeCtx.abort()             // drop any stale claim before a fresh scan
         gazeCtx.start()
