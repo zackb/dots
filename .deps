@@ -54,6 +54,8 @@ rose-pine-hyprcursor
 rose-pine-cursor
 brightnessctl
 terminus-font
+fprintd
+gaze-bin
 greetd
 greetd-tuigreet
 pipewire-alsa
