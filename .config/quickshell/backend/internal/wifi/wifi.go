@@ -54,7 +54,8 @@ func (s *Service) Name() string { return Name }
 
 func (s *Service) Start(_ context.Context, emit service.Emitter) error {
 	s.emit = emit
-	s.publish() // initial list so the icon's popup has data before first open
+	// initial list so the icon's popup has data before first open
+	go s.publish()
 	return nil
 }
 

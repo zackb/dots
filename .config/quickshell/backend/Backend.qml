@@ -98,7 +98,9 @@ Singleton {
         }
 
         // If the daemon dies, never leave the shell believing something is still
-        // inhibiting (that would wedge idle off). Reset, then relaunch shortly.
+        // inhibiting (that would wedge idle off). Reset, then relaunch on a
+        // backoff -- a daemon that can't start at all (missing binary after a
+        // `make clean`) would otherwise respawn every 2s forever.
         onExited: (code, status) => {
             root._screensaver = ({ inhibited: false, count: 0, inhibitors: [] })
             root.mlbState = ({ active: false, class: "mlb-idle" })
@@ -108,9 +110,22 @@ Singleton {
             root.contacts = []
             root.clipboard = ({ entries: [] })
             root.airpods = ({ connected: false, address: "", left: -1, right: -1, case: -1 })
+            root.backlight = ({ brightness: 0, max: 1 })
+
+            // A run that lasted a while is a crash, not a broken build: restart
+            // promptly and reset the backoff.
+            if (Date.now() - root._startedAt > 60000)
+                root._relaunchDelay = 2000
+            relaunch.interval = root._relaunchDelay
+            root._relaunchDelay = Math.min(root._relaunchDelay * 2, 60000)
             relaunch.start()
         }
+
+        onRunningChanged: if (running) root._startedAt = Date.now()
     }
+
+    property real _startedAt: Date.now()
+    property int  _relaunchDelay: 2000
 
     Timer {
         id: relaunch

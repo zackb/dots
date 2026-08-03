@@ -27,7 +27,9 @@ type Service interface {
 }
 
 // Commander is an optional interface for services that accept commands from the
-// shell over stdin.
+// shell over stdin. The daemon dispatches each command on its own goroutine so
+// a slow one can't stall the others, so Command must be safe to call
+// concurrently with itself.
 type Commander interface {
 	Command(name string, args json.RawMessage)
 }

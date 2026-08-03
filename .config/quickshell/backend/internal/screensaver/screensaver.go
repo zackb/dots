@@ -234,12 +234,12 @@ func (h *handler) UnInhibit(sender dbus.Sender, cookie uint32) *dbus.Error {
 
 // Remaining interface methods are stubs; we don't run a real screensaver, we
 // only broker inhibitors. They exist so introspection-driven callers don't trip.
-func (h *handler) GetActive() (bool, *dbus.Error)         { return false, nil }
-func (h *handler) SetActive(bool) (bool, *dbus.Error)     { return false, nil }
-func (h *handler) GetActiveTime() (uint32, *dbus.Error)   { return 0, nil }
+func (h *handler) GetActive() (bool, *dbus.Error)            { return false, nil }
+func (h *handler) SetActive(bool) (bool, *dbus.Error)        { return false, nil }
+func (h *handler) GetActiveTime() (uint32, *dbus.Error)      { return 0, nil }
 func (h *handler) GetSessionIdleTime() (uint32, *dbus.Error) { return 0, nil }
-func (h *handler) SimulateUserActivity() *dbus.Error      { return nil }
-func (h *handler) Lock() *dbus.Error                      { return nil }
+func (h *handler) SimulateUserActivity() *dbus.Error         { return nil }
+func (h *handler) Lock() *dbus.Error                         { return nil }
 
 func ifaceIntrospect(name string) introspect.Interface {
 	return introspect.Interface{

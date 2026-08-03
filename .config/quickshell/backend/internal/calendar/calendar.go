@@ -27,19 +27,24 @@ import (
 const Name = "calendar"
 
 const (
-	refresh     = 60 * time.Second        // re-scan + recompute cadence
-	horizon     = 365 * 24 * time.Hour    // how far ahead recurring rules expand
-	maxUpcoming = 10                       // events surfaced to the widget
+	refresh     = 60 * time.Second     // re-scan + recompute cadence
+	horizon     = 365 * 24 * time.Hour // how far ahead recurring rules expand
+	maxUpcoming = 10                   // events surfaced to the widget
 )
 
 // Event is one concrete occurrence surfaced to the shell.
 type Event struct {
 	Summary  string `json:"summary"`
-	Start    string `json:"start"`    // RFC3339
-	End      string `json:"end"`      // RFC3339, "" when the event has no end
+	Start    string `json:"start"` // RFC3339
+	End      string `json:"end"`   // RFC3339, "" when the event has no end
 	AllDay   bool   `json:"allDay"`
 	Location string `json:"location"`
 	Calendar string `json:"calendar"` // collection display name
+
+	// Parsed Start, kept for sorting. Unexported so it stays out of the JSON:
+	// the RFC3339 strings carry a UTC offset, so comparing them lexically
+	// mis-orders events across timezones.
+	startAt time.Time
 }
 
 // State is the full payload: the next N occurrences, soonest first.
@@ -122,7 +127,14 @@ func (s *Service) scan(now time.Time) []Event {
 		}
 	}
 
-	sort.Slice(out, func(i, j int) bool { return out[i].Start < out[j].Start })
+	return sortTrim(out)
+}
+
+// sortTrim orders occurrences by instant and keeps the soonest maxUpcoming.
+// Sorting on startAt rather than the formatted Start matters: RFC3339 strings
+// carry a UTC offset, so a lexical compare mis-orders events across timezones.
+func sortTrim(out []Event) []Event {
+	sort.Slice(out, func(i, j int) bool { return out[i].startAt.Before(out[j].startAt) })
 	if len(out) > maxUpcoming {
 		out = out[:maxUpcoming]
 	}
@@ -193,13 +205,14 @@ func eventsFromFile(path, calName string, now, until time.Time) []Event {
 		if !ok {
 			continue
 		}
-		base, _ := occurrence(e, calName, now, until) // template (summary/location/end)
-		base.Calendar = calName
+		base := Event{Calendar: calName} // fill() supplies every other field
+		// Occurrences already under way still count as upcoming.
+		from := now.Add(-lookback(e, allDay))
 
 		rprop := e.GetProperty(ics.ComponentPropertyRrule)
 		if rprop == nil {
 			// Single event.
-			if !start.Before(now) && !start.After(until) {
+			if !start.Before(from) && !start.After(until) {
 				out = append(out, fill(base, e, start, allDay))
 			}
 			continue
@@ -209,14 +222,14 @@ func eventsFromFile(path, calName string, now, until time.Time) []Event {
 		r, err := rrule.StrToRRule(rprop.Value)
 		if err != nil {
 			// Unparseable rule: fall back to the single master instance.
-			if !start.Before(now) && !start.After(until) {
+			if !start.Before(from) && !start.After(until) {
 				out = append(out, fill(base, e, start, allDay))
 			}
 			continue
 		}
 		r.DTStart(start)
 		ex := exdates(e)
-		for _, occ := range r.Between(now, until, true) {
+		for _, occ := range r.Between(from, until, true) {
 			if containsTime(suppressed, occ) || containsTime(ex, occ) {
 				continue
 			}
@@ -236,7 +249,7 @@ func occurrence(e *ics.VEvent, calName string, now, until time.Time) (Event, boo
 		return Event{}, false
 	}
 	ev := fill(Event{Calendar: calName}, e, start, allDay)
-	if start.Before(now) || start.After(until) {
+	if start.Before(now.Add(-lookback(e, allDay))) || start.After(until) {
 		return ev, false
 	}
 	return ev, true
@@ -249,10 +262,25 @@ func fill(base Event, e *ics.VEvent, start time.Time, allDay bool) Event {
 	base.Location = propValue(e, ics.ComponentPropertyLocation)
 	base.AllDay = allDay
 	base.Start = start.Format(time.RFC3339)
+	base.startAt = start
 	if dur, ok := duration(e); ok {
 		base.End = start.Add(dur).Format(time.RFC3339)
 	}
 	return base
+}
+
+// lookback is how far before `now` an occurrence may have started and still
+// count as upcoming: an event stays listed until it ends. All-day events start
+// at midnight and usually carry no DTEND, so they get a full day -- without this
+// today's all-day events vanish one second after midnight.
+func lookback(e *ics.VEvent, allDay bool) time.Duration {
+	if d, ok := duration(e); ok {
+		return d
+	}
+	if allDay {
+		return 24 * time.Hour
+	}
+	return 0
 }
 
 // duration is DTEND-DTSTART of the master, applied to every occurrence.

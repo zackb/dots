@@ -108,7 +108,7 @@ func main() {
 				continue
 			}
 			if c, ok := commanders[cmd.Service]; ok {
-				c.Command(cmd.Command, cmd.Args)
+				go c.Command(cmd.Command, cmd.Args)
 			}
 		}
 		cancel()

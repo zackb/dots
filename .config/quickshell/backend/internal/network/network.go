@@ -122,7 +122,6 @@ func (s *Service) read() State {
 		st.Type = "ethernet"
 		st.Signal = 100
 	default:
-		st.Type = "none"
 		return State{Type: "none"}
 	}
 

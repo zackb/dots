@@ -27,7 +27,7 @@ const refresh = 5 * time.Minute
 
 // Detail is one typed value (an email or phone) plus its label.
 type Detail struct {
-	Type  string `json:"type"`  // e.g. "Cell", "Home", "Work", "" when unlabelled
+	Type  string `json:"type"` // e.g. "Cell", "Home", "Work", "" when unlabelled
 	Value string `json:"value"`
 }
 
