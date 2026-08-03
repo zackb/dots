@@ -24,7 +24,7 @@ Capsule {
     Process {
         id: updatesProcess
         running: false
-        command: ["bash", Qt.resolvedUrl("scripts/updates.sh").toString().replace("file://", "")]
+        command: ["bash", Quickshell.shellPath("bar/scripts/updates.sh")]
         stderr: SplitParser {
             onRead: data => console.log("updates stderr:", data)
         }
@@ -44,7 +44,7 @@ Capsule {
     Process {
         id: installProcess
         running: false
-        command: ["kitty", "/home/zackb/bin/installupdates.sh"]
+        command: [Theme.terminal, "-e", Theme.updateInstaller]
         onRunningChanged: {
             if (!running) {
                 root.updateText = ""

@@ -33,9 +33,6 @@ Capsule {
     // Charging from sysfs AC online (via fenrizd poll), NOT UPower: BAT1 state
     // reports "discharging" on AC, and UPower.onBattery goes stale because the
     // line-power device misses unplug uevents on this machine.
-    // TODO: figure out why this only works sometimes
-    // property bool charging: !UPower.onBattery
-
     property bool charging: Backend.sysinfo.acOnline
     property bool clicked: false
 
@@ -79,7 +76,7 @@ Capsule {
         Text {
             visible: clicked
             anchors.verticalCenter: parent.verticalCenter
-            text:           Math.round(root.percentage ?? 0) + "%"
+            text:           root.percentage + "%"
             color:          Qt.alpha(Theme.textColor, 0.8)
             font.pixelSize: Theme.fontSize
             font.family:    Theme.font

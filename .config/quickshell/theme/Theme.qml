@@ -19,6 +19,18 @@ Singleton {
     readonly property int radius_sm:       8
     readonly property int font_size_sm:    11
 
+    // terminal used to run DesktopEntries with Terminal=true (Compositor.launch)
+    readonly property string terminal:     "ghostty"
+
+    // Icon source for a freedesktop icon name: absolute paths become file://,
+    // names go through Quickshell's icon provider, anything missing falls back
+    // to the generic executable icon.
+    function iconSource(name: string): string {
+        if (!name || name === "")
+            return "image://icon/application-x-executable"
+        return name.startsWith("/") ? "file://" + name : "image://icon/" + name
+    }
+
     // idle / lock
     // timeouts are in seconds
     readonly property int    idleDimTimeout:       120    // dim the screen after 2 min idle
@@ -41,9 +53,15 @@ Singleton {
     readonly property int    lockBlurMax:          64     // max blur radius (px)
     readonly property real   lockScrimOpacity:     0.35   // 0 = none, 1 = black
 
+    readonly property string home: Quickshell.env("HOME")
+
+    // user scripts the shell shells out to
+    readonly property string wallpaperPicker: home + "/bin/wallpaper.sh"
+    readonly property string updateInstaller: home + "/bin/installupdates.sh"
+
     // default wallpaper lives here; overridden live and across reloads by
     // wallpaper.txt, written by the `wallpaper` IPC.
-    readonly property string defaultWallpaper: "/home/zackb/.local/share/wallpapers/4199401.jpg"
+    readonly property string defaultWallpaper: home + "/.local/share/wallpapers/4199401.jpg"
     property string wallpaper: defaultWallpaper
 
     // wallpaper swap animation. One of the shaders in wallpaper/shaders/

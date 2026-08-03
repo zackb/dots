@@ -54,14 +54,7 @@ Singleton {
     // launching
 
     function launch(id) {
-        const e = DesktopEntries.heuristicLookup(id)
-        if (!e)
-            return
-
-        var parts = e.runInTerminal ? ["ghostty", "-e"] : []
-        parts = parts.concat(e.command)
-
-        Compositor.spawn(parts, e.workingDirectory)
+        Compositor.launch(DesktopEntries.heuristicLookup(id))
     }
 
     // persistence (store/Store.qml, like lock/LockState.qml)

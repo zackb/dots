@@ -1,18 +1,39 @@
 import Quickshell
 import Quickshell.Io
+import Quickshell.Wayland
 import Quickshell.Services.Pipewire
 import QtQuick
 import QtQuick.Layouts
 import qs.backend
-import qs.components
 import qs.compositor
 import qs.theme
 import qs.dock
 
-OverlayPopup {
+// A right-anchored drawer rather than a bar dropdown: it owns its panel and
+// slides in horizontally, so it doesn't use components/OverlayPopup (which
+// supplies a bar-anchored panel that drops down).
+PanelWindow {
     id: root
 
-    onRequestClose: root.isOpen = false
+    property var  barWindow
+    property bool isOpen: false
+
+    screen: barWindow ? barWindow.screen : null
+    visible: false
+
+    anchors { top: true; bottom: true; left: true; right: true }
+
+    WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.keyboardFocus: root.isOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    exclusionMode: ExclusionMode.Ignore
+    color: "transparent"
+
+    // Transparent backdrop: click anywhere outside the panel to close.
+    MouseArea {
+        anchors.fill: parent
+        onClicked: root.isOpen = false
+        z: -1
+    }
 
     IpcHandler {
         target: "controlcenter"

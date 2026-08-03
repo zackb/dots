@@ -5,6 +5,7 @@ import QtQuick
 import qs.bar.clock
 import qs.bar.sysinfo
 import qs.bar.mpris
+import qs.theme
 
 PanelWindow {
     id: root
@@ -27,7 +28,7 @@ PanelWindow {
     WlrLayershell.layer:     WlrLayer.Bottom
     WlrLayershell.namespace: "zbar"
 
-    implicitHeight: 24
+    implicitHeight: Theme.barHeight
 
     color:  "transparent"
     onScreenChanged: {

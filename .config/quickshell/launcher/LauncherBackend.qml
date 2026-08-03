@@ -16,8 +16,6 @@ Item {
 
     property string searchText: ""
 
-    property string myTerminal: "ghostty"
-
     // Inline calculator (libqalculate). calcExpression is what we send to qalc;
     // calcResult is its terse output. calcActive gates the UI card.
     property string calcExpression: ""
@@ -170,18 +168,7 @@ Item {
 
     function launchApp(desktopEntry) {
         backend.recordUse(desktopEntry.id);
-
-        var parts = [];
-
-        if (desktopEntry.runInTerminal) {
-            parts.push(myTerminal);
-            parts.push("-e"); // "--" for kitty
-        }
-
-        parts = parts.concat(desktopEntry.command);
-
-        Compositor.spawn(parts, desktopEntry.workingDirectory);
-
+        Compositor.launch(desktopEntry);
         backend.closeMenuRequested();
     }
 

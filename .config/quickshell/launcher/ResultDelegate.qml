@@ -133,15 +133,7 @@ Item {
             anchors.leftMargin: 20
             anchors.verticalCenter: parent.verticalCenter
 
-            source: {
-                if (!delegateRoot.isApp)
-                    return "";
-                if (!delegateRoot.app.icon || delegateRoot.app.icon === "")
-                    return "image://icon/application-x-executable";
-                if (delegateRoot.app.icon.startsWith("/"))
-                    return "file://" + delegateRoot.app.icon;
-                return "image://icon/" + delegateRoot.app.icon;
-            }
+            source: delegateRoot.isApp ? Theme.iconSource(delegateRoot.app.icon) : ""
 
             onStatusChanged: {
                 if (status === Image.Error)

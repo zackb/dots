@@ -35,16 +35,9 @@ Item {
             width:  root.iconSize
             height: root.iconSize
 
-            source: {
-                const ic = root.iconOverride !== ""
-                    ? root.iconOverride
-                    : (root.entry ? root.entry.icon : "")
-                if (!ic || ic === "")
-                    return "image://icon/application-x-executable"
-                if (ic.startsWith("/"))
-                    return "file://" + ic
-                return "image://icon/" + ic
-            }
+            source: Theme.iconSource(root.iconOverride !== ""
+                ? root.iconOverride
+                : (root.entry ? root.entry.icon : ""))
             onStatusChanged: {
                 if (status === Image.Error)
                     source = "image://icon/application-x-executable"

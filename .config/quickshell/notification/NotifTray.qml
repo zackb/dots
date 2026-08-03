@@ -3,6 +3,7 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
 import QtQuick
+import QtQuick.Layouts
 import qs.theme
 
 PanelWindow {
@@ -67,7 +68,7 @@ PanelWindow {
             spacing: 8
 
             // Header
-            Row {
+            RowLayout {
                 width: parent.width
 
                 Text {
@@ -76,10 +77,7 @@ PanelWindow {
                     font { family: Theme.font; pixelSize: 15; bold: true }
                 }
 
-                Item {
-                    width: parent.width - parent.children[0].implicitWidth - clearBtn.implicitWidth
-                    height: 1
-                }
+                Item { Layout.fillWidth: true }
 
                 Text {
                     id: clearBtn

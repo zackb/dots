@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
 import QtQuick
+import qs.theme
 
 // One compositor-agnostic interface for the bits of the shell that touch the
 // window manager: the workspace list, the active window, workspace switching, and
@@ -65,6 +66,15 @@ Singleton {
             command: ["hyprctl", "dispatch", 'hl.dsp.exec_cmd("' + cmd + '")'],
             workingDirectory: workingDirectory
         })
+    }
+
+    // Launch a DesktopEntry: wrap terminal apps, then spawn. The single launch
+    // path for the launcher, the dock and the desktop menu.
+    function launch(entry) {
+        if (!entry)
+            return
+        const parts = (entry.runInTerminal ? [Theme.terminal, "-e"] : []).concat(entry.command)
+        root.spawn(parts, entry.workingDirectory)
     }
 
     // ---- Hyprland backend (guarded so its objects are never touched under fenriz) ----

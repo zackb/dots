@@ -40,24 +40,6 @@ PanelWindow {
 
     onIsOpenChanged: if (!isOpen) activeItem = null
 
-    // Launch like dock/DockState.qml: terminal-wrap then spawn via the compositor.
-    function launch(e) {
-        if (!e)
-            return
-        var parts = e.runInTerminal ? ["ghostty", "-e"] : []
-        parts = parts.concat(e.command)
-        Compositor.spawn(parts, e.workingDirectory)
-    }
-
-    // Icon source resolution, mirrors launcher/ResultDelegate.qml.
-    function iconFor(e) {
-        if (!e || !e.icon || e.icon === "")
-            return "image://icon/application-x-executable"
-        if (e.icon.startsWith("/"))
-            return "file://" + e.icon
-        return "image://icon/" + e.icon
-    }
-
     function buildModel() {
         // Fixed category order; `keys` are freedesktop main categories.
         const CATS = [
@@ -104,8 +86,9 @@ PanelWindow {
         }
         // inFlyout: true marks rows that live in a flyout
         function appChild(e) {
-            return { kind: "action", inFlyout: true, label: e.name, iconSource: root.iconFor(e),
-                     activate: function() { root.launch(e) } }
+            return { kind: "action", inFlyout: true, label: e.name,
+                     iconSource: Theme.iconSource(e.icon),
+                     activate: function() { Compositor.launch(e) } }
         }
 
         var model = []
@@ -128,7 +111,7 @@ PanelWindow {
         model.push({ kind: "action", label: "Open Launcher", glyph: "search",
             activate: function() { Quickshell.execDetached(["qs", "ipc", "call", "launcher", "toggle"]) } })
         model.push({ kind: "action", label: "Change Wallpaper…", glyph: "wallpaper",
-            activate: function() { Quickshell.execDetached(["/home/zackb/bin/wallpaper.sh"]) } })
+            activate: function() { Quickshell.execDetached([Theme.wallpaperPicker]) } })
         model.push({ kind: "action", label: "Lock", glyph: "lock",
             activate: function() { LockState.engageLock() } })
         model.push({ kind: "submenu", label: "Power", glyph: "power_settings_new", children: [
