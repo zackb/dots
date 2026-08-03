@@ -27,9 +27,9 @@ import (
 const Name = "calendar"
 
 const (
-	refresh     = 60 * time.Second     // re-scan + recompute cadence
-	horizon     = 365 * 24 * time.Hour // how far ahead recurring rules expand
-	maxUpcoming = 10                   // events surfaced to the widget
+	refresh     = 60 * time.Second // re-scan + recompute cadence
+	horizon     = 90 * 24 * time.Hour
+	maxUpcoming = 10 // events surfaced to the widget
 )
 
 // Event is one concrete occurrence surfaced to the shell.

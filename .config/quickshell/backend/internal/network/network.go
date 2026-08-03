@@ -23,6 +23,10 @@ const (
 	deviceIface = "org.freedesktop.NetworkManager.Device"
 	wirelessIfc = "org.freedesktop.NetworkManager.Device.Wireless"
 	apIface     = "org.freedesktop.NetworkManager.AccessPoint"
+
+	// Connection.Active Type values we treat as real links.
+	wirelessType = "802-11-wireless"
+	ethernetType = "802-3-ethernet"
 )
 
 // State matches the JSON the old script produced, so the widget is a drop-in.
@@ -102,31 +106,33 @@ func (s *Service) publish() {
 
 // read resolves the current primary connection into a State.
 func (s *Service) read() State {
-	nm := s.conn.Object(nmService, nmPath)
-
 	var primary dbus.ObjectPath
-	if err := get(nm, nmIface, "PrimaryConnection", &primary); err != nil || primary == "/" {
+	err := get(s.conn.Object(nmService, nmPath), nmIface, "PrimaryConnection", &primary)
+	if err != nil || primary == "/" {
 		return State{Type: "none"}
 	}
-	active := s.conn.Object(nmService, primary)
 
-	var id, ctype string
-	get(active, activeIface, "Id", &id)
-	get(active, activeIface, "Type", &ctype)
+	// Name comes from the primary connection -- that's the VPN's name when one
+	// is up, which is what you want to see.
+	var id string
+	get(s.conn.Object(nmService, primary), activeIface, "Id", &id)
+
+	carrier, ctype := s.physical(primary)
+	if carrier == "" {
+		return State{Type: "none"}
+	}
 
 	st := State{SSID: id}
 	switch ctype {
-	case "802-11-wireless":
+	case wirelessType:
 		st.Type = "wifi"
-	case "802-3-ethernet":
+	case ethernetType:
 		st.Type = "ethernet"
 		st.Signal = 100
-	default:
-		return State{Type: "none"}
 	}
 
 	var devices []dbus.ObjectPath
-	get(active, activeIface, "Devices", &devices)
+	get(s.conn.Object(nmService, carrier), activeIface, "Devices", &devices)
 	if len(devices) == 0 {
 		return st
 	}
@@ -138,6 +144,33 @@ func (s *Service) read() State {
 	}
 	return st
 }
+
+// physical resolves the active connection actually carrying traffic. NM makes
+// a VPN/tunnel the PrimaryConnection while it's up, and those have no signal or
+// interface of their own -- reporting them verbatim made the widget read as
+// disconnected on VPN. For those we fall back to the first physical active
+// connection underneath (loopback, bridges and the tunnel itself are skipped).
+func (s *Service) physical(primary dbus.ObjectPath) (dbus.ObjectPath, string) {
+	if t := s.connType(primary); isPhysical(t) {
+		return primary, t
+	}
+	var actives []dbus.ObjectPath
+	get(s.conn.Object(nmService, nmPath), nmIface, "ActiveConnections", &actives)
+	for _, a := range actives {
+		if t := s.connType(a); isPhysical(t) {
+			return a, t
+		}
+	}
+	return "", ""
+}
+
+func (s *Service) connType(path dbus.ObjectPath) string {
+	var t string
+	get(s.conn.Object(nmService, path), activeIface, "Type", &t)
+	return t
+}
+
+func isPhysical(t string) bool { return t == wirelessType || t == ethernetType }
 
 // wifiStrength reads the active access point's signal strength (0-100).
 func (s *Service) wifiStrength(dev dbus.BusObject) int {
