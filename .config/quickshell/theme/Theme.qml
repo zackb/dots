@@ -34,6 +34,9 @@ Singleton {
     readonly property int    gazeScanWindow:       20     // seconds of face scanning after lock/wake
     // hardware backlight device used for idle dimming
     readonly property string backlightDevice:      "amdgpu_bl1"
+    function brightnessCmd(value: string): var {
+        return ["brightnessctl", "-d", themeRoot.backlightDevice, "-q", "set", value]
+    }
     // lock screen background: blurred wallpaper + darkening scrim
     readonly property int    lockBlurMax:          64     // max blur radius (px)
     readonly property real   lockScrimOpacity:     0.35   // 0 = none, 1 = black

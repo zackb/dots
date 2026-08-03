@@ -47,7 +47,7 @@ Capsule {
         acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
         onWheel: event => {
             const step = event.angleDelta.y < 0 ? "5%+" : "5%-"
-            Quickshell.execDetached(["brightnessctl", "set", step])
+            Quickshell.execDetached(Theme.brightnessCmd(step))
         }
     }
 

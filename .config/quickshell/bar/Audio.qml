@@ -30,8 +30,8 @@ Capsule {
         onTapped: (eventPoint, button) => {
             if (button === Qt.RightButton) {
                 root.menuOpen = !root.menuOpen
-            } else {
-                sink.audio.muted = !sink.audio.muted
+            } else if (root.sink?.audio) {
+                root.sink.audio.muted = !root.sink.audio.muted
             }
         }
     }
@@ -39,10 +39,11 @@ Capsule {
     WheelHandler {
         acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
         onWheel: event => {
+            if (!root.sink?.audio) return
             const delta = -event.angleDelta.y / 120
             if (delta < 0 && volume <= 0) return
             if (delta > 0 && volume >= 1) return
-            sink.audio.volume = Math.max(0, Math.min(1.5, volume + delta * 0.05))
+            root.sink.audio.volume = Math.max(0, Math.min(1, volume + delta * 0.05))
         }
     }
 

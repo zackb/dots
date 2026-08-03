@@ -251,8 +251,7 @@ Singleton {
                 if (!root._dimmed || isNaN(cur) || cur <= 0) return
                 root._savedBrightness = cur
                 const target = Math.max(1, Math.round(cur * Theme.idleDimFraction))
-                Quickshell.execDetached(["brightnessctl", "-d", Theme.backlightDevice,
-                                         "-q", "set", String(target)])
+                Quickshell.execDetached(Theme.brightnessCmd(String(target)))
                 root._persist()
             }
         }
@@ -268,8 +267,7 @@ Singleton {
         if (!root._dimmed) return
         root._dimmed = false
         if (root._savedBrightness > 0) {
-            Quickshell.execDetached(["brightnessctl", "-d", Theme.backlightDevice,
-                                     "-q", "set", String(root._savedBrightness)])
+            Quickshell.execDetached(Theme.brightnessCmd(String(root._savedBrightness)))
         }
         root._savedBrightness = -1
         root._persist()
@@ -391,8 +389,7 @@ Singleton {
         if (!s) return
         // undo a dim that was in effect when we were reloaded
         if (s.dimmed && s.savedBrightness > 0) {
-            Quickshell.execDetached(["brightnessctl", "-d", Theme.backlightDevice,
-                                     "-q", "set", String(s.savedBrightness)])
+            Quickshell.execDetached(Theme.brightnessCmd(String(s.savedBrightness)))
             root._dimmed = false
             root._savedBrightness = -1
         }

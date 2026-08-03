@@ -51,14 +51,20 @@ Singleton {
 
     // argv is a plain command array. Under Hyprland we hand it to the compositor so
     // the child reparents to it; under fenriz (no exec IPC) we just spawn it.
+    //
+    // The Hyprland path flattens argv into a quoted dispatch string, so every
+    // element has to be escaped -- a .desktop Exec containing a quote or a path
+    // with a space would otherwise break out of the string.
     function spawn(argv, workingDirectory) {
-        if (kind === "fenriz")
+        if (kind === "fenriz") {
             Quickshell.execDetached({ command: argv, workingDirectory: workingDirectory })
-        else
-            Quickshell.execDetached({
-                command: ["hyprctl", "dispatch", 'hl.dsp.exec_cmd("' + argv.join(" ") + '")'],
-                workingDirectory: workingDirectory
-            })
+            return
+        }
+        const cmd = argv.map(a => String(a).replace(/(["\\])/g, "\\$1")).join(" ")
+        Quickshell.execDetached({
+            command: ["hyprctl", "dispatch", 'hl.dsp.exec_cmd("' + cmd + '")'],
+            workingDirectory: workingDirectory
+        })
     }
 
     // ---- Hyprland backend (guarded so its objects are never touched under fenriz) ----
@@ -98,6 +104,9 @@ Singleton {
             onRead: line => {
                 let s
                 try { s = JSON.parse(line) } catch (e) { return }
+                // A frame that parses but lacks `workspaces` would throw here,
+                // inside the parser callback -- guard rather than assume shape.
+                if (!s || !s.workspaces) return
                 const active = s.workspaces.active
                 const urgent = s.workspaces.urgent || []
                 root._fenrizWs = (s.workspaces.occupied || []).map(id => ({

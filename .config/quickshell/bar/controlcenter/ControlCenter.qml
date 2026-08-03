@@ -185,7 +185,7 @@ OverlayPopup {
                     to:    root.maxBrightness > 0 ? root.maxBrightness : 255
                     value: root.brightness
                     onMoved: (v) => Quickshell.execDetached(
-                        ["brightnessctl", "set", Math.round(v).toString()])
+                        Theme.brightnessCmd(Math.round(v).toString()))
                 }
 
                 Text {
