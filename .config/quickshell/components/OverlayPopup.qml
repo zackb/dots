@@ -80,12 +80,15 @@ PanelWindow {
         z: -1
     }
 
-    Rectangle {
+    PopupPanel {
         id: panel
         x: root.targetX
         y: root.targetY
         width:  root.panelWidth
         height: contentCol.implicitHeight + root.contentPadding * 2
+        surface: root
+        open: root.isOpen
+
         // Smoothly absorb content height changes while already shown (the mpris
         // popup swapping tracks) instead of snapping. Only once open, so the
         // open transition itself isn't animated.
@@ -93,26 +96,6 @@ PanelWindow {
             enabled: root.visible && root.isOpen
             NumberAnimation { duration: 150; easing.type: Easing.OutQuad }
         }
-        color:  Theme.popupBg
-        radius: Theme.radius
-        border.color: Theme.popupBorder
-        border.width: 1
-
-        // Slide-down on open via transform, so x/y stay pinned to the target.
-        transform: Translate { id: panelSlide; y: -10 }
-
-        // Drop shadow
-        Rectangle {
-            anchors { fill: parent; margins: -1 }
-            color: "transparent"
-            border.color: Qt.rgba(0, 0, 0, 0.4)
-            border.width: 1
-            radius: Theme.radius + 1
-            z: -1
-        }
-
-        // Swallow clicks so they don't reach the backdrop and close the popup.
-        MouseArea { anchors.fill: parent }
 
         Shortcut {
             sequence: "Escape"
@@ -130,32 +113,5 @@ PanelWindow {
             }
             spacing: root.contentSpacing
         }
-
-        states: [
-            State { name: "open";   when: root.isOpen;  PropertyChanges { target: panel; opacity: 1.0 } PropertyChanges { target: panelSlide; y: 0   } },
-            State { name: "closed"; when: !root.isOpen; PropertyChanges { target: panel; opacity: 0.0 } PropertyChanges { target: panelSlide; y: -10 } }
-        ]
-        transitions: [
-            Transition {
-                from: "closed"; to: "open"
-                SequentialAnimation {
-                    ScriptAction { script: root.visible = true }
-                    ParallelAnimation {
-                        NumberAnimation { target: panel;      property: "opacity"; duration: 180; easing.type: Easing.OutQuad }
-                        NumberAnimation { target: panelSlide; property: "y";       duration: 180; easing.type: Easing.OutQuad }
-                    }
-                }
-            },
-            Transition {
-                from: "open"; to: "closed"
-                SequentialAnimation {
-                    ParallelAnimation {
-                        NumberAnimation { target: panel;      property: "opacity"; duration: 150; easing.type: Easing.OutQuad }
-                        NumberAnimation { target: panelSlide; property: "y";       duration: 150; easing.type: Easing.OutQuad }
-                    }
-                    ScriptAction { script: root.visible = false }
-                }
-            }
-        ]
     }
 }

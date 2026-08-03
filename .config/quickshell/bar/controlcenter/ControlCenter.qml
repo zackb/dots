@@ -5,6 +5,7 @@ import Quickshell.Services.Pipewire
 import QtQuick
 import QtQuick.Layouts
 import qs.backend
+import qs.components
 import qs.compositor
 import qs.theme
 import qs.dock
@@ -59,34 +60,17 @@ PanelWindow {
     }
 
     // Panel
-    Rectangle {
+    PopupPanel {
         id: panel
         anchors.right:       parent.right
         anchors.rightMargin: 8
         y:      root.panelY
         width:  320
         height: contentCol.implicitHeight + 24
-        color:  Theme.popupBg
-        radius: Theme.radius
-        border.color: Theme.popupBorder
-        border.width: 1
-
-        // Slide in from the right via transform
-        transform: Translate { id: panelSlide; x: panel.width }
-
-        // Drop shadow
-        Rectangle {
-            anchors.fill: parent
-            anchors.margins: -1
-            color: "transparent"
-            border.color: Qt.rgba(0, 0, 0, 0.4)
-            border.width: 1
-            radius: Theme.radius + 1
-            z: -1
-        }
-
-        // Swallow clicks so they don't reach the backdrop MouseArea
-        MouseArea { anchors.fill: parent }
+        surface: root
+        open: root.isOpen
+        slideX: width       // slides in from the right edge
+        slideY: 0
 
         ColumnLayout {
             id: contentCol
@@ -205,8 +189,7 @@ PanelWindow {
                     from:  1
                     to:    root.maxBrightness > 0 ? root.maxBrightness : 255
                     value: root.brightness
-                    onMoved: (v) => Quickshell.execDetached(
-                        Theme.brightnessCmd(Math.round(v).toString()))
+                    onMoved: (v) => Backend.setBrightness(Math.round(v))
                 }
 
                 Text {
@@ -408,42 +391,5 @@ PanelWindow {
             }
         }
 
-        states: [
-            State {
-                name: "open"
-                when: root.isOpen
-                PropertyChanges { target: panelSlide; x: 0 }
-                PropertyChanges { target: panel; opacity: 1.0 }
-            },
-            State {
-                name: "closed"
-                when: !root.isOpen
-                PropertyChanges { target: panelSlide; x: panel.width }
-                PropertyChanges { target: panel; opacity: 0.0 }
-            }
-        ]
-
-        transitions: [
-            Transition {
-                from: "closed"; to: "open"
-                SequentialAnimation {
-                    ScriptAction { script: root.visible = true }
-                    ParallelAnimation {
-                        NumberAnimation { target: panelSlide; property: "x";       duration: 260; easing.type: Easing.OutCubic }
-                        NumberAnimation { target: panel;      property: "opacity"; duration: 260 }
-                    }
-                }
-            },
-            Transition {
-                from: "open"; to: "closed"
-                SequentialAnimation {
-                    ParallelAnimation {
-                        NumberAnimation { target: panelSlide; property: "x";       duration: 220; easing.type: Easing.InCubic }
-                        NumberAnimation { target: panel;      property: "opacity"; duration: 220 }
-                    }
-                    ScriptAction { script: root.visible = false }
-                }
-            }
-        ]
     }
 }

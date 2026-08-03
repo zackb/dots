@@ -18,9 +18,11 @@ const Name = "backlight"
 const sysDir = "/sys/class/backlight"
 
 // State is the payload emitted to the shell; the widget derives the percentage.
+// Device is the sysfs name being watched, so writers can target the same one.
 type State struct {
-	Brightness int `json:"brightness"`
-	Max        int `json:"max"`
+	Device     string `json:"device"`
+	Brightness int    `json:"brightness"`
+	Max        int    `json:"max"`
 }
 
 type Service struct {
@@ -98,7 +100,11 @@ func (s *Service) watch(ctx context.Context) {
 }
 
 func (s *Service) publish() {
-	st := State{Brightness: readInt(filepath.Join(s.dir, "brightness")), Max: s.max}
+	st := State{
+		Device:     filepath.Base(s.dir),
+		Brightness: readInt(filepath.Join(s.dir, "brightness")),
+		Max:        s.max,
+	}
 	if s.have && st == s.last {
 		return
 	}

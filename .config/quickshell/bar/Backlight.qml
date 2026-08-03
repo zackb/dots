@@ -21,33 +21,17 @@ Capsule {
         return                     "󰃠"
     }
 
-    contentItem: Row {
-        id:               row
-        spacing:          4
-
-        Text {
-            anchors.verticalCenter: parent.verticalCenter
-            text:           brightnessIcon()
-            color:          Theme.textColor
-            font.pixelSize: Theme.fontSize
-            font.family:    Theme.nerdFont
-        }
-
-        Text {
-            visible:       clicked
-            anchors.verticalCenter: parent.verticalCenter
-            text:           Math.round(root.percent * 100) + "%"
-            color:          Qt.alpha(Theme.textColor, 0.8)
-            font.pixelSize: Theme.fontSize
-            font.family:    Theme.font
-        }
+    contentItem: IconLabel {
+        glyph:     root.brightnessIcon()
+        label:     Math.round(root.percent * 100) + "%"
+        showLabel: root.clicked
     }
 
     WheelHandler {
         acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
         onWheel: event => {
             const step = event.angleDelta.y < 0 ? "5%+" : "5%-"
-            Quickshell.execDetached(Theme.brightnessCmd(step))
+            Backend.setBrightness(step)
         }
     }
 

@@ -61,26 +61,11 @@ Capsule {
         }
     }
 
-    contentItem: Row {
-        id:               row
-        spacing:          4
-
-        Text {
-            anchors.verticalCenter: parent.verticalCenter
-            text:           batteryIcon()
-            color:          root.percentage < 20 ? Theme.battery_low : Theme.textColor
-            font.pixelSize: Theme.fontSize
-            font.family:    Theme.nerdFont
-        }
-
-        Text {
-            visible: clicked
-            anchors.verticalCenter: parent.verticalCenter
-            text:           root.percentage + "%"
-            color:          Qt.alpha(Theme.textColor, 0.8)
-            font.pixelSize: Theme.fontSize
-            font.family:    Theme.font
-        }
+    contentItem: IconLabel {
+        glyph:      root.batteryIcon()
+        glyphColor: root.percentage < 20 ? Theme.battery_low : Theme.textColor
+        label:      root.percentage + "%"
+        showLabel:  root.clicked
     }
 
     PowerProfileMenu {

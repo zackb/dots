@@ -27,7 +27,11 @@ import (
 const Name = "calendar"
 
 const (
-	refresh     = 60 * time.Second // re-scan + recompute cadence
+	refresh = 60 * time.Second // re-scan + recompute cadence
+	// How far ahead recurring rules expand. Each daily rule costs an allocation
+	// per day in the window on every rescan while only maxUpcoming survive, so
+	// this trades lookahead against churn (see BenchmarkExpand). Raise it if a
+	// sparse calendar starts showing fewer than maxUpcoming events.
 	horizon     = 90 * 24 * time.Hour
 	maxUpcoming = 10 // events surfaced to the widget
 )
@@ -271,8 +275,8 @@ func fill(base Event, e *ics.VEvent, start time.Time, allDay bool) Event {
 
 // lookback is how far before `now` an occurrence may have started and still
 // count as upcoming: an event stays listed until it ends. All-day events start
-// at midnight and usually carry no DTEND, so they get a full day -- without this
-// today's all-day events vanish one second after midnight.
+// at midnight and usually carry no DTEND, so they get a full day, keeping
+// today's all-day events visible for the whole day.
 func lookback(e *ics.VEvent, allDay bool) time.Duration {
 	if d, ok := duration(e); ok {
 		return d

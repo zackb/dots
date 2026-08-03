@@ -145,11 +145,10 @@ func (s *Service) read() State {
 	return st
 }
 
-// physical resolves the active connection actually carrying traffic. NM makes
-// a VPN/tunnel the PrimaryConnection while it's up, and those have no signal or
-// interface of their own -- reporting them verbatim made the widget read as
-// disconnected on VPN. For those we fall back to the first physical active
-// connection underneath (loopback, bridges and the tunnel itself are skipped).
+// physical resolves the active connection actually carrying traffic. NM makes a
+// VPN/tunnel the PrimaryConnection while it's up, and tunnels expose no signal
+// or interface of their own, so for those we fall back to the first physical
+// active connection underneath. Loopback, bridges and the tunnel are skipped.
 func (s *Service) physical(primary dbus.ObjectPath) (dbus.ObjectPath, string) {
 	if t := s.connType(primary); isPhysical(t) {
 		return primary, t

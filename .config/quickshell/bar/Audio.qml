@@ -47,26 +47,11 @@ Capsule {
         }
     }
 
-    contentItem: Row {
-        id:              row
-        spacing:         4
-
-        Text {
-            anchors.verticalCenter: parent.verticalCenter
-            text:           volumeIcon()
-            color:          muted ? Qt.alpha(Theme.textColor, 0.4) : Theme.textColor
-            font.pixelSize: Theme.fontSize
-            font.family:    Theme.nerdFont
-        }
-
-        Text {
-            visible:       root.hovered
-            anchors.verticalCenter: parent.verticalCenter
-            text:           Math.round(volume * 100) + "%"
-            color:          Qt.alpha(Theme.textColor, muted ? 0.4 : 0.8)
-            font.pixelSize: Theme.fontSize
-            font.family:    Theme.font
-        }
+    contentItem: IconLabel {
+        glyph:      root.volumeIcon()
+        glyphColor: root.muted ? Qt.alpha(Theme.textColor, 0.4) : Theme.textColor
+        label:      Math.round(root.volume * 100) + "%"
+        showLabel:  root.hovered
     }
 
     AudioMenu {

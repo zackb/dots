@@ -3,6 +3,7 @@ pragma Singleton
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import qs.theme
 
 // Front-end to the Fenriz backend daemon (backend/fenrizd). The daemon owns DBus
 // services Quickshell can't host and streams newline-delimited JSON events on
@@ -28,7 +29,16 @@ Singleton {
     property var wifiState: ({ enabled: true, connecting: false, error: "", networks: [] })
 
     // screen brightness (sysfs backlight)
-    property var backlight: ({ brightness: 0, max: 1 })
+    property var backlight: ({ device: "", brightness: 0, max: 1 })
+
+    // Write the panel backlight. Targets the device the daemon watches so a
+    // write is always reflected by the reading that comes back; Theme's name is
+    // only a fallback for before the first event arrives.
+    // `value` is anything brightnessctl accepts -- "5%+", "5%-", "1200".
+    function setBrightness(value) {
+        const dev = root.backlight.device || Theme.backlightDevice
+        Quickshell.execDetached(["brightnessctl", "-d", dev, "-q", "set", String(value)])
+    }
 
     // upcoming calendar events (vdirsyncer .ics store), soonest first
     property var calendarState: ({ upcoming: [] })
@@ -110,7 +120,7 @@ Singleton {
             root.contacts = []
             root.clipboard = ({ entries: [] })
             root.airpods = ({ connected: false, address: "", left: -1, right: -1, case: -1 })
-            root.backlight = ({ brightness: 0, max: 1 })
+            root.backlight = ({ device: "", brightness: 0, max: 1 })
 
             // A run that lasted a while is a crash, not a broken build: restart
             // promptly and reset the backoff.

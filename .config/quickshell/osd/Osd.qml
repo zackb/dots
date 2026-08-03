@@ -54,11 +54,11 @@ Item {
             osdRoot.showOsd("volume")
         }
         function brightnessUp() {
-            Quickshell.execDetached(Theme.brightnessCmd("5%+"))
+            Backend.setBrightness("5%+")
             osdRoot.showOsd("brightness")
         }
         function brightnessDown() {
-            Quickshell.execDetached(Theme.brightnessCmd("5%-"))
+            Backend.setBrightness("5%-")
             osdRoot.showOsd("brightness")
         }
     }

@@ -5,6 +5,7 @@ import Quickshell.Hyprland
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import qs.components
 import qs.theme
 
 PanelWindow {
@@ -42,26 +43,11 @@ PanelWindow {
         onActivated: NotifServer.trayOpen = false
     }
 
-    Rectangle {
+    PopupPanel {
         id: panel
-        x: 0; y: 0
-        width:  parent.width
-        height: parent.height
-        color:  Theme.popupBg
-        radius: Theme.radius
-        border.color: Theme.popupBorder
-        border.width: 1
-
-        // Drop shadow
-        Rectangle {
-            anchors.fill: parent
-            anchors.margins: -1
-            color: "transparent"
-            border.color: Qt.rgba(0, 0, 0, 0.4)
-            border.width: 1
-            radius: Theme.radius + 1
-            z: -1
-        }
+        anchors.fill: parent
+        surface: tray
+        open: NotifServer.trayOpen
 
         Column {
             id: contentCol
@@ -199,40 +185,5 @@ PanelWindow {
             }
         }
 
-        states: [
-            State {
-                name: "open"
-                when: NotifServer.trayOpen
-                PropertyChanges { target: panel; opacity: 1.0; y: 0 }
-            },
-            State {
-                name: "closed"
-                when: !NotifServer.trayOpen
-                PropertyChanges { target: panel; opacity: 0.0; y: -10 }
-            }
-        ]
-
-        transitions: [
-            Transition {
-                from: "closed"; to: "open"
-                SequentialAnimation {
-                    ScriptAction { script: tray.visible = true }
-                    ParallelAnimation {
-                        NumberAnimation { target: panel; property: "opacity"; duration: 180; easing.type: Easing.OutQuad }
-                        NumberAnimation { target: panel; property: "y";       duration: 180; easing.type: Easing.OutQuad }
-                    }
-                }
-            },
-            Transition {
-                from: "open"; to: "closed"
-                SequentialAnimation {
-                    ParallelAnimation {
-                        NumberAnimation { target: panel; property: "opacity"; duration: 150; easing.type: Easing.OutQuad }
-                        NumberAnimation { target: panel; property: "y";       duration: 150; easing.type: Easing.OutQuad }
-                    }
-                    ScriptAction { script: tray.visible = false }
-                }
-            }
-        ]
     }
 }

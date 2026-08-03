@@ -239,35 +239,24 @@ Singleton {
         _disengageLock()
     }
 
-    // Idle dimming (hardware backlight). Reads the current raw value, saves
-    // it, then sets a fraction of it; restores the exact value on activity.
-    Process {
-        id: readBrightness
-        command: ["cat", "/sys/class/backlight/" + Theme.backlightDevice + "/brightness"]
-        stdout: SplitParser {
-            onRead: data => {
-                const cur = parseInt(data)
-                // user may have already un-dimmed before this async read landed
-                if (!root._dimmed || isNaN(cur) || cur <= 0) return
-                root._savedBrightness = cur
-                const target = Math.max(1, Math.round(cur * Theme.idleDimFraction))
-                Quickshell.execDetached(Theme.brightnessCmd(String(target)))
-                root._persist()
-            }
-        }
-    }
-
+    // Idle dimming (hardware backlight). Saves the current raw level, then sets
+    // a fraction of it; restores the exact value on activity. The level comes
+    // from the daemon's inotify watch, so it is already current.
     function dim() {
         if (root._dimmed) return
+        const cur = Backend.backlight.brightness
+        if (cur <= 0) return              // no device, or the daemon is down
         root._dimmed = true
-        readBrightness.running = true     // read -> save -> set (async)
+        root._savedBrightness = cur
+        Backend.setBrightness(Math.max(1, Math.round(cur * Theme.idleDimFraction)))
+        root._persist()
     }
 
     function undim() {
         if (!root._dimmed) return
         root._dimmed = false
         if (root._savedBrightness > 0) {
-            Quickshell.execDetached(Theme.brightnessCmd(String(root._savedBrightness)))
+            Backend.setBrightness(root._savedBrightness)
         }
         root._savedBrightness = -1
         root._persist()
@@ -320,47 +309,49 @@ Singleton {
         }
     }
 
-    // logind D-Bus listener. Two reasons to lock:
-    //   * Session.Lock     -> `loginctl lock-session`, the control-center Lock
-    //                         button, and desktop "lock" actions.
-    //   * PrepareForSleep(true) -> logind broadcasts this right before the
-    //                         system suspends/hibernates, so we lock on the way
-    //                         into sleep. Replaces hypridle's before_sleep_cmd;
-    //                         no systemd unit needed.
-    // We monitor the whole login1 destination because Session.Lock is emitted
-    // on the concrete session path (not the /session/auto alias) and
-    // PrepareForSleep is emitted on the Manager.
-    Process {
-        id: logindMonitor
-        running: true
-        command: ["gdbus", "monitor", "--system", "--dest", "org.freedesktop.login1"]
-        stdout: SplitParser {
-            onRead: line => {
-                if (line.includes("Session.Lock "))
-                    root.engageLock()
-                else if (line.includes("PrepareForSleep") && line.includes("true"))
-                    root.engageLock()
-                else if (line.includes("PrepareForSleep") && line.includes("false")) {
-                    // resume from suspend: wake the screens (replaces hypridle's
-                    // after_sleep_cmd) and, if still locked, restart the blank
-                    // countdown rather than leaving them off.
-                    root._dpmsForceOn()
-                    if (root.locked) {
-                        dpmsTimer.restart()
-                        // The fprintd verify that was live before suspend gets torn
-                        // down across the sleep without a clean onCompleted/onError,
-                        // leaving the device claimed but not listening. Both our own
-                        // context and other PAM clients (sudo/hyprlock) then see
-                        // "device already in use". Re-arm a fresh verify so the claim
-                        // is valid again (and releases cleanly on unlock).
-                        root._restartFingerprint()
-                        // don't re-arm gaze here: starting a face scan during
-                        // fprintd's fragile post-resume re-claim wedges the
-                        // reader. The IdleMonitor wake path below re-opens the
-                        // gaze window on the first activity after resume.
-                    }
-                }
+    // logind events, brokered by the fenrizd `logind` service. Three reasons to act:
+    //   * lock   -> `loginctl lock-session`, the control-center Lock button, and
+    //               desktop "lock" actions.
+    //   * sleep  -> emitted just before the system suspends/hibernates. The
+    //               daemon holds a logind delay inhibitor until engageLock()
+    //               reports back, so the lock surface is up before we sleep.
+    //   * resume -> wake the screens and re-arm what the suspend tore down.
+    Connections {
+        target: Backend
+
+        function onServiceEvent(service, data) {
+            if (service !== "logind")
+                return
+
+            if (data.event === "lock") {
+                root.engageLock()
+                return
             }
+            if (data.event === "sleep") {
+                root.engageLock()   // no-op when already locked
+                // Report back regardless: the daemon is holding the suspend on
+                // this, and an already-locked session is just as ready to sleep.
+                Backend.command("logind", "locked", {})
+                return
+            }
+            if (data.event !== "resume")
+                return
+
+            root._dpmsForceOn()
+            if (!root.locked)
+                return
+            dpmsTimer.restart()
+            // The fprintd verify that was live before suspend gets torn down
+            // across the sleep without a clean onCompleted/onError, leaving the
+            // device claimed but not listening. Both our own context and other
+            // PAM clients (sudo/hyprlock) then see "device already in use".
+            // Re-arm a fresh verify so the claim is valid again (and releases
+            // cleanly on unlock).
+            root._restartFingerprint()
+            // don't re-arm gaze here: starting a face scan during fprintd's
+            // fragile post-resume re-claim wedges the reader. The IdleMonitor
+            // wake path above re-opens the gaze window on the first activity
+            // after resume.
         }
     }
 
@@ -389,7 +380,7 @@ Singleton {
         if (!s) return
         // undo a dim that was in effect when we were reloaded
         if (s.dimmed && s.savedBrightness > 0) {
-            Quickshell.execDetached(Theme.brightnessCmd(String(s.savedBrightness)))
+            Backend.setBrightness(s.savedBrightness)
             root._dimmed = false
             root._savedBrightness = -1
         }

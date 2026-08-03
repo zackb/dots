@@ -2,6 +2,7 @@
 import Quickshell
 import Quickshell.Wayland
 import QtQuick
+import qs.components
 import qs.theme
 import qs.lock
 import qs.compositor
@@ -146,30 +147,15 @@ PanelWindow {
     }
 
     // main panel
-    Rectangle {
+    PopupPanel {
         id: panel
         width:  root.menuWidth
         height: mainCol.implicitHeight + 12
         x: Math.min(Math.max(root.anchorX, 10), root.screenW - width  - 10)
         y: Math.min(Math.max(root.anchorY, 10), root.screenH - height - 10)
-        color:  Theme.popupBg
-        radius: Theme.radius
-        border.color: Theme.popupBorder
-        border.width: 1
-
-        transform: Translate { id: slide; y: root.isOpen ? 0 : 8 }
-
-        Rectangle {
-            anchors.fill: parent
-            anchors.margins: -1
-            color: "transparent"
-            border.color: Qt.rgba(0, 0, 0, 0.4)
-            border.width: 1
-            radius: Theme.radius + 1
-            z: -1
-        }
-
-        MouseArea { anchors.fill: parent }   // swallow clicks on the panel
+        surface: root
+        open: root.isOpen
+        slideY: 8
 
         Column {
             id: mainCol
@@ -181,36 +167,6 @@ PanelWindow {
                 delegate: menuRowComp
             }
         }
-
-        states: [
-            State {
-                name: "open"; when: root.isOpen
-                PropertyChanges { target: panel; opacity: 1.0 }
-            },
-            State {
-                name: "closed"; when: !root.isOpen
-                PropertyChanges { target: panel; opacity: 0.0 }
-            }
-        ]
-        transitions: [
-            Transition {
-                from: "closed"; to: "open"
-                SequentialAnimation {
-                    ScriptAction { script: root.visible = true }
-                    ParallelAnimation {
-                        NumberAnimation { target: panel; property: "opacity"; duration: 160; easing.type: Easing.OutQuad }
-                        NumberAnimation { target: slide; property: "y";       duration: 160; easing.type: Easing.OutQuad }
-                    }
-                }
-            },
-            Transition {
-                from: "open"; to: "closed"
-                SequentialAnimation {
-                    NumberAnimation { target: panel; property: "opacity"; duration: 130; easing.type: Easing.OutQuad }
-                    ScriptAction { script: root.visible = false }
-                }
-            }
-        ]
     }
 
     // flyout (submenu)

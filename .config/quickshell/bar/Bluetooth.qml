@@ -17,25 +17,11 @@ Capsule {
         return vals.length ? Math.min(...vals) : -1
     }
 
-    contentItem: Row {
-        id:              row
-        spacing:         4
-
-        Text {
-            anchors.verticalCenter: parent.verticalCenter
-            text:           "󰂯"
-            color:          Theme.textColor
-            font.pixelSize: Theme.fontSize
-            font.family:    Theme.nerdFont
-        }
-
-        Text {
-            anchors.verticalCenter: parent.verticalCenter
-            visible:        bluetoothButton.airpodsPct >= 0
-            text:           bluetoothButton.airpodsPct + "%"
-            color:          Theme.textColor
-            font.pixelSize: Theme.font_size_sm
-        }
+    contentItem: IconLabel {
+        glyph:     "󰂯"
+        label:     bluetoothButton.airpodsPct + "%"
+        showLabel: bluetoothButton.airpodsPct >= 0
+        labelSize: Theme.font_size_sm
     }
 
     TapHandler {

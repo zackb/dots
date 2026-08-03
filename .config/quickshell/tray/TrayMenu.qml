@@ -3,6 +3,7 @@
 import Quickshell
 import Quickshell.Wayland
 import QtQuick
+import qs.components
 import qs.theme
 
 PanelWindow {
@@ -60,29 +61,15 @@ PanelWindow {
         z: -1
     }
 
-    Rectangle {
+    PopupPanel {
         id: panel
         x: root.targetX
         y: root.openY
         width:  root.menuWidth
         height: col.implicitHeight + 12
-        color:  Theme.popupBg
-        radius: Theme.radius
-        border.color: Theme.popupBorder
-        border.width: 1
-
-        Rectangle {
-            anchors.fill: parent
-            anchors.margins: -1
-            color: "transparent"
-            border.color: Qt.rgba(0, 0, 0, 0.4)
-            border.width: 1
-            radius: Theme.radius + 1
-            z: -1
-        }
-
-        // Swallow clicks on the panel itself so the backdrop doesn't close it.
-        MouseArea { anchors.fill: parent }
+        surface: root
+        open: root.isOpen
+        slideY: 10      // rises into place: it sits above the tray item
 
         Column {
             id: col
@@ -100,38 +87,6 @@ PanelWindow {
             }
         }
 
-        states: [
-            State {
-                name: "open"; when: root.isOpen
-                PropertyChanges { target: panel; opacity: 1.0; y: root.openY }
-            },
-            State {
-                name: "closed"; when: !root.isOpen
-                PropertyChanges { target: panel; opacity: 0.0; y: root.openY + 10 }
-            }
-        ]
-        transitions: [
-            Transition {
-                from: "closed"; to: "open"
-                SequentialAnimation {
-                    ScriptAction { script: root.visible = true }
-                    ParallelAnimation {
-                        NumberAnimation { target: panel; property: "opacity"; duration: 180; easing.type: Easing.OutQuad }
-                        NumberAnimation { target: panel; property: "y";       duration: 180; easing.type: Easing.OutQuad }
-                    }
-                }
-            },
-            Transition {
-                from: "open"; to: "closed"
-                SequentialAnimation {
-                    ParallelAnimation {
-                        NumberAnimation { target: panel; property: "opacity"; duration: 150; easing.type: Easing.OutQuad }
-                        NumberAnimation { target: panel; property: "y";       duration: 150; easing.type: Easing.OutQuad }
-                    }
-                    ScriptAction { script: root.visible = false }
-                }
-            }
-        ]
     }
 
     // Recursive menu entry: a row plus its inline-expanded submenu.

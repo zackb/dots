@@ -27,26 +27,10 @@ Capsule {
         return                    "󰤨"  // excellent
     }
 
-    contentItem: Row {
-        id:               row
-        spacing:          4
-
-        Text {
-            anchors.verticalCenter: parent.verticalCenter
-            text:           wifiIcon()
-            color:          Theme.textColor
-            font.pixelSize: Theme.fontSize
-            font.family:    Theme.nerdFont
-        }
-
-        Text {
-            visible: clicked && root.ssid !== ""
-            anchors.verticalCenter: parent.verticalCenter
-            text:           root.ssid
-            color:          Qt.alpha(Theme.textColor, 0.8)
-            font.pixelSize: Theme.fontSize
-            font.family:    Theme.font
-        }
+    contentItem: IconLabel {
+        glyph:     root.wifiIcon()
+        label:     root.ssid
+        showLabel: root.clicked && root.ssid !== ""
     }
 
     TapHandler {

@@ -22,9 +22,9 @@ import (
 	"fenriz/internal/clipboard"
 	"fenriz/internal/contacts"
 	"fenriz/internal/log"
+	"fenriz/internal/logind"
 	"fenriz/internal/mlb"
 	"fenriz/internal/network"
-	"fenriz/internal/power"
 	"fenriz/internal/proto"
 	"fenriz/internal/screensaver"
 	"fenriz/internal/service"
@@ -55,7 +55,12 @@ func main() {
 
 	writer := proto.NewWriter(os.Stdout)
 
+	// logind is first: it holds the suspend delay inhibitor, so it should be
+	// live before anything slower can stall startup.
+	logindSvc := logind.New()
+
 	services := []service.Service{
+		logindSvc,
 		screensaver.New(),
 		mlb.New(),
 		network.New(),
@@ -86,16 +91,14 @@ func main() {
 		log.Infof("service %q started", name)
 	}
 
-	// One shared logind watcher fans resume-from-suspend out to the services
-	// that care. Best-effort: a missing system bus just means no resume nudge.
+	// The logind service already watches PrepareForSleep for the lock screen;
+	// it fans resume out to the services whose poll timers froze while asleep.
 	if len(resumers) > 0 {
-		if err := power.Watch(ctx, func() {
+		logindSvc.SetResumeHook(func() {
 			for _, r := range resumers {
 				r.OnResume()
 			}
-		}); err != nil {
-			log.Warnf("power: resume watch unavailable: %v", err)
-		}
+		})
 	}
 
 	// Read stdin for commands and for EOF: when the shell exits it closes our
