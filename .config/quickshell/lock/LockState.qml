@@ -46,8 +46,7 @@ Singleton {
         LockSurface {}
     }
 
-    // Locking
-    function engageLock() {
+    function engageLock(startAuth) {
         if (root._wantLocked) return
 
         // reset all auth state up front -- do not depend on lock notify signals
@@ -59,12 +58,14 @@ Singleton {
 
         root._wantLocked = true       // engages the WlSessionLock + surfaces
 
-        // start listening for a finger immediately; the password field drives
-        // the password context on submit.
-        const ok = fingerprintCtx.start()
-        console.log("lock engaged; fingerprintCtx.start ->", ok)
+        if (startAuth !== false) {
+            // start listening for a finger immediately; the password field drives
+            // the password context on submit.
+            const ok = fingerprintCtx.start()
+            console.log("lock engaged; fingerprintCtx.start ->", ok)
 
-        _startGazeWindow()            // open a bounded face-scan window
+            _startGazeWindow()        // open a bounded face-scan window
+        }
 
         dpmsTimer.restart()           // blank screens dpmsAfterLock later
         _persist()
@@ -154,14 +155,25 @@ Singleton {
         onTriggered: if (!root._unlocking && root.locked) fingerprintCtx.start()
     }
 
-    // Drop a possibly-stale fprintd claim and re-arm a fresh verify. Used on
-    // resume from suspend, where the in-flight verify is torn down without a
-    // clean completion and the device is left wedged ("already in use").
+    // Drop any claim we still hold and re-arm a fresh verify, used on resume. The reader
+    // is normally released before the sleep (_suspendAuth); the abort stays as a safety
+    // net for a suspend that delivered no sleep event -- a daemon that was down, or an
+    // inhibitor that timed out.
     function _restartFingerprint() {
         if (root._unlocking || !root.locked) return
         fpRestart.stop()
-        fingerprintCtx.abort()      // release the stale claim
+        fingerprintCtx.abort()
         fpRestart.restart()         // 500ms later: start() a fresh verify
+    }
+
+    // Release both readers before the machine suspends
+    function _suspendAuth() {
+        fpRestart.stop()
+        fingerprintCtx.abort()
+        _stopGaze()
+        passwordCtx.abort()
+        root.busy = false
+        root._pendingPassword = ""
     }
 
     // Gaze (face) auth via pam_gaze -> service "quickshell-gaze". Like the
@@ -312,10 +324,10 @@ Singleton {
     // logind events, brokered by the fenrizd `logind` service. Three reasons to act:
     //   * lock   -> `loginctl lock-session`, the control-center Lock button, and
     //               desktop "lock" actions.
-    //   * sleep  -> emitted just before the system suspends/hibernates. The
-    //               daemon holds a logind delay inhibitor until engageLock()
-    //               reports back, so the lock surface is up before we sleep.
-    //   * resume -> wake the screens and re-arm what the suspend tore down.
+    //   * sleep  -> emitted just before the system suspends/hibernates. The daemon
+    //               holds a logind delay inhibitor until we report back, so the lock
+    //               surface is up -- and the readers released -- before we sleep.
+    //   * resume -> wake the screens and re-arm what the sleep released.
     Connections {
         target: Backend
 
@@ -328,7 +340,9 @@ Singleton {
                 return
             }
             if (data.event === "sleep") {
-                root.engageLock()   // no-op when already locked
+                root.engageLock(false)   // no-op when already locked
+                root._suspendAuth()      // covers the already-locked case, where the
+                                         // readers have been running since the lock
                 // Report back regardless: the daemon is holding the suspend on
                 // this, and an already-locked session is just as ready to sleep.
                 Backend.command("logind", "locked", {})
@@ -341,12 +355,7 @@ Singleton {
             if (!root.locked)
                 return
             dpmsTimer.restart()
-            // The fprintd verify that was live before suspend gets torn down
-            // across the sleep without a clean onCompleted/onError, leaving the
-            // device claimed but not listening. Both our own context and other
-            // PAM clients (sudo/hyprlock) then see "device already in use".
-            // Re-arm a fresh verify so the claim is valid again (and releases
-            // cleanly on unlock).
+            // The sleep path leaves no reader armed, so put a fresh verify back.
             root._restartFingerprint()
             // don't re-arm gaze here: starting a face scan during fprintd's
             // fragile post-resume re-claim wedges the reader. The IdleMonitor
