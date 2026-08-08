@@ -1,0 +1,5 @@
+# git
+alias ghhowold="gh repo view $1 --json createdAt --jq '.createdAt'"
+
+# k8s
+alias k=kubectl
