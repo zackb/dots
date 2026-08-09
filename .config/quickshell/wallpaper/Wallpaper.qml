@@ -114,6 +114,8 @@ Item {
                     aActive = !aActive          // incoming buffer is now the shown one
                     progress = 0
                     animating = false
+                    var outgoing = aActive ? bImg : aImg
+                    outgoing.source = ""
                 }
 
                 onSourceChanged: swap(source)
@@ -129,6 +131,10 @@ Item {
                     onFinished: win.endAnim()
                 }
 
+                readonly property int coverHeight: win.screen
+                    ? Math.round(win.screen.height * win.screen.devicePixelRatio)
+                    : 0
+
                 component WallImage: Image {
                     anchors.fill:  parent
                     visible:       false        // only the ShaderEffect is drawn
@@ -136,6 +142,7 @@ Item {
                     asynchronous:  true
                     cache:         false
                     smooth:        true
+                    sourceSize.height: win.coverHeight
                 }
 
                 WallImage {

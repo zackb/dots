@@ -25,6 +25,10 @@ WlSessionLockSurface {
         cache: true
         smooth: true
         visible: false              // drawn via the MultiEffect below
+
+        sourceSize.height: surface.screen
+            ? Math.round(surface.screen.height * surface.screen.devicePixelRatio)
+            : 0
     }
 
     MultiEffect {
