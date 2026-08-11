@@ -31,7 +31,7 @@ ShellRoot {
         }
     }
 
-    Wallpaper {}
+    // Wallpaper {}
 
     ControlCenter { id: controlCenter }
 
@@ -50,9 +50,9 @@ ShellRoot {
 
     Osd {}
 
-    IdleDaemon {}
+    // IdleDaemon {}
 
-    Polkit {}
+    // Polkit {}
 
     Launcher {}
     Dock {}
