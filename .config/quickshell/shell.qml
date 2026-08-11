@@ -14,6 +14,7 @@ import qs.osd
 import qs.wallpaper
 import qs.lock
 import qs.polkit
+import qs.theme
 
 ShellRoot {
 
@@ -28,6 +29,10 @@ ShellRoot {
 
         function reload() {
             Quickshell.reload(false)
+        }
+
+        function reloadColors() {
+            Theme.reloadColors()
         }
     }
 
