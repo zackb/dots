@@ -114,7 +114,12 @@ PanelWindow {
         model.push({ kind: "action", label: "Change Wallpaper…", glyph: "wallpaper",
             activate: function() { Quickshell.execDetached([Theme.wallpaperPicker]) } })
         model.push({ kind: "action", label: "Lock", glyph: "lock",
-            activate: function() { LockState.engageLock() } })
+            activate: function() {
+                if (Theme.idleLockEnabled)
+                    LockState.engageLock()
+                else
+                    Quickshell.execDetached(["loginctl", "lock-session"])
+            } })
         model.push({ kind: "submenu", label: "Power", glyph: "power_settings_new", children: [
             { kind: "action", inFlyout: true, label: "Sleep",     glyph: "bedtime",            activate: function() { Quickshell.execDetached(["systemctl", "suspend"]) } },
             { kind: "action", inFlyout: true, label: "Hibernate", glyph: "mode_standby",       activate: function() { Quickshell.execDetached(["systemctl", "hibernate"]) } },

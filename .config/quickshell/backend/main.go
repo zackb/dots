@@ -11,8 +11,10 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"flag"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -41,6 +43,17 @@ func main() {
 			os.Exit(1)
 		}
 		return
+	}
+
+	// Services the shell should disable
+	disable := flag.String("disable", "", "comma-separated service names to skip")
+	flag.Parse()
+
+	disabled := map[string]bool{}
+	for _, name := range strings.Split(*disable, ",") {
+		if name = strings.TrimSpace(name); name != "" {
+			disabled[name] = true
+		}
 	}
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
@@ -77,6 +90,10 @@ func main() {
 	var resumers []service.Resumer
 	for _, svc := range services {
 		name := svc.Name()
+		if disabled[name] {
+			log.Infof("service %q disabled", name)
+			continue
+		}
 		emit := func(data any) { writer.Emit(name, data) }
 		if err := svc.Start(ctx, emit); err != nil {
 			log.Warnf("service %q failed to start: %v", name, err)
@@ -93,7 +110,7 @@ func main() {
 
 	// The logind service already watches PrepareForSleep for the lock screen;
 	// it fans resume out to the services whose poll timers froze while asleep.
-	if len(resumers) > 0 {
+	if len(resumers) > 0 && !disabled[logind.Name] {
 		logindSvc.SetResumeHook(func() {
 			for _, r := range resumers {
 				r.OnResume()

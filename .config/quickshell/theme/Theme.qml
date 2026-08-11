@@ -31,6 +31,16 @@ Singleton {
         return name.startsWith("/") ? "file://" + name : "image://icon/" + name
     }
 
+    // Can disable serviecs here
+    readonly property bool idleLockEnabled:  false  // idle monitors, lock screen, DPMS
+    readonly property bool polkitEnabled:    false  // polkit agent
+    readonly property bool wallpaperEnabled: false  // wallpaper + desktop context menu
+
+    // fenrizd services owned by a disabled feature; passed to the daemon as -disable.
+    // screensaver: both would claim org.freedesktop.ScreenSaver.
+    // logind: its suspend inhibitor waits on a lock confirmation LockState won't send.
+    readonly property var disabledServices: idleLockEnabled ? [] : ["screensaver", "logind"]
+
     // idle / lock
     // timeouts are in seconds
     readonly property int    idleDimTimeout:       120    // dim the screen after 2 min idle

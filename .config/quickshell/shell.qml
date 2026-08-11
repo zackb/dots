@@ -36,7 +36,7 @@ ShellRoot {
         }
     }
 
-    // Wallpaper {}
+    LazyLoader { active: Theme.wallpaperEnabled; component: Component { Wallpaper {} } }
 
     ControlCenter { id: controlCenter }
 
@@ -55,9 +55,9 @@ ShellRoot {
 
     Osd {}
 
-    // IdleDaemon {}
+    LazyLoader { active: Theme.idleLockEnabled; component: Component { IdleDaemon {} } }
 
-    // Polkit {}
+    LazyLoader { active: Theme.polkitEnabled;   component: Component { Polkit {} } }
 
     Launcher {}
     Dock {}

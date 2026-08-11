@@ -74,7 +74,10 @@ Singleton {
     Process {
         id: daemon
         running: true
-        command: [Quickshell.shellPath("backend/fenrizd")]
+        command: [Quickshell.shellPath("backend/fenrizd")].concat(
+            Theme.disabledServices.length > 0
+                ? ["-disable", Theme.disabledServices.join(",")]
+                : [])
         stdinEnabled: true
 
         stdout: SplitParser {
