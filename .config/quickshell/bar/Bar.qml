@@ -127,7 +127,11 @@ PanelWindow {
             Row {
                 spacing: 12
                 Idle {}
-                Notifications {}
+                Loader {
+                    active:  Theme.notificationsEnabled
+                    visible: active
+                    sourceComponent: Component { Notifications {} }
+                }
                 Power { ccRef: root.controlCenterRef }
             }
         }

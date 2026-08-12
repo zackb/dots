@@ -35,6 +35,8 @@ Singleton {
     readonly property bool idleLockEnabled:  false  // idle monitors, lock screen, DPMS
     readonly property bool polkitEnabled:    false  // polkit agent
     readonly property bool wallpaperEnabled: false  // wallpaper + desktop context menu
+    // notification daemon, popups, history tray
+    readonly property bool notificationsEnabled: false
 
     // fenrizd services owned by a disabled feature; passed to the daemon as -disable.
     // screensaver: both would claim org.freedesktop.ScreenSaver.

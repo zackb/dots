@@ -50,8 +50,8 @@ ShellRoot {
     }
 
     BluetoothPopup {}
-    NotifPopup {}
-    NotifTray {}
+    LazyLoader { active: Theme.notificationsEnabled; component: Component { NotifPopup {} } }
+    LazyLoader { active: Theme.notificationsEnabled; component: Component { NotifTray {} } }
 
     Osd {}
 
