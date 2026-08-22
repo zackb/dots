@@ -30,13 +30,19 @@ const Name = "mlb"
 const (
 	defaultTeam = "SEA"
 	scheduleURL = "https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=%s&hydrate=linescore,team"
-	logoURL     = "https://www.mlbstatic.com/team-logos/%d.svg"
-	userAgent   = "Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0"
+	// Both drawer blocks in one request: every division's order plus each
+	// league's wild-card race, already ranked by the API.
+	standingsURL = "https://statsapi.mlb.com/api/v1/standings?leagueId=103,104&standingsTypes=regularSeason,wildCard&hydrate=team"
+	logoURL      = "https://www.mlbstatic.com/team-logos/%d.svg"
+	userAgent    = "Mozilla/5.0 (X11; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0"
 
 	livePoll    = 2 * time.Minute  // refresh cadence while a game is in progress
 	preBuffer   = 10 * time.Minute // wake this long before a scheduled first pitch
 	errRetryMin = 5 * time.Second  // first retry after a fetch failure
 	errRetryMax = 5 * time.Minute  // backoff cap for sustained outages
+
+	standingsTTL  = 15 * time.Minute // standings move at most once per game
+	wildCardSpots = 3                // playoff berths shown in the wild-card block
 )
 
 // Team is one club's line in the scoreboard. Logo is a local file path (or empty if
@@ -46,6 +52,28 @@ type Team struct {
 	Name  string `json:"name"`
 	Score int    `json:"score"`
 	Logo  string `json:"logo"`
+}
+
+// Standing is one club's line in the standings drawer.
+type Standing struct {
+	Rank   string `json:"rank"` // divisionRank, or wildCardRank in the wild-card block
+	Abbr   string `json:"abbr"`
+	Wins   int    `json:"wins"`
+	Losses int    `json:"losses"`
+	Pct    string `json:"pct"`
+	GB     string `json:"gb"`     // gamesBack, or wildCardGamesBack in the wild-card block
+	L10    string `json:"l10"`    // "5-5"
+	Streak string `json:"streak"` // "W1"
+	Me     bool   `json:"me"`     // the configured team, highlighted by the widget
+}
+
+// Standings is the drawer payload: the configured team's division plus the
+// wild-card race. WildCard holds the playoff spots, with the team's own row
+// appended when it's chasing from further back.
+type Standings struct {
+	Division string     `json:"division"` // "AL West"
+	Teams    []Standing `json:"teams"`
+	WildCard []Standing `json:"wildCard"`
 }
 
 // State is the payload emitted to the shell. Active is false (game idle / error)
@@ -58,6 +86,8 @@ type State struct {
 	Stale   bool   `json:"stale"` // last-known data re-shown during a fetch outage
 	Home    Team   `json:"home"`
 	Away    Team   `json:"away"`
+	// nil until the first standings fetch lands; the widget's drawer stays empty.
+	Standings *Standings `json:"standings,omitempty"`
 }
 
 type Service struct {
@@ -67,6 +97,9 @@ type Service struct {
 	emit    service.Emitter
 	last    State         // last good (active) state, replayed across transient outages
 	resume  chan struct{} // poked by OnResume to force a re-poll after suspend
+
+	standings   *Standings // last good standings, refreshed on standingsTTL
+	standingsAt time.Time
 }
 
 func New() *Service {
@@ -156,7 +189,7 @@ func (s *Service) poll(ctx context.Context) (State, time.Duration, error) {
 			Tooltip: fmt.Sprintf("No %s game today", s.team),
 		}, untilNextMorning(now), nil
 	}
-	st, next := s.format(game, now)
+	st, next := s.format(ctx, game, now)
 	return st, next, nil
 }
 
@@ -207,7 +240,8 @@ type apiSide struct {
 	} `json:"team"`
 }
 
-func (s *Service) fetch(ctx context.Context, url string) ([]apiGame, error) {
+// get performs a JSON GET against the Stats API and returns the raw body.
+func (s *Service) get(ctx context.Context, url string) ([]byte, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
@@ -223,7 +257,11 @@ func (s *Service) fetch(ctx context.Context, url string) ([]apiGame, error) {
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("status %s", resp.Status)
 	}
-	body, err := io.ReadAll(resp.Body)
+	return io.ReadAll(resp.Body)
+}
+
+func (s *Service) fetch(ctx context.Context, url string) ([]apiGame, error) {
+	body, err := s.get(ctx, url)
 	if err != nil {
 		return nil, err
 	}
@@ -313,14 +351,15 @@ func rank(g apiGame) int {
 }
 
 // format builds the emitted State and the duration to sleep before the next poll.
-func (s *Service) format(g apiGame, now time.Time) (State, time.Duration) {
+func (s *Service) format(ctx context.Context, g apiGame, now time.Time) (State, time.Duration) {
 	home := s.side(g.Teams.Home)
 	away := s.side(g.Teams.Away)
 
 	st := State{
-		Active: true,
-		Home:   home,
-		Away:   away,
+		Active:    true,
+		Home:      home,
+		Away:      away,
+		Standings: s.standingsFor(ctx),
 		Tooltip: fmt.Sprintf("%s vs %s\nScore: %d – %d\nStatus: %s",
 			home.Name, away.Name, home.Score, away.Score, g.Status.DetailedState),
 	}
@@ -369,6 +408,143 @@ func (s *Service) side(a apiSide) Team {
 		Score: a.Score,
 		Logo:  s.logo(a.Team.ID),
 	}
+}
+
+// Standings
+
+type apiStandings struct {
+	Records []apiStandRecord `json:"records"`
+}
+
+type apiStandRecord struct {
+	StandingsType string          `json:"standingsType"` // regularSeason | wildCard
+	TeamRecords   []apiTeamRecord `json:"teamRecords"`
+}
+
+type apiTeamRecord struct {
+	Team struct {
+		Abbreviation string `json:"abbreviation"`
+		Division     struct {
+			Name string `json:"name"`
+		} `json:"division"`
+	} `json:"team"`
+	DivisionRank      string `json:"divisionRank"`
+	WildCardRank      string `json:"wildCardRank"`
+	GamesBack         string `json:"gamesBack"`
+	WildCardGamesBack string `json:"wildCardGamesBack"`
+	LeagueRecord      struct {
+		Wins   int    `json:"wins"`
+		Losses int    `json:"losses"`
+		Pct    string `json:"pct"`
+	} `json:"leagueRecord"`
+	Streak struct {
+		StreakCode string `json:"streakCode"`
+	} `json:"streak"`
+	Records struct {
+		SplitRecords []struct {
+			Wins   int    `json:"wins"`
+			Losses int    `json:"losses"`
+			Type   string `json:"type"`
+		} `json:"splitRecords"`
+	} `json:"records"`
+}
+
+// standingsFor returns the drawer's standings, refetching only once the cached
+// copy passes standingsTTL. A failure is never fatal -- the score matters more
+// than the drawer, so the last good copy (or nil) is reused.
+func (s *Service) standingsFor(ctx context.Context) *Standings {
+	if s.standings != nil && time.Since(s.standingsAt) < standingsTTL {
+		return s.standings
+	}
+	body, err := s.get(ctx, standingsURL)
+	if err == nil {
+		var data apiStandings
+		err = json.Unmarshal(body, &data)
+		if err == nil {
+			if st := buildStandings(data.Records, s.team); st != nil {
+				s.standings = st
+				s.standingsAt = time.Now()
+			}
+		}
+	}
+	if err != nil {
+		log.Warnf("mlb: standings: %v", err)
+	}
+	return s.standings
+}
+
+// buildStandings picks the drawer's two blocks out of a standings response: the
+// team's division in API order, and the wild-card race trimmed to the playoff
+// spots plus the team itself when it's chasing from further back. Returns nil
+// if the team isn't in the response (off-season, renamed club).
+func buildStandings(recs []apiStandRecord, team string) *Standings {
+	var div *apiStandRecord
+	for i := range recs {
+		if recs[i].StandingsType == "regularSeason" && hasTeam(recs[i], team) {
+			div = &recs[i]
+			break
+		}
+	}
+	if div == nil || len(div.TeamRecords) == 0 {
+		return nil
+	}
+
+	out := &Standings{Division: shortDivision(div.TeamRecords[0].Team.Division.Name)}
+	for _, tr := range div.TeamRecords {
+		out.Teams = append(out.Teams, standingRow(tr, tr.DivisionRank, tr.GamesBack, team))
+	}
+
+	for i := range recs {
+		if recs[i].StandingsType != "wildCard" || !hasTeam(recs[i], team) {
+			continue
+		}
+		for _, tr := range recs[i].TeamRecords {
+			r := standingRow(tr, tr.WildCardRank, tr.WildCardGamesBack, team)
+			if len(out.WildCard) < wildCardSpots || r.Me {
+				out.WildCard = append(out.WildCard, r)
+			}
+		}
+		break
+	}
+	return out
+}
+
+func hasTeam(r apiStandRecord, team string) bool {
+	for _, tr := range r.TeamRecords {
+		if tr.Team.Abbreviation == team {
+			return true
+		}
+	}
+	return false
+}
+
+func standingRow(tr apiTeamRecord, rank, gb, team string) Standing {
+	return Standing{
+		Rank:   rank,
+		Abbr:   tr.Team.Abbreviation,
+		Wins:   tr.LeagueRecord.Wins,
+		Losses: tr.LeagueRecord.Losses,
+		Pct:    tr.LeagueRecord.Pct,
+		GB:     gb,
+		L10:    lastTen(tr),
+		Streak: tr.Streak.StreakCode,
+		Me:     tr.Team.Abbreviation == team,
+	}
+}
+
+func lastTen(tr apiTeamRecord) string {
+	for _, sr := range tr.Records.SplitRecords {
+		if sr.Type == "lastTen" {
+			return fmt.Sprintf("%d-%d", sr.Wins, sr.Losses)
+		}
+	}
+	return ""
+}
+
+// shortDivision trims "American League West" to "AL West".
+func shortDivision(name string) string {
+	name = strings.Replace(name, "American League", "AL", 1)
+	return strings.Replace(name, "National League", "NL", 1)
 }
 
 // Logos
