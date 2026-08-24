@@ -1,5 +1,16 @@
 # git
 alias ghhowold="gh repo view $1 --json createdAt --jq '.createdAt'"
+alias ghstars="gh api users/$(id -un)/repos --paginate |
+  jq -r -s '
+    add |
+    sort_by(-.stargazers_count) |
+    {
+      total_stars: (map(.stargazers_count) | add),
+      repos: .[:10]
+    } |
+    \"Total stars: \(.total_stars)\n\" +
+    (.repos[] | \"\(.stargazers_count)\t\(.full_name)\")
+  '"
 
 # k8s
 alias k=kubectl
