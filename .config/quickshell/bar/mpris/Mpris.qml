@@ -20,7 +20,8 @@ Capsule {
         const list = Mpris.players ? Mpris.players.values : []
         let fallback = null
         for (const p of list) {
-            if (!p) continue
+            // playerctld is a proxy that mirrors other players and lingers with none
+            if (!p || p.dbusName.endsWith(".playerctld")) continue
             if (!fallback) fallback = p
             if (p.isPlaying) return p
         }

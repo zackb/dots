@@ -41,7 +41,7 @@ Singleton {
     // fenrizd services owned by a disabled feature; passed to the daemon as -disable.
     // screensaver: both would claim org.freedesktop.ScreenSaver.
     // logind: its suspend inhibitor waits on a lock confirmation LockState won't send.
-    readonly property var disabledServices: idleLockEnabled ? [] : ["screensaver", "logind"]
+    readonly property var disabledServices: idleLockEnabled ? [] : ["screensaver", "logind", "airpods"]
 
     // idle / lock
     // timeouts are in seconds
